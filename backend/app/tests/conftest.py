@@ -6,7 +6,6 @@ from typing import Any
 
 import pytest
 import pytest_asyncio
-from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from redis.asyncio import Redis  # type: ignore[import-untyped]
 from sqlalchemy import text
@@ -224,16 +223,18 @@ async def redis_client() -> AsyncGenerator["Redis[Any]", None]:
 # ================================
 
 
-@pytest.fixture
-def client() -> Generator[TestClient, None, None]:
+@pytest_asyncio.fixture
+async def client(async_client: AsyncClient) -> AsyncClient:
     """
-    Create synchronous test client.
+    Create non-authenticated async test client.
 
     Scope: function - new client for each test
-    Use for simple tests that don't need async
+    Use for testing unauthorized access (401 responses)
     """
-    with TestClient(app) as test_client:
-        yield test_client
+    # Remove any auth headers if present
+    if "Authorization" in async_client.headers:
+        del async_client.headers["Authorization"]
+    return async_client
 
 
 @pytest_asyncio.fixture
@@ -1030,6 +1031,251 @@ async def superadmin_user(db_session: AsyncSession) -> Any:
     user.role_name = "super_admin"  # type: ignore[attr-defined]
 
     return user
+
+
+# ================================
+# NPO Member & Invitation Fixtures
+# ================================
+
+
+@pytest_asyncio.fixture
+async def test_staff_member(db_session: AsyncSession, test_npo: Any, test_staff_user: Any) -> Any:
+    """
+    Create a staff member in the test NPO.
+
+    Returns an NPOMember instance with STAFF role.
+    """
+    from app.models.npo_member import MemberRole, MemberStatus, NPOMember
+
+    member = NPOMember(
+        npo_id=test_npo.id,
+        user_id=test_staff_user.id,
+        role=MemberRole.STAFF,
+        status=MemberStatus.ACTIVE,
+    )
+    db_session.add(member)
+    await db_session.commit()
+    await db_session.refresh(member)
+
+    return member
+
+
+@pytest_asyncio.fixture
+async def authenticated_staff_client(
+    async_client: AsyncClient, test_staff_user: Any, test_staff_member: Any
+) -> AsyncClient:
+    """
+    Create an authenticated async client for staff user.
+
+    Returns AsyncClient with valid auth token in headers.
+    """
+    # Login to get token
+    login_data = {"email": test_staff_user.email, "password": "TestPass123"}
+    response = await async_client.post("/api/v1/auth/login", json=login_data)
+    assert response.status_code == 200
+    token_data = response.json()
+    access_token = token_data["access_token"]
+
+    # Set auth header for subsequent requests
+    async_client.headers["Authorization"] = f"Bearer {access_token}"
+
+    return async_client
+
+
+@pytest_asyncio.fixture
+async def test_npo_other_user(db_session: AsyncSession, test_user_2: Any) -> Any:
+    """
+    Create an NPO owned by test_user_2 for cross-NPO permission testing.
+
+    Returns NPO owned by test_user_2 (different from test_npo).
+    """
+    from app.models.npo import NPO, NPOStatus
+    from app.models.npo_member import MemberRole, MemberStatus, NPOMember
+
+    # Create NPO for test_user_2
+    npo = NPO(
+        name="Other User NPO",
+        mission_statement="NPO for cross-NPO permission testing",
+        description="Used for testing that users can't access other NPOs",
+        tax_id="98-7654321",
+        email="otheruser@example.com",  # Email is required
+        status=NPOStatus.APPROVED,
+        created_by_user_id=test_user_2.id,
+    )
+    db_session.add(npo)
+    await db_session.commit()
+    await db_session.refresh(npo)
+
+    # Create admin member for test_user_2
+    member = NPOMember(
+        npo_id=npo.id,
+        user_id=test_user_2.id,
+        role=MemberRole.ADMIN,
+        status=MemberStatus.ACTIVE,
+    )
+    db_session.add(member)
+    await db_session.commit()
+
+    return npo
+
+
+@pytest_asyncio.fixture
+async def authenticated_client_other_user(
+    async_client: AsyncClient, test_user_2: Any, test_npo_other_user: Any
+) -> AsyncClient:
+    """
+    Create an authenticated async client for a different user.
+
+    Returns AsyncClient with valid auth token for test_user_2 who is admin of test_npo_other_user.
+    """
+    # Login to get token
+    login_data = {"email": test_user_2.email, "password": "TestPass123"}
+    response = await async_client.post("/api/v1/auth/login", json=login_data)
+    assert response.status_code == 200
+    token_data = response.json()
+    access_token = token_data["access_token"]
+
+    # Set auth header for subsequent requests
+    async_client.headers["Authorization"] = f"Bearer {access_token}"
+
+    return async_client
+
+
+@pytest_asyncio.fixture
+async def test_invitation_token(db_session: AsyncSession, test_npo: Any) -> str:
+    """
+    Create a valid invitation token for testing.
+
+    Returns invitation ID as token string for acceptance.
+    """
+    from datetime import datetime, timedelta
+
+    from app.models.invitation import Invitation, InvitationStatus
+
+    # Create invitation
+    invitation = Invitation(
+        npo_id=test_npo.id,
+        email="invited@example.com",
+        role="staff",
+        status=InvitationStatus.PENDING,
+        expires_at=datetime.now(datetime.UTC) + timedelta(days=7),
+    )
+    db_session.add(invitation)
+    await db_session.commit()
+    await db_session.refresh(invitation)
+
+    return str(invitation.id)
+
+
+@pytest_asyncio.fixture
+async def test_expired_invitation_token(db_session: AsyncSession, test_npo: Any) -> str:
+    """
+    Create an expired invitation token for testing.
+
+    Returns invitation ID as token string for expired invitation.
+    """
+    from datetime import datetime, timedelta
+
+    from app.models.invitation import Invitation, InvitationStatus
+
+    # Create expired invitation
+    invitation = Invitation(
+        npo_id=test_npo.id,
+        email="expired@example.com",
+        role="staff",
+        status=InvitationStatus.PENDING,
+        expires_at=datetime.now(datetime.UTC) - timedelta(days=1),
+    )
+    db_session.add(invitation)
+    await db_session.commit()
+    await db_session.refresh(invitation)
+
+    return str(invitation.id)
+
+
+@pytest_asyncio.fixture
+async def test_accepted_invitation_token(db_session: AsyncSession, test_npo: Any) -> str:
+    """
+    Create an accepted invitation token for testing.
+
+    Returns invitation ID as token string for already accepted invitation.
+    """
+    from datetime import datetime, timedelta
+
+    from app.models.invitation import Invitation, InvitationStatus
+
+    # Create accepted invitation
+    invitation = Invitation(
+        npo_id=test_npo.id,
+        email="accepted@example.com",
+        role="staff",
+        status=InvitationStatus.ACCEPTED,
+        expires_at=datetime.now(datetime.UTC) + timedelta(days=7),
+    )
+    db_session.add(invitation)
+    await db_session.commit()
+    await db_session.refresh(invitation)
+
+    return str(invitation.id)
+
+
+@pytest_asyncio.fixture
+async def test_revoked_invitation_token(db_session: AsyncSession, test_npo: Any) -> str:
+    """
+    Create a revoked invitation token for testing.
+
+    Returns invitation ID as token string for revoked invitation.
+    """
+    from datetime import datetime, timedelta
+
+    from app.models.invitation import Invitation, InvitationStatus
+
+    # Create revoked invitation
+    invitation = Invitation(
+        npo_id=test_npo.id,
+        email="revoked@example.com",
+        role="staff",
+        status=InvitationStatus.REVOKED,
+        expires_at=datetime.now(datetime.UTC) + timedelta(days=7),
+    )
+    db_session.add(invitation)
+    await db_session.commit()
+    await db_session.refresh(invitation)
+
+    return str(invitation.id)
+
+
+@pytest_asyncio.fixture
+async def test_invitation_token_existing_member(
+    db_session: AsyncSession, test_npo: Any, test_user: Any
+) -> str:
+    """
+    Create an invitation for a user who is already a member.
+
+    Returns invitation ID as token string for invitation to existing member.
+    """
+    from datetime import datetime, timedelta
+
+    from app.models.invitation import Invitation, InvitationStatus
+
+    # Create invitation for existing member's email
+    invitation = Invitation(
+        npo_id=test_npo.id,
+        email=test_user.email,  # User who is already a member
+        role="staff",
+        status=InvitationStatus.PENDING,
+        expires_at=datetime.now(datetime.UTC) + timedelta(days=7),
+    )
+    db_session.add(invitation)
+    await db_session.commit()
+    await db_session.refresh(invitation)
+
+    return str(invitation.id)
+
+
+# ================================
+# Mock Azure Storage Fixture
+# ================================
 
 
 @pytest.fixture(autouse=True)
