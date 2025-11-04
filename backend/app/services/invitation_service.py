@@ -18,9 +18,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import create_invitation_token, decode_token, hash_password
 from app.models.invitation import Invitation, InvitationStatus
+from app.models.npo import NPO
 from app.models.npo_member import MemberRole, MemberStatus, NPOMember
 from app.models.user import User
 from app.services.audit_service import AuditService
+from app.services.email_service import EmailSendError, get_email_service
 
 
 class InvitationService:
@@ -114,8 +116,37 @@ class InvitationService:
         # Store token on invitation object for API response (not persisted)
         invitation.token = token  # type: ignore[attr-defined]
 
-        # Note: Audit logging for invitation_created will be added when email service integration is complete
-        # await AuditService.log_npo_invitation_created(...)
+        # Send invitation email
+        email_service = get_email_service()
+        try:
+            # Get NPO and inviter details for email
+            npo_stmt = select(NPO).where(NPO.id == npo_id)
+            npo_result = await db.execute(npo_stmt)
+            npo = npo_result.scalar_one()
+
+            inviter_stmt = select(User).where(User.id == invited_by_user_id)
+            inviter_result = await db.execute(inviter_stmt)
+            inviter = inviter_result.scalar_one()
+
+            inviter_name = f"{inviter.first_name} {inviter.last_name}" if inviter.first_name else None
+
+            await email_service.send_npo_member_invitation_email(
+                to_email=email,
+                invitation_token=token,
+                npo_name=npo.name,
+                role=role,
+                invited_by_name=inviter_name,
+            )
+        except EmailSendError as e:
+            # Log error but don't fail the invitation creation
+            # The invitation still exists and can be resent manually
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.error(
+                f"Failed to send invitation email to {email}: {e}",
+                extra={"npo_id": str(npo_id), "invitation_id": str(invitation.id)},
+            )
 
         return invitation
 
@@ -216,6 +247,38 @@ class InvitationService:
             role=invitation.role,
             added_by_user_id=invitation.invited_by_user_id,
         )
+
+        # Send notification email to NPO admins
+        email_service = get_email_service()
+        try:
+            # Get all admins for this NPO
+            admin_stmt = select(NPOMember, User).join(User, NPOMember.user_id == User.id).where(
+                NPOMember.npo_id == invitation.npo_id,
+                NPOMember.role == MemberRole.ADMIN,
+                NPOMember.status == MemberStatus.ACTIVE,
+            )
+            admin_result = await db.execute(admin_stmt)
+            admins = admin_result.all()
+
+            member_name = f"{user.first_name} {user.last_name}" if user.first_name else user.email
+
+            # Send email to each admin
+            for _admin_member, admin_user in admins:
+                await email_service.send_npo_invitation_accepted_email(
+                    to_email=admin_user.email,
+                    npo_name=invitation.npo.name,
+                    member_name=member_name,
+                    member_role=invitation.role,
+                )
+        except EmailSendError as e:
+            # Log error but don't fail the acceptance
+            import logging
+
+            logger = logging.getLogger(__name__)
+            logger.error(
+                f"Failed to send acceptance notification email: {e}",
+                extra={"npo_id": str(invitation.npo_id), "member_id": str(member.id)},
+            )
 
         return member
 

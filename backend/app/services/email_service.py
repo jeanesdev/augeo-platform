@@ -170,6 +170,50 @@ The Augeo Platform Team
 
         return await self._send_email_with_retry(to_email, subject, body, "npo_invitation")
 
+    async def send_npo_invitation_accepted_email(
+        self,
+        to_email: str,
+        npo_name: str,
+        member_name: str,
+        member_role: str,
+    ) -> bool:
+        """
+        Send notification email when someone accepts an NPO invitation.
+
+        Sent to the NPO admin(s) who invited the member.
+
+        Args:
+            to_email: NPO admin's email address
+            npo_name: Name of the NPO
+            member_name: Name of the person who accepted
+            member_role: Role they accepted (admin, co_admin, staff)
+
+        Returns:
+            True if email sent successfully
+
+        Raises:
+            EmailSendError: If email fails after all retries
+        """
+        subject = f"Team Member Joined: {npo_name}"
+        role_display = member_role.replace("_", " ").title()
+        dashboard_url = f"{settings.frontend_admin_url}/npos"
+
+        body = f"""
+Hi,
+
+Good news! {member_name} has accepted your invitation to join {npo_name} as a {role_display}.
+
+You can view your team members and manage permissions in your NPO dashboard:
+{dashboard_url}
+
+Best regards,
+The Augeo Platform Team
+        """.strip()
+
+        return await self._send_email_with_retry(
+            to_email, subject, body, "npo_invitation_accepted"
+        )
+
     async def send_npo_application_submitted_email(
         self, to_email: str, npo_name: str, applicant_name: str | None = None
     ) -> bool:
