@@ -710,6 +710,53 @@ This is an automated message. Please do not reply to this email.
             email_type="application_rejected",
         )
 
+    async def send_admin_application_notification_email(
+        self, npo_name: str, npo_email: str, applicant_name: str | None = None
+    ) -> bool:
+        """
+        Send notification to admins when a new NPO application is submitted.
+
+        Sent to: npo_applications@augeo.app
+        Content: Alert that new application needs review
+
+        Args:
+            npo_name: Name of the NPO
+            npo_email: NPO contact email
+            applicant_name: Optional applicant's name
+
+        Returns:
+            True if email sent successfully, False otherwise
+        """
+        admin_email = "npo_applications@augeo.app"
+        subject = f"New NPO Application: {npo_name}"
+        applicant_info = f" by {applicant_name}" if applicant_name else ""
+
+        body = f"""
+New NPO Application Submitted
+
+A new organization has submitted an application for approval{applicant_info}.
+
+Organization Details:
+- Name: {npo_name}
+- Contact Email: {npo_email}
+- Submitted: {__import__("datetime").datetime.now().strftime("%B %d, %Y at %I:%M %p")}
+
+Action Required:
+Please review this application in the admin dashboard.
+
+Review Link: {__import__("os").getenv("FRONTEND_URL", "http://localhost:5173")}/admin/npo-applications
+
+---
+This is an automated notification from the Augeo Platform.
+        """.strip()
+
+        return await self._send_email_with_retry(
+            to_email=admin_email,
+            subject=subject,
+            body=body,
+            email_type="admin_application_notification",
+        )
+
     async def _send_via_azure(
         self, to_email: str, subject: str, body: str, html_body: str | None = None
     ) -> None:

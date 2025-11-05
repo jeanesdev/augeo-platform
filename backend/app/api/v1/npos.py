@@ -383,9 +383,17 @@ async def submit_npo_application(
     creator_name = current_user.first_name if current_user.first_name else None
 
     try:
+        # Send confirmation to NPO creator
         await email_service.send_application_submitted_email(
             to_email=current_user.email,
             npo_name=npo.name,
+            applicant_name=creator_name,
+        )
+
+        # Send notification to admins
+        await email_service.send_admin_application_notification_email(
+            npo_name=npo.name,
+            npo_email=npo.email,
             applicant_name=creator_name,
         )
     except Exception as e:
