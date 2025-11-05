@@ -44,8 +44,12 @@ async def accept_consent(email: str, password: str) -> None:
         print(f"✅ Found {len(documents)} published documents")
 
         # Find Terms of Service and Privacy Policy
-        tos_doc = next((d for d in documents if d["document_type"] == "terms_of_service"), None)
-        privacy_doc = next((d for d in documents if d["document_type"] == "privacy_policy"), None)
+        tos_doc = next(
+            (d for d in documents if d["document_type"] == "terms_of_service"), None
+        )
+        privacy_doc = next(
+            (d for d in documents if d["document_type"] == "privacy_policy"), None
+        )
 
         if not tos_doc or not privacy_doc:
             print("❌ Terms of Service or Privacy Policy not found")
@@ -81,7 +85,9 @@ def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Accept legal consent for a user")
     parser.add_argument("email", help="User email address")
-    parser.add_argument("--password", help="User password (will prompt if not provided)")
+    parser.add_argument(
+        "--password", help="User password (will prompt if not provided)"
+    )
     args = parser.parse_args()
 
     # Get password

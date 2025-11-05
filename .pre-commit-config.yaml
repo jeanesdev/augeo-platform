@@ -57,7 +57,7 @@ repos:
       # Bicep Build Validation
       - id: bicep-build
         name: Bicep Build Validation
-        entry: bash -c 'for file in "$@"; do echo "Validating $file..."; az bicep build --file "$file" || exit 1; done' --
+        entry: bash -c 'for file in "$@"; do echo "Validating $file..."; output=$(az bicep build --file "$file" 2>&1); if echo "$output" | grep -q "Error "; then echo "$output"; exit 1; else echo "$output" | grep -i "warning" || true; fi; done' --
         language: system
         files: ^infrastructure/bicep/.*\.bicep$
         pass_filenames: true

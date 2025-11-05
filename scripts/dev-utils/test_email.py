@@ -15,7 +15,9 @@ async def test_send_email(to_email: str) -> None:
 
     try:
         success = await email_service.send_verification_email(
-            to_email=to_email, verification_token="test-token-12345", user_name="Test User"
+            to_email=to_email,
+            verification_token="test-token-12345",
+            user_name="Test User",
         )
 
         if success:

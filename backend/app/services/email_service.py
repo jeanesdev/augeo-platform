@@ -727,8 +727,9 @@ This is an automated message. Please do not reply to this email.
         """
         import asyncio
         from concurrent.futures import ThreadPoolExecutor
+        from typing import Any
 
-        def _send_sync():
+        def _send_sync() -> Any:
             """Synchronous send operation to run in thread pool."""
             try:
                 from azure.communication.email import EmailClient

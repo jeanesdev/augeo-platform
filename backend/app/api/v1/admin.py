@@ -4,6 +4,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -14,6 +15,13 @@ from app.services.application_service import ApplicationService
 from app.services.email_service import get_email_service
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+
+class ApplicationReviewRequest(BaseModel):
+    """Request schema for reviewing an NPO application."""
+
+    decision: str  # "approve" or "reject"
+    notes: str | None = None
 
 
 def require_superadmin(current_user: Annotated[User, Depends(get_current_user)]) -> User:
@@ -30,7 +38,7 @@ def require_superadmin(current_user: Annotated[User, Depends(get_current_user)])
         HTTPException: 403 if user is not SuperAdmin
     """
     # Check if user has SuperAdmin role
-    if current_user.role.name != "SUPER_ADMIN":
+    if current_user.role.name != "super_admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="SuperAdmin privileges required for this operation",
@@ -49,7 +57,7 @@ async def get_pending_applications(
     limit: int = 50,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_superadmin),
-) -> dict:
+) -> dict[str, int | list[NPOResponse]]:
     """
     Get all pending NPO applications.
 
@@ -89,8 +97,7 @@ async def get_pending_applications(
 )
 async def review_application(
     npo_id: UUID,
-    decision: str,  # "approve" or "reject"
-    notes: str | None = None,
+    review_request: ApplicationReviewRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_superadmin),
 ) -> NPOResponse:
@@ -107,8 +114,7 @@ async def review_application(
 
     Args:
         npo_id: NPO ID to review
-        decision: "approve" or "reject"
-        notes: Optional review notes/feedback
+        review_request: Review decision and optional notes
         db: Database session
         current_user: Current SuperAdmin user
 
@@ -119,7 +125,7 @@ async def review_application(
         HTTPException: If validation fails or NPO not found
     """
     # Validate decision
-    if decision not in ("approve", "reject"):
+    if review_request.decision not in ("approve", "reject"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Decision must be 'approve' or 'reject'",
@@ -130,8 +136,8 @@ async def review_application(
         db=db,
         npo_id=npo_id,
         reviewer_id=current_user.id,
-        decision=decision,
-        notes=notes,
+        decision=review_request.decision,
+        notes=review_request.notes,
     )
 
     # Send email notification
@@ -139,7 +145,7 @@ async def review_application(
     creator_name = npo.creator.first_name if npo.creator else None
 
     try:
-        if decision == "approve":
+        if review_request.decision == "approve":
             await email_service.send_application_approved_email(
                 to_email=npo.creator.email if npo.creator else npo.email,
                 npo_name=npo.name,
@@ -149,7 +155,7 @@ async def review_application(
             await email_service.send_application_rejected_email(
                 to_email=npo.creator.email if npo.creator else npo.email,
                 npo_name=npo.name,
-                reason=notes,
+                reason=review_request.notes,
                 applicant_name=creator_name,
             )
     except Exception as e:
@@ -158,10 +164,10 @@ async def review_application(
 
         logger = get_logger(__name__)
         logger.error(
-            f"Failed to send application {decision} email",
+            f"Failed to send application {review_request.decision} email",
             extra={
                 "npo_id": str(npo_id),
-                "decision": decision,
+                "decision": review_request.decision,
                 "error": str(e),
             },
         )
