@@ -6,6 +6,7 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator
 
 from app.models.npo import NPOStatus
+from app.schemas.npo_branding import BrandingResponse
 
 # ================================
 # Request Schemas
@@ -16,6 +17,7 @@ class NPOCreateRequest(BaseModel):
     """Request schema for creating a new NPO (draft or application)."""
 
     name: str = Field(..., min_length=2, max_length=255)
+    tagline: str | None = Field(default=None, max_length=255)
     description: str | None = Field(default=None, max_length=5000)
     mission_statement: str | None = Field(default=None, max_length=5000)
     tax_id: str | None = Field(default=None, max_length=50)
@@ -24,9 +26,15 @@ class NPOCreateRequest(BaseModel):
     email: EmailStr = Field(...)
     address: dict[str, str] | None = Field(
         default=None,
-        description="Address JSON: {street, city, state, postal_code, country}",
+        description="Address JSON: {street, street2, city, state, postal_code, country}",
     )
     registration_number: str | None = Field(default=None, max_length=100)
+
+    @field_validator("website_url")
+    @classmethod
+    def convert_url_to_string(cls, v: HttpUrl | None) -> str | None:
+        """Convert HttpUrl to string for database storage."""
+        return str(v) if v else None
 
     @field_validator("email")
     @classmethod
@@ -47,6 +55,7 @@ class NPOUpdateRequest(BaseModel):
     """Request schema for updating NPO details."""
 
     name: str | None = Field(default=None, min_length=2, max_length=255)
+    tagline: str | None = Field(default=None, max_length=255)
     description: str | None = Field(default=None, max_length=5000)
     mission_statement: str | None = Field(default=None, max_length=5000)
     tax_id: str | None = Field(default=None, max_length=50)
@@ -55,6 +64,12 @@ class NPOUpdateRequest(BaseModel):
     email: EmailStr | None = Field(default=None)
     address: dict[str, str] | None = Field(default=None)
     registration_number: str | None = Field(default=None, max_length=100)
+
+    @field_validator("website_url")
+    @classmethod
+    def convert_url_to_string(cls, v: HttpUrl | None) -> str | None:
+        """Convert HttpUrl to string for database storage."""
+        return str(v) if v else None
 
     @field_validator("email")
     @classmethod
@@ -98,6 +113,7 @@ class NPOResponse(BaseModel):
 
     id: uuid.UUID
     name: str
+    tagline: str | None
     description: str | None
     mission_statement: str | None
     tax_id: str | None
@@ -122,7 +138,7 @@ class NPODetailResponse(NPOResponse):
     """Detailed response schema for NPO with related entities."""
 
     # Include branding info
-    branding: dict[str, str] | None = Field(None, description="NPO branding information")
+    branding: BrandingResponse | None = Field(None, description="NPO branding information")
     # Include application info (if exists)
     application: dict[str, str] | None = Field(None, description="NPO application details")
 

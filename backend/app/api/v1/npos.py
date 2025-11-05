@@ -331,6 +331,79 @@ async def update_npo_status(
     return NPOResponse.model_validate(npo)
 
 
+@router.post(
+    "/{npo_id}/submit",
+    response_model=NPOResponse,
+    summary="Submit NPO application for review",
+    description="Submit NPO application for SuperAdmin review (changes status from DRAFT to PENDING_APPROVAL)",
+)
+async def submit_npo_application(
+    npo_id: uuid.UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> NPOResponse:
+    """
+    Submit NPO application for SuperAdmin review.
+
+    **Access Control:**
+    - NPO creator only
+
+    **Business Rules:**
+    - NPO must be in DRAFT status
+    - All required fields must be complete
+    - State transition: DRAFT → PENDING_APPROVAL
+    - Email notification sent to applicant
+
+    **Args:**
+        npo_id: NPO UUID
+        current_user: Authenticated NPO creator
+        db: Database session
+
+    **Returns:**
+        Updated NPO with PENDING_APPROVAL status
+
+    **Raises:**
+        401: User not authenticated
+        403: User is not NPO creator
+        404: NPO not found
+        400: Validation failed or invalid state
+    """
+    from app.services.application_service import ApplicationService
+    from app.services.email_service import get_email_service
+
+    # Submit application
+    npo = await ApplicationService.submit_application(
+        db=db,
+        npo_id=npo_id,
+        submitted_by_user_id=current_user.id,
+    )
+
+    # Send confirmation email
+    email_service = get_email_service()
+    creator_name = current_user.first_name if current_user.first_name else None
+
+    try:
+        await email_service.send_application_submitted_email(
+            to_email=current_user.email,
+            npo_name=npo.name,
+            applicant_name=creator_name,
+        )
+    except Exception as e:
+        # Log error but don't fail the request - application was already submitted
+        from app.core.logging import get_logger
+
+        logger = get_logger(__name__)
+        logger.error(
+            "Failed to send application submitted email",
+            extra={
+                "npo_id": str(npo_id),
+                "error": str(e),
+            },
+        )
+
+    return NPOResponse.model_validate(npo)
+
+
 @router.delete("/{npo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_npo(
     npo_id: uuid.UUID,

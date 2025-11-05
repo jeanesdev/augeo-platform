@@ -398,6 +398,16 @@ class BrandingService:
                 raise ValidationError("Invalid secondary color format")
             branding.secondary_color = self.normalize_hex_color(update_data.secondary_color)
 
+        if update_data.background_color:
+            if not self.validate_hex_color(update_data.background_color):
+                raise ValidationError("Invalid background color format")
+            branding.background_color = self.normalize_hex_color(update_data.background_color)
+
+        if update_data.accent_color:
+            if not self.validate_hex_color(update_data.accent_color):
+                raise ValidationError("Invalid accent color format")
+            branding.accent_color = self.normalize_hex_color(update_data.accent_color)
+
         # Check color pair contrast
         if branding.primary_color and branding.secondary_color:
             warning = self.check_color_pair_contrast(

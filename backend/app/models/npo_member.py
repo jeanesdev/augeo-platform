@@ -75,13 +75,13 @@ class NPOMember(Base, UUIDMixin, TimestampMixin):
 
     # Role and Status
     role: Mapped[MemberRole] = mapped_column(
-        Enum(MemberRole, name="member_role", native_enum=False),
+        Enum(MemberRole, name="member_role", values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         index=True,
     )
 
     status: Mapped[MemberStatus] = mapped_column(
-        Enum(MemberStatus, name="member_status", native_enum=False),
+        Enum(MemberStatus, name="member_status", values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=MemberStatus.INVITED,
         server_default=MemberStatus.INVITED.value,

@@ -77,6 +77,19 @@ class Invitation(Base, UUIDMixin, TimestampMixin):
         comment="Invitation target email address",
     )
 
+    # Optional name fields for pre-filling registration
+    first_name: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+        comment="Optional first name to pre-fill registration",
+    )
+
+    last_name: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+        comment="Optional last name to pre-fill registration",
+    )
+
     # Role (imported from npo_member)
     role: Mapped[str] = mapped_column(
         String(50),
@@ -86,7 +99,12 @@ class Invitation(Base, UUIDMixin, TimestampMixin):
 
     # Status
     status: Mapped[InvitationStatus] = mapped_column(
-        Enum(InvitationStatus, name="invitation_status", native_enum=False),
+        Enum(
+            InvitationStatus,
+            name="invitation_status",
+            native_enum=False,
+            values_callable=lambda x: [e.value for e in x],
+        ),
         nullable=False,
         default=InvitationStatus.PENDING,
         server_default=InvitationStatus.PENDING.value,

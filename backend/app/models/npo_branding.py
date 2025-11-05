@@ -51,6 +51,19 @@ class NPOBranding(Base, UUIDMixin, TimestampMixin):
         comment="Secondary brand color in hex format",
     )
 
+    background_color: Mapped[str | None] = mapped_column(
+        String(7),
+        nullable=True,
+        default="#FFFFFF",
+        comment="Background color in hex format (default white)",
+    )
+
+    accent_color: Mapped[str | None] = mapped_column(
+        String(7),
+        nullable=True,
+        comment="Accent/highlight color in hex format",
+    )
+
     # Logo URL (Azure Blob Storage)
     logo_url: Mapped[str | None] = mapped_column(
         String(500),

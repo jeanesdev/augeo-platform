@@ -59,6 +59,7 @@ class NPO(Base, UUIDMixin, TimestampMixin):
         nullable=False,
         index=True,
     )
+    tagline: Mapped[str | None] = mapped_column(String(255), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     mission_statement: Mapped[str | None] = mapped_column(Text, nullable=True)
 
@@ -77,7 +78,7 @@ class NPO(Base, UUIDMixin, TimestampMixin):
 
     # Status
     status: Mapped[NPOStatus] = mapped_column(
-        Enum(NPOStatus, name="npo_status", native_enum=False),
+        Enum(NPOStatus, name="npo_status", values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=NPOStatus.DRAFT,
         server_default=NPOStatus.DRAFT.value,

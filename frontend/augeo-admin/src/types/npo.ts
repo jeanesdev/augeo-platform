@@ -24,6 +24,7 @@ export type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked'
 export interface NPO {
   id: string
   name: string
+  tagline: string | null
   description: string | null
   mission_statement: string | null
   tax_id: string | null
@@ -32,6 +33,7 @@ export interface NPO {
   email: string
   address: {
     street?: string
+    street2?: string
     city?: string
     state?: string
     postal_code?: string
@@ -53,6 +55,7 @@ export interface NPODetail extends NPO {
 
 export interface NPOCreateRequest {
   name: string
+  tagline?: string
   description?: string
   mission_statement?: string
   tax_id?: string
@@ -61,6 +64,7 @@ export interface NPOCreateRequest {
   email: string
   address?: {
     street?: string
+    street2?: string
     city?: string
     state?: string
     postal_code?: string
@@ -71,6 +75,7 @@ export interface NPOCreateRequest {
 
 export interface NPOUpdateRequest {
   name?: string
+  tagline?: string
   description?: string
   mission_statement?: string
   tax_id?: string
@@ -79,6 +84,7 @@ export interface NPOUpdateRequest {
   email?: string
   address?: {
     street?: string
+    street2?: string
     city?: string
     state?: string
     postal_code?: string
@@ -165,6 +171,8 @@ export interface NPOMember {
 export interface MemberInviteRequest {
   email: string
   role: MemberRole
+  first_name?: string
+  last_name?: string
 }
 
 export interface MemberAddRequest {
@@ -206,6 +214,14 @@ export interface MemberInviteResponse {
   message: string
 }
 
+export interface PendingInvitation {
+  id: string
+  email: string
+  role: MemberRole
+  expires_at: string
+  created_at: string
+}
+
 // ============================================
 // NPO Branding Types
 // ============================================
@@ -215,6 +231,8 @@ export interface NPOBranding {
   npo_id: string
   primary_color: string | null
   secondary_color: string | null
+  background_color: string | null
+  accent_color: string | null
   logo_url: string | null
   social_media_links: {
     facebook?: string
@@ -231,6 +249,8 @@ export interface NPOBranding {
 export interface BrandingCreateRequest {
   primary_color?: string
   secondary_color?: string
+  background_color?: string
+  accent_color?: string
   logo_url?: string
   social_media_links?: {
     facebook?: string
@@ -244,6 +264,8 @@ export interface BrandingCreateRequest {
 export interface BrandingUpdateRequest {
   primary_color?: string
   secondary_color?: string
+  background_color?: string
+  accent_color?: string
   logo_url?: string
   social_media_links?: {
     facebook?: string

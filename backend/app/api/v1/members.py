@@ -20,6 +20,7 @@ from app.schemas.member import (
     CreateInvitationRequest,
     InvitationWithTokenResponse,
     MemberResponse,
+    PendingInvitationResponse,
     UpdateMemberRoleRequest,
 )
 from app.services.invitation_service import InvitationService
@@ -83,6 +84,152 @@ async def list_members(
             )
             for member in members
         ]
+    }
+
+
+@router.get("/invitations", response_model=dict)
+async def list_pending_invitations(
+    npo_id: uuid.UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    request_id: Annotated[str, Depends(get_request_id)],
+) -> dict[str, Any]:
+    """
+    List all pending invitations for an NPO.
+
+    **Access Control:**
+    - Requires authentication
+    - Must be a member of the NPO to view invitations
+
+    **Returns:**
+        List of pending invitations (not expired)
+
+    **Raises:**
+        401: User not authenticated
+        403: User not authorized to view invitations
+        404: NPO not found
+    """
+    # Check permission - user must be a member
+    perm_service = NPOPermissionService()
+    if not await perm_service.is_npo_member(db, current_user, npo_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to view invitations",
+        )
+
+    # Get pending invitations
+    invitations = await InvitationService.get_pending_invitations(db, npo_id)
+
+    # Convert to response models
+    return {
+        "invitations": [
+            PendingInvitationResponse(
+                id=inv.id,
+                email=inv.email,
+                role=MemberRole(inv.role),
+                expires_at=inv.expires_at,
+                created_at=inv.created_at,
+            )
+            for inv in invitations
+        ]
+    }
+
+
+@router.delete("/invitations/{invitation_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def revoke_invitation(
+    npo_id: uuid.UUID,
+    invitation_id: uuid.UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    request_id: Annotated[str, Depends(get_request_id)],
+) -> None:
+    """
+    Revoke a pending invitation.
+
+    **Access Control:**
+    - Requires authentication
+    - Must be admin or co-admin of the NPO
+
+    **Business Rules:**
+    - Only pending invitations can be revoked
+    - Invitation token is invalidated
+    - Action is logged in audit trail
+
+    **Returns:**
+        204 No Content on success
+
+    **Raises:**
+        401: User not authenticated
+        403: User not authorized to revoke invitations
+        404: Invitation not found
+        409: Invitation already accepted or revoked
+    """
+    # Check permission (ADMIN or CO_ADMIN)
+    perm_service = NPOPermissionService()
+    if not await perm_service.can_manage_members(db, current_user, npo_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins and co-admins can revoke invitations",
+        )
+
+    # Revoke invitation
+    await InvitationService.revoke_invitation(
+        db=db,
+        invitation_id=invitation_id,
+        revoked_by_user_id=current_user.id,
+    )
+
+
+@router.post("/invitations/{invitation_id}/resend", status_code=status.HTTP_200_OK)
+async def resend_invitation(
+    npo_id: uuid.UUID,
+    invitation_id: uuid.UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+    request_id: Annotated[str, Depends(get_request_id)],
+) -> dict[str, Any]:
+    """
+    Resend a pending invitation with a new token and extended expiry.
+
+    **Access Control:**
+    - Requires authentication
+    - Must be admin or co-admin of the NPO
+
+    **Business Rules:**
+    - Only pending invitations can be resent
+    - New token generated and old one invalidated
+    - Expiry extended by 7 days from now
+    - New invitation email sent
+
+    **Returns:**
+        Success message with new expiry date
+
+    **Raises:**
+        401: User not authenticated
+        403: User not authorized to resend invitations
+        404: Invitation not found
+        400: Invitation status not pending
+    """
+    # Check permission (ADMIN or CO_ADMIN)
+    perm_service = NPOPermissionService()
+    if not await perm_service.can_manage_members(db, current_user, npo_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins and co-admins can resend invitations",
+        )
+
+    # Resend invitation
+    invitation = await InvitationService.resend_invitation(
+        db=db,
+        invitation_id=invitation_id,
+        npo_id=npo_id,
+        resent_by_user_id=current_user.id,
+    )
+
+    return {
+        "message": "Invitation resent successfully",
+        "email": invitation.email,
+        "expires_at": invitation.expires_at.isoformat(),
     }
 
 
@@ -153,6 +300,8 @@ async def create_invitation(
         email=invitation_data.email,
         role=invitation_data.role.value,
         invited_by_user_id=current_user.id,
+        first_name=invitation_data.first_name,
+        last_name=invitation_data.last_name,
     )
 
     # TODO: Send invitation email with token

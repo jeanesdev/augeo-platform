@@ -16,6 +16,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.logging import get_logger
 from app.core.security import create_invitation_token, decode_token, hash_password
 from app.models.invitation import Invitation, InvitationStatus
 from app.models.npo import NPO
@@ -23,6 +24,8 @@ from app.models.npo_member import MemberRole, MemberStatus, NPOMember
 from app.models.user import User
 from app.services.audit_service import AuditService
 from app.services.email_service import EmailSendError, get_email_service
+
+logger = get_logger(__name__)
 
 
 class InvitationService:
@@ -35,6 +38,8 @@ class InvitationService:
         email: str,
         role: str,
         invited_by_user_id: uuid.UUID,
+        first_name: str | None = None,
+        last_name: str | None = None,
         message: str | None = None,
     ) -> Invitation:
         """
@@ -46,6 +51,8 @@ class InvitationService:
             email: Email address to invite
             role: Role to assign (admin, co_admin, staff)
             invited_by_user_id: User creating the invitation
+            first_name: Optional first name to pre-fill registration
+            last_name: Optional last name to pre-fill registration
             message: Optional custom message
 
         Returns:
@@ -95,6 +102,8 @@ class InvitationService:
             npo_id=npo_id,
             email=email.lower(),
             role=role,
+            first_name=first_name,
+            last_name=last_name,
             invited_by_user_id=invited_by_user_id,
             status=InvitationStatus.PENDING,
             expires_at=datetime.now(UTC) + timedelta(days=7),
@@ -104,11 +113,27 @@ class InvitationService:
         await db.commit()
         await db.refresh(invitation)
 
+        # Get NPO and inviter details for token and email
+        npo_stmt = select(NPO).where(NPO.id == npo_id)
+        npo_result = await db.execute(npo_stmt)
+        npo = npo_result.scalar_one()
+
+        inviter_stmt = select(User).where(User.id == invited_by_user_id)
+        inviter_result = await db.execute(inviter_stmt)
+        inviter = inviter_result.scalar_one()
+
+        inviter_name = f"{inviter.first_name} {inviter.last_name}" if inviter.first_name else None
+
         # Generate JWT token and hash it
         token = create_invitation_token(
             invitation_id=str(invitation.id),
             npo_id=str(npo_id),
             email=email.lower(),
+            npo_name=npo.name,
+            role=role,
+            inviter_name=inviter_name,
+            first_name=first_name,
+            last_name=last_name,
         )
         invitation.token_hash = hash_password(token)
         await db.commit()
@@ -119,17 +144,6 @@ class InvitationService:
         # Send invitation email
         email_service = get_email_service()
         try:
-            # Get NPO and inviter details for email
-            npo_stmt = select(NPO).where(NPO.id == npo_id)
-            npo_result = await db.execute(npo_stmt)
-            npo = npo_result.scalar_one()
-
-            inviter_stmt = select(User).where(User.id == invited_by_user_id)
-            inviter_result = await db.execute(inviter_stmt)
-            inviter = inviter_result.scalar_one()
-
-            inviter_name = f"{inviter.first_name} {inviter.last_name}" if inviter.first_name else None
-
             await email_service.send_npo_member_invitation_email(
                 to_email=email,
                 invitation_token=token,
@@ -147,6 +161,138 @@ class InvitationService:
                 f"Failed to send invitation email to {email}: {e}",
                 extra={"npo_id": str(npo_id), "invitation_id": str(invitation.id)},
             )
+
+        return invitation
+
+    @staticmethod
+    async def get_pending_invitations(
+        db: AsyncSession,
+        npo_id: uuid.UUID,
+    ) -> list[Invitation]:
+        """
+        Get all pending invitations for an NPO.
+
+        Args:
+            db: Database session
+            npo_id: NPO UUID
+
+        Returns:
+            List of pending Invitation objects
+
+        Note:
+            Only returns invitations that are PENDING and not expired
+        """
+        stmt = (
+            select(Invitation)
+            .where(
+                Invitation.npo_id == npo_id,
+                Invitation.status == InvitationStatus.PENDING,
+                Invitation.expires_at > datetime.now(UTC),
+            )
+            .order_by(Invitation.created_at.desc())
+        )
+        result = await db.execute(stmt)
+        return list(result.scalars().all())
+
+    @staticmethod
+    async def resend_invitation(
+        db: AsyncSession,
+        invitation_id: uuid.UUID,
+        npo_id: uuid.UUID,
+        resent_by_user_id: uuid.UUID,
+    ) -> Invitation:
+        """
+        Resend an invitation with a new token and extended expiry.
+
+        Args:
+            db: Database session
+            invitation_id: Invitation UUID to resend
+            npo_id: NPO UUID (for authorization check)
+            resent_by_user_id: User resending the invitation
+
+        Returns:
+            Updated Invitation object
+
+        Raises:
+            HTTPException: If invitation not found, not pending, or email fails
+        """
+        # Get invitation
+        stmt = select(Invitation).where(
+            Invitation.id == invitation_id,
+            Invitation.npo_id == npo_id,
+        )
+        result = await db.execute(stmt)
+        invitation = result.scalar_one_or_none()
+
+        if not invitation:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Invitation not found",
+            )
+
+        # Check status - only pending invitations can be resent
+        if invitation.status != InvitationStatus.PENDING:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot resend invitation with status: {invitation.status}",
+            )
+
+        # Get NPO and resender details for token and email
+        npo_stmt = select(NPO).where(NPO.id == npo_id)
+        npo_result = await db.execute(npo_stmt)
+        npo = npo_result.scalar_one()
+
+        resender_stmt = select(User).where(User.id == resent_by_user_id)
+        resender_result = await db.execute(resender_stmt)
+        resender = resender_result.scalar_one()
+
+        resender_name = (
+            f"{resender.first_name} {resender.last_name}" if resender.first_name else None
+        )
+
+        # Generate new JWT token and hash it
+        token = create_invitation_token(
+            invitation_id=str(invitation.id),
+            npo_id=str(npo_id),
+            email=invitation.email,
+            npo_name=npo.name,
+            role=invitation.role,
+            inviter_name=resender_name,
+            first_name=invitation.first_name,
+            last_name=invitation.last_name,
+        )
+        invitation.token_hash = hash_password(token)
+
+        # Extend expiry by 7 days from now
+        invitation.expires_at = datetime.now(UTC) + timedelta(days=7)
+
+        await db.commit()
+        await db.refresh(invitation)
+
+        # Store token on invitation object for API response (not persisted)
+        invitation.token = token  # type: ignore[attr-defined]
+
+        # Send invitation email
+        email_service = get_email_service()
+        try:
+            await email_service.send_npo_member_invitation_email(
+                to_email=invitation.email,
+                invitation_token=token,
+                npo_name=npo.name,
+                role=invitation.role,
+                invited_by_name=resender_name,
+            )
+        except EmailSendError as e:
+            logger.error(
+                "Failed to send resent invitation email",
+                extra={
+                    "invitation_id": invitation_id,
+                    "email": invitation.email,
+                    "error": str(e),
+                },
+            )
+            # Don't fail the request - invitation is updated in DB
+            # User can try resending again if needed
 
         return invitation
 
@@ -252,10 +398,14 @@ class InvitationService:
         email_service = get_email_service()
         try:
             # Get all admins for this NPO
-            admin_stmt = select(NPOMember, User).join(User, NPOMember.user_id == User.id).where(
-                NPOMember.npo_id == invitation.npo_id,
-                NPOMember.role == MemberRole.ADMIN,
-                NPOMember.status == MemberStatus.ACTIVE,
+            admin_stmt = (
+                select(NPOMember, User)
+                .join(User, NPOMember.user_id == User.id)
+                .where(
+                    NPOMember.npo_id == invitation.npo_id,
+                    NPOMember.role == MemberRole.ADMIN,
+                    NPOMember.status == MemberStatus.ACTIVE,
+                )
             )
             admin_result = await db.execute(admin_stmt)
             admins = admin_result.all()

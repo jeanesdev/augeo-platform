@@ -2,11 +2,13 @@
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.health import router as health_router
 from app.api.metrics import router as metrics_router
@@ -147,6 +149,11 @@ app.add_exception_handler(RateLimitError, http_exception_handler)  # type: ignor
 app.include_router(api_router, prefix="/api/v1")
 app.include_router(health_router)
 app.include_router(metrics_router)
+
+# Mount static files (for local logo uploads in development)
+static_dir = Path("static")
+if static_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 
 # Root endpoint

@@ -7,6 +7,7 @@ import { Loader2, LogIn } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
+import { getErrorMessage } from '@/lib/error-utils'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -66,9 +67,34 @@ export function UserAuthForm({
       },
       error: (err) => {
         setIsLoading(false)
-        const errorMessage =
-          err.response?.data?.error?.message ||
-          'Login failed. Please try again.'
+
+        // Extract error details
+        const apiError = err as any
+        const errorCode = apiError?.response?.data?.detail?.code
+        const errorMessage = getErrorMessage(err, 'Login failed. Please try again.')
+
+        // Check if email verification is required
+        if (errorCode === 'EMAIL_NOT_VERIFIED') {
+          // Show a more helpful message with action button
+          const email = data.email
+          toast.error(
+            `Email verification required for ${email}`,
+            {
+              description: 'Please check your inbox for the verification link, or request a new one.',
+              action: {
+                label: 'Resend Email',
+                onClick: () => {
+                  // TODO: Implement resend verification email
+                  toast.info('Redirecting to resend verification...')
+                  navigate({ to: '/verify-email', search: { email } })
+                },
+              },
+              duration: 10000, // Show for 10 seconds
+            }
+          )
+          return // Don't show the error string, the custom toast handles it
+        }
+
         return errorMessage
       },
     })

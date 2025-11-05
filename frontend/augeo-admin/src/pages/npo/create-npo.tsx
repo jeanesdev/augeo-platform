@@ -5,53 +5,22 @@
 
 import { NPOCreationForm } from '@/components/npo/npo-creation-form'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useNPOStore } from '@/stores/npo-store'
-import type { NPOCreateRequest } from '@/types/npo'
-import { useNavigate } from '@tanstack/react-router'
+import { useNpoCreation } from '@/hooks/use-npo-creation'
 import { Building2 } from 'lucide-react'
-import { toast } from 'sonner'
 
 export default function CreateNPOPage() {
-  const navigate = useNavigate()
-  const { createNPO, nposLoading } = useNPOStore()
-
-  const handleSubmit = async (data: NPOCreateRequest) => {
-    try {
-      const response = await createNPO(data)
-
-      toast.success('Organization created successfully!', {
-        description: `${response.name} has been created in DRAFT status.`,
-      })
-
-      // Navigate to NPO detail page
-      navigate({ to: `/npos/${response.id}` })
-    } catch (error: unknown) {
-      // Extract error message from API response
-      const errorMessage =
-        error instanceof Error && 'response' in error && typeof error.response === 'object' && error.response !== null && 'data' in error.response && typeof error.response.data === 'object' && error.response.data !== null && 'detail' in error.response.data
-          ? typeof error.response.data.detail === 'object' && error.response.data.detail !== null && 'message' in error.response.data.detail
-            ? String(error.response.data.detail.message)
-            : typeof error.response.data.detail === 'string'
-              ? error.response.data.detail
-              : 'Failed to create organization. Please try again.'
-          : 'Failed to create organization. Please try again.'
-
-      toast.error('Failed to create organization', {
-        description: errorMessage,
-      })
-    }
-  }
+  const { createNPO, isLoading } = useNpoCreation()
 
   return (
-    <div className="container mx-auto space-y-6 py-6">
+    <div className="container mx-auto space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6">
       {/* Page Header */}
-      <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-          <Building2 className="h-6 w-6 text-primary" />
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 sm:h-12 sm:w-12">
+          <Building2 className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Organization</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Create Organization</h1>
+          <p className="text-sm text-muted-foreground sm:text-base">
             Set up your non-profit organization profile
           </p>
         </div>
@@ -60,8 +29,8 @@ export default function CreateNPOPage() {
       {/* Info Card */}
       <Card className="border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/20">
         <CardHeader>
-          <CardTitle className="text-lg">Getting Started</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-base sm:text-lg">Getting Started</CardTitle>
+          <CardDescription className="text-sm">
             Your organization will be created in <strong>DRAFT</strong> status. You can edit
             details at any time before submitting for approval.
           </CardDescription>
@@ -77,7 +46,7 @@ export default function CreateNPOPage() {
       </Card>
 
       {/* Creation Form */}
-      <NPOCreationForm onSubmit={handleSubmit} isLoading={nposLoading} />
+      <NPOCreationForm onSubmit={createNPO} isLoading={isLoading} />
     </div>
   )
 }

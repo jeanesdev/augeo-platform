@@ -19,6 +19,12 @@ class BrandingCreateRequest(BaseModel):
     secondary_color: str | None = Field(
         None, pattern="^#[0-9A-Fa-f]{6}$", description="Hex color code (e.g., #33FF57)"
     )
+    background_color: str | None = Field(
+        "#FFFFFF", pattern="^#[0-9A-Fa-f]{6}$", description="Background hex color (default white)"
+    )
+    accent_color: str | None = Field(
+        None, pattern="^#[0-9A-Fa-f]{6}$", description="Accent/highlight hex color"
+    )
     logo_url: str | None = Field(
         None, max_length=500, description="Azure Blob Storage URL for logo"
     )
@@ -31,7 +37,7 @@ class BrandingCreateRequest(BaseModel):
         description="Custom CSS properties JSON for theme customization",
     )
 
-    @field_validator("primary_color", "secondary_color")
+    @field_validator("primary_color", "secondary_color", "background_color", "accent_color")
     @classmethod
     def validate_hex_color(cls, v: str | None) -> str | None:
         """Validate hex color format."""
@@ -57,13 +63,19 @@ class BrandingUpdateRequest(BaseModel):
     secondary_color: str | None = Field(
         None, pattern="^#[0-9A-Fa-f]{6}$", description="Hex color code"
     )
+    background_color: str | None = Field(
+        None, pattern="^#[0-9A-Fa-f]{6}$", description="Background hex color"
+    )
+    accent_color: str | None = Field(
+        None, pattern="^#[0-9A-Fa-f]{6}$", description="Accent/highlight hex color"
+    )
     logo_url: str | None = Field(
         None, max_length=500, description="Azure Blob Storage URL for logo"
     )
     social_media_links: dict[str, str] | None = None
     custom_css_properties: dict[str, str] | None = None
 
-    @field_validator("primary_color", "secondary_color")
+    @field_validator("primary_color", "secondary_color", "background_color", "accent_color")
     @classmethod
     def validate_hex_color(cls, v: str | None) -> str | None:
         """Validate hex color format."""
@@ -112,6 +124,8 @@ class BrandingResponse(BaseModel):
     npo_id: uuid.UUID
     primary_color: str | None
     secondary_color: str | None
+    background_color: str | None
+    accent_color: str | None
     logo_url: str | None
     social_media_links: dict[str, str] | None
     custom_css_properties: dict[str, str] | None

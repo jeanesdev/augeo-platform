@@ -4,13 +4,15 @@ Handles visual identity configuration including colors, logos, and social media 
 """
 
 import uuid
+from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings, get_settings
 from app.core.database import get_db
 from app.core.errors import NotFoundError
+from app.core.logging import get_logger
 from app.middleware.auth import get_current_user
 from app.models.user import User
 from app.schemas.npo_branding import (
@@ -25,6 +27,7 @@ from app.services.file_upload_service import FileUploadService
 from app.services.npo_permission_service import NPOPermissionService
 
 router = APIRouter(prefix="/npos", tags=["NPO Branding"])
+logger = get_logger(__name__)
 
 
 @router.get(
@@ -73,7 +76,7 @@ async def get_npo_branding(
     return BrandingResponse.model_validate(branding)
 
 
-@router.put(
+@router.patch(
     "/{npo_id}/branding",
     response_model=BrandingUpdateResponse,
     status_code=status.HTTP_200_OK,
@@ -135,7 +138,7 @@ async def update_npo_branding(
 
 
 @router.post(
-    "/{npo_id}/logo/upload-url",
+    "/{npo_id}/branding/logo-upload",
     response_model=LogoUploadResponse,
     status_code=status.HTTP_200_OK,
     summary="Generate logo upload URL",
@@ -207,4 +210,142 @@ async def generate_logo_upload_url(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={"code": "upload_url_generation_failed", "message": str(e)},
+        )
+
+
+@router.post(
+    "/{npo_id}/branding/logo-upload-local",
+    response_model=BrandingUpdateResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Upload logo (local storage)",
+    description="Upload logo file directly to local storage (development mode).",
+)
+async def upload_logo_local(
+    npo_id: uuid.UUID,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+) -> BrandingUpdateResponse:
+    """Upload logo file directly to local storage.
+
+    This endpoint is used in development when Azure Blob Storage is not configured.
+
+    Requires:
+    - User must be NPO admin or co-admin
+    - File must be image type (jpg, png, gif, webp)
+    - File size ≤ 5MB
+
+    Returns:
+    - 200: Updated branding with logo_url
+    - 401: Not authenticated
+    - 403: No permission (requires admin)
+    - 422: Invalid file type or size
+    """
+    # Check permission
+    permission_service = NPOPermissionService()
+    can_manage = await permission_service.can_manage_npo(db, current_user, npo_id)
+
+    if not can_manage:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "code": "insufficient_permissions",
+                "message": "Only NPO admins can upload logos",
+            },
+        )
+
+    # Read file content
+    try:
+        file_content = await file.read()
+        file_size = len(file_content)
+        content_type = file.content_type or "application/octet-stream"
+        file_name = file.filename or "logo.png"
+
+        print("\n=== LOGO UPLOAD DEBUG ===")
+        print(f"NPO ID: {npo_id}")
+        print(f"File name: {file_name}")
+        print(f"File size: {file_size} bytes")
+        print(f"Content type: {content_type}")
+        print("========================\n")
+
+        logger.info(
+            f"Logo upload attempt: npo_id={npo_id}, file_name={file_name}, "
+            f"file_size={file_size}, content_type={content_type}"
+        )
+
+        # Validate and upload
+        file_upload_service = FileUploadService(settings)
+
+        # Validate file
+        is_valid, error_msg = file_upload_service.validate_image_file(
+            file_content, content_type, file_name
+        )
+        if not is_valid:
+            logger.error(f"File validation failed: {error_msg}")
+            raise ValueError(error_msg)
+
+        # Generate upload URL info
+        upload_data = file_upload_service.generate_upload_url(
+            npo_id=npo_id,
+            file_name=file_name,
+            content_type=content_type,
+            file_size=file_size,
+        )
+
+        # If local storage, write file
+        if upload_data.get("is_local"):
+            upload_path = Path(str(upload_data["upload_url"]))
+            print("\n=== WRITING FILE ===")
+            print(f"Upload path: {upload_path}")
+            print(f"Path exists: {upload_path.parent.exists()}")
+            print("==================\n")
+
+            upload_path.parent.mkdir(parents=True, exist_ok=True)
+
+            with open(upload_path, "wb") as f:
+                f.write(file_content)
+
+            print("\n=== FILE WRITTEN ===")
+            print(f"File size written: {len(file_content)} bytes")
+            print(f"File exists: {upload_path.exists()}")
+            print("===================\n")
+
+        logo_url = str(upload_data["logo_url"])
+
+        # Update branding with logo URL
+        branding_service = BrandingService()
+
+        # Get current branding first
+        current_branding = await branding_service.get_branding(db, npo_id)
+
+        # Update only the logo_url field
+        current_branding.logo_url = logo_url
+        await db.commit()
+        await db.refresh(current_branding)
+
+        # Convert to response
+        branding_response = BrandingResponse.model_validate(current_branding)
+
+        return BrandingUpdateResponse(
+            message="Logo uploaded successfully",
+            branding=branding_response,
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"code": "validation_error", "message": str(e)},
+        )
+
+    except NotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": "npo_not_found", "message": "NPO not found"},
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={"code": "logo_upload_failed", "message": str(e)},
         )

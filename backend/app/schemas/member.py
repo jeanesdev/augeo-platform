@@ -20,6 +20,8 @@ class InvitationBase(BaseModel):
 
     email: EmailStr
     role: MemberRole
+    first_name: str | None = None
+    last_name: str | None = None
 
 
 # Request schemas
@@ -72,6 +74,18 @@ class InvitationWithTokenResponse(InvitationResponse):
     """Response schema for invitation with token (only returned on creation)."""
 
     token: str  # JWT token for acceptance
+
+
+class PendingInvitationResponse(BaseModel):
+    """Response schema for pending invitations (used in member list)."""
+
+    id: uuid.UUID
+    email: EmailStr
+    role: MemberRole
+    expires_at: datetime
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AcceptInvitationRequest(BaseModel):

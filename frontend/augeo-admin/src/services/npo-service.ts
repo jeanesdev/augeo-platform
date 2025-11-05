@@ -18,7 +18,6 @@ import type {
   MemberListParams,
   MemberListResponse,
   MemberRoleUpdateRequest,
-  MemberStatusUpdateRequest,
   NPO,
   NPOApplication,
   NPOBranding,
@@ -27,7 +26,7 @@ import type {
   NPOListParams,
   NPOListResponse,
   NPOMember,
-  NPOUpdateRequest,
+  NPOUpdateRequest
 } from '@/types/npo'
 
 // ============================================
@@ -152,9 +151,52 @@ export const memberApi = {
    * List NPO members with filters
    */
   async listMembers(params?: MemberListParams): Promise<MemberListResponse> {
-    const response = await apiClient.get<MemberListResponse>('/npo-members', {
-      params,
-    })
+    if (!params?.npo_id) {
+      throw new Error('npo_id is required to list members')
+    }
+    const { npo_id, ...queryParams } = params
+    const response = await apiClient.get<{ members: NPOMember[] }>(
+      `/npos/${npo_id}/members`,
+      { params: queryParams }
+    )
+    return {
+      items: response.data.members,
+      total: response.data.members.length,
+      page: 1,
+      page_size: response.data.members.length,
+      total_pages: 1,
+    }
+  },
+
+  /**
+   * List pending invitations for NPO
+   */
+  async listPendingInvitations(npoId: string): Promise<PendingInvitation[]> {
+    const response = await apiClient.get<{ invitations: PendingInvitation[] }>(
+      `/npos/${npoId}/members/invitations`
+    )
+    return response.data.invitations
+  },
+
+  /**
+   * Revoke/delete a pending invitation
+   */
+  async revokeInvitation(npoId: string, invitationId: string): Promise<void> {
+    await apiClient.delete(`/npos/${npoId}/members/invitations/${invitationId}`)
+  },
+
+  /**
+   * Resend a pending invitation with new token and extended expiry
+   */
+  async resendInvitation(
+    npoId: string,
+    invitationId: string
+  ): Promise<{ message: string; email: string; expires_at: string }> {
+    const response = await apiClient.post<{
+      message: string
+      email: string
+      expires_at: string
+    }>(`/npos/${npoId}/members/invitations/${invitationId}/resend`)
     return response.data
   },
 
@@ -173,11 +215,14 @@ export const memberApi = {
     npoId: string,
     data: MemberInviteRequest
   ): Promise<MemberInviteResponse> {
-    const response = await apiClient.post<MemberInviteResponse>(
-      `/npos/${npoId}/members/invite`,
+    console.log('📤 API: inviteMember called', { npoId, data })
+    console.log('📍 URL:', `/npos/${npoId}/members`)
+    const response = await apiClient.post<{ invitation: MemberInviteResponse }>(
+      `/npos/${npoId}/members`,
       data
     )
-    return response.data
+    console.log('📥 API: inviteMember response', response.data)
+    return response.data.invitation
   },
 
   /**
@@ -195,25 +240,12 @@ export const memberApi = {
    * Update member role
    */
   async updateMemberRole(
+    npoId: string,
     memberId: string,
     data: MemberRoleUpdateRequest
   ): Promise<NPOMember> {
     const response = await apiClient.patch<{ member: NPOMember }>(
-      `/npo-members/${memberId}/role`,
-      data
-    )
-    return response.data.member
-  },
-
-  /**
-   * Update member status
-   */
-  async updateMemberStatus(
-    memberId: string,
-    data: MemberStatusUpdateRequest
-  ): Promise<NPOMember> {
-    const response = await apiClient.patch<{ member: NPOMember }>(
-      `/npo-members/${memberId}/status`,
+      `/npos/${npoId}/members/${memberId}`,
       data
     )
     return response.data.member
@@ -222,10 +254,20 @@ export const memberApi = {
   /**
    * Remove member from NPO
    */
-  async removeMember(memberId: string, reason?: string): Promise<void> {
-    await apiClient.delete(`/npo-members/${memberId}`, {
+  async removeMember(npoId: string, memberId: string, reason?: string): Promise<void> {
+    await apiClient.delete(`/npos/${npoId}/members/${memberId}`, {
       data: { reason },
     })
+  },
+
+  /**
+   * Accept invitation using JWT token from email
+   */
+  async acceptInvitation(token: string): Promise<NPOMember> {
+    const response = await apiClient.post<{ member: NPOMember }>(
+      `/invitations/${token}/accept`
+    )
+    return response.data.member
   },
 }
 
@@ -282,6 +324,25 @@ export const brandingApi = {
       data
     )
     return response.data
+  },
+
+  /**
+   * Upload logo file directly to local storage (development mode)
+   */
+  async uploadLogoLocal(npoId: string, file: File): Promise<{ logo_url: string }> {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await apiClient.post<{ message: string; branding: any }>(
+      `/npos/${npoId}/branding/logo-upload-local`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    )
+    return { logo_url: response.data.branding.logo_url }
   },
 
   /**

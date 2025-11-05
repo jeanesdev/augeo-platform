@@ -215,34 +215,54 @@ description: "Task list for NPO Creation and Management feature implementation"
 - [x] T087 [US3] Create PATCH /api/v1/npos/{id}/members/{memberId}/role endpoint in backend/app/api/v1/members.py ✅
 - [x] T088 [US3] Create DELETE /api/v1/npos/{id}/members/{memberId} endpoint in backend/app/api/v1/members.py ✅
 - [x] T089 [US3] Create POST /api/v1/invitations/accept endpoint in backend/app/api/v1/invitations.py ✅
-- [ ] T090 [P] [US3] Create StaffInvitation component in frontend/augeo-admin/src/features/npo-management/components/StaffInvitation.tsx
-- [ ] T091 [P] [US3] Create MemberList component with role badges in frontend/augeo-admin/src/features/npo-management/components/MemberList.tsx
-- [ ] T092 [US3] Create invitation form with email and role selection
-- [ ] T093 [US3] Add member management to NpoSettingsPage
-- [ ] T094 [US3] Create InvitationAcceptancePage for token validation in frontend/augeo-admin/src/features/npo-management/pages/InvitationAcceptancePage.tsx
-- [ ] T095 [US3] Add routing for invitation acceptance: /invitations/{id}/accept?token=xxx
+- [x] T090 [P] [US3] Create StaffInvitation component in frontend/augeo-admin/src/features/npo-management/components/StaffInvitation.tsx ✅
+- [x] T091 [P] [US3] Create MemberList component with role badges in frontend/augeo-admin/src/features/npo-management/components/MemberList.tsx ✅
+- [x] T092 [US3] Create invitation form with email and role selection ✅
+- [x] T093 [US3] Add member management to NpoSettingsPage ✅
+- [x] T094 [US3] Create InvitationAcceptancePage for token validation in frontend/augeo-admin/src/features/npo-management/pages/InvitationAcceptancePage.tsx ✅
+- [x] T095 [US3] Add routing for invitation acceptance: /invitations/{id}/accept?token=xxx ✅
 
 **Backend Status**: ✅ **COMPLETE** - All backend infrastructure for team invitations implemented and tested
 
+**Frontend Status**: ✅ **COMPLETE** - All frontend components and routing implemented
+
 **Implementation Summary**:
+
+**Backend**:
 
 - **Services**: InvitationService (353 lines), MemberService (190 lines) - fully implemented
 - **API Endpoints**: 5 RESTful endpoints (members CRUD, invitation acceptance)
 - **Email Notifications**: 2 templates (invitation sent, invitation accepted)
-  * Sends to invited user with JWT token link
-  * Notifies NPO admins when invitation is accepted
-  * Graceful error handling with retry logic
+  - Sends to invited user with JWT token link
+  - Notifies NPO admins when invitation is accepted
+  - Graceful error handling with retry logic
 - **Authentication & Authorization**: JWT tokens (7-day expiry), role-based permissions (ADMIN > CO_ADMIN > STAFF)
 - **Business Logic**: Primary admin protection, duplicate checking, automatic expiry, audit logging
 - **Test Coverage**: 21/21 contract tests passing (100%) ✅
 
+**Frontend**:
+
+- **Components**:
+  - `MemberList.tsx` (261 lines) - Member table with role badges, role updates, member removal
+  - `StaffInvitation.tsx` (146 lines) - Invitation form with email/role selection
+  - `accept-invitation.tsx` (213 lines) - JWT token validation and acceptance flow
+- **Features**:
+  - Team management section integrated into NPO detail page
+  - Real-time member list with TanStack Query caching
+  - Role-based actions with permission checks
+  - Graceful error handling with toast notifications
+  - Invitation link acceptance with token validation
+- **Routing**: `/invitations/accept?token=xxx` route configured
+- **API Integration**: Complete memberApi service with all CRUD operations
+
 **Commits**:
+
 - `cc2fbc5`: Complete Phase 4 backend implementation with test fixes
 - `3d35f6d`: Add email notifications for invitation workflow
 
-**Next Steps**: Frontend components (T090-T095) to complete user story
+**Phase 4 Status**: ✅ **COMPLETE** - Full team invitation system implemented and integrated
 
-**Checkpoint**: Backend complete - frontend components needed to finish Phase 4
+**Next Phase**: Phase 5 - SuperAdmin application review (T096-T110)
 
 ---
 

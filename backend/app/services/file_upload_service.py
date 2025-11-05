@@ -3,7 +3,8 @@
 This service handles:
 - Logo image uploads for NPO branding
 - Image validation (type, size, dimensions)
-- Azure Blob Storage SAS URL generation
+- Azure Blob Storage SAS URL generation (production)
+- Local file storage fallback (development)
 - Secure file naming and path management
 """
 
@@ -11,6 +12,7 @@ import hashlib
 import uuid
 from datetime import datetime, timedelta
 from io import BytesIO
+from pathlib import Path
 
 from azure.storage.blob import (
     BlobSasPermissions,
@@ -41,9 +43,9 @@ class FileUploadService:
     # Maximum file size (5MB)
     MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB in bytes
 
-    # Maximum image dimensions
-    MAX_WIDTH = 2000
-    MAX_HEIGHT = 2000
+    # Maximum image dimensions (increased for high-res logos)
+    MAX_WIDTH = 4000
+    MAX_HEIGHT = 4000
 
     # Minimum image dimensions
     MIN_WIDTH = 100
@@ -68,6 +70,10 @@ class FileUploadService:
             )
         else:
             self.blob_service_client = None
+
+        # Local storage directory (used when Azure is not configured)
+        self.local_storage_dir = Path("static/uploads/logos")
+        self.local_storage_dir.mkdir(parents=True, exist_ok=True)
 
     def validate_image_file(
         self, file_content: bytes, content_type: str, file_name: str
@@ -202,8 +208,7 @@ class FileUploadService:
     ) -> dict[str, str | int]:
         """Generate upload URL for logo with validation.
 
-        Convenience wrapper around generate_upload_sas_url that includes
-        validation and returns a dict format expected by the API.
+        Uses Azure Blob Storage if configured, otherwise falls back to local storage.
 
         Args:
             npo_id: NPO ID
@@ -215,7 +220,7 @@ class FileUploadService:
             Dict with upload_url, logo_url, and expires_in
 
         Raises:
-            ValueError: If validation fails or storage not configured
+            ValueError: If validation fails
         """
         # Validate content type
         if content_type not in self.ALLOWED_IMAGE_TYPES:
@@ -239,6 +244,25 @@ class FileUploadService:
                 f"Invalid file extension: {file_ext}. Allowed: {', '.join(self.ALLOWED_EXTENSIONS)}"
             )
 
+        # Use Azure Storage if configured, otherwise use local storage
+        if self.blob_service_client and self.settings.azure_storage_account_name:
+            return self._generate_azure_upload_url(npo_id, file_name, content_type)
+        else:
+            return self._generate_local_upload_url(npo_id, file_name, content_type)
+
+    def _generate_azure_upload_url(
+        self, npo_id: uuid.UUID, file_name: str, content_type: str
+    ) -> dict[str, str | int]:
+        """Generate Azure Blob Storage SAS URL for upload.
+
+        Args:
+            npo_id: NPO ID
+            file_name: Original file name
+            content_type: MIME type
+
+        Returns:
+            Dict with upload_url, logo_url, and expires_in
+        """
         # Generate SAS URL
         upload_url, logo_url = self.generate_upload_sas_url(npo_id, file_name, content_type)
 
@@ -249,6 +273,45 @@ class FileUploadService:
             "upload_url": upload_url,
             "logo_url": logo_url,
             "expires_in": expires_in,
+        }
+
+    def _generate_local_upload_url(
+        self, npo_id: uuid.UUID, file_name: str, content_type: str
+    ) -> dict[str, str | int]:
+        """Generate local storage URL for upload (development mode).
+
+        Args:
+            npo_id: NPO ID
+            file_name: Original file name
+            content_type: MIME type
+
+        Returns:
+            Dict with upload_url (local path), logo_url, and expires_in
+        """
+        # Generate blob name (same format as Azure)
+        blob_name = self.generate_blob_name(npo_id, file_name)
+
+        # Strip "logos/" prefix for local storage since our base dir already includes it
+        # Azure blob names include "logos/" but local_storage_dir is "static/uploads/logos/"
+        if blob_name.startswith("logos/"):
+            blob_name = blob_name[6:]  # Remove "logos/" prefix
+
+        # Create NPO-specific directory
+        npo_dir = self.local_storage_dir / str(npo_id)
+        npo_dir.mkdir(parents=True, exist_ok=True)
+
+        # Local file path
+        local_file_path = self.local_storage_dir / blob_name
+
+        # URL that will be returned (for local access)
+        # This will be served by FastAPI static files
+        logo_url = f"/static/uploads/logos/{blob_name}"
+
+        return {
+            "upload_url": str(local_file_path),  # Local path for direct file write
+            "logo_url": logo_url,  # Public URL
+            "expires_in": 900,  # 15 minutes (same as Azure)
+            "is_local": True,  # Flag to indicate local storage
         }
 
     def _get_account_key(self) -> str:
