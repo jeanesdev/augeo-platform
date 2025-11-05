@@ -75,7 +75,7 @@ interface NPOState {
   deleteNPO: (npoId: string) => Promise<void>
 
   // Actions - Applications
-  submitApplication: (npoId: string) => Promise<NPOApplication>
+  submitApplication: (npoId: string) => Promise<NPO>
   loadApplications: (params?: ApplicationListParams) => Promise<void>
   reviewApplication: (
     applicationId: string,
@@ -270,21 +270,23 @@ export const useNPOStore = create<NPOState>()(
       // ============================================
 
       submitApplication: async (npoId) => {
-        set({ applicationsLoading: true, applicationsError: null })
+        set({ nposLoading: true, nposError: null })
         try {
-          const application = await npoService.application.submitApplication(npoId)
-          // Add to list
+          const npo = await npoService.application.submitApplication(npoId)
+          // Update NPO in list and current NPO
           set((state) => ({
-            applications: [application, ...state.applications],
-            applicationsTotalCount: state.applicationsTotalCount + 1,
-            applicationsLoading: false,
+            npos: state.npos.map((n) => (n.id === npoId ? npo : n)),
+            currentNPO: state.currentNPO?.id === npoId
+              ? { ...state.currentNPO, ...npo }
+              : state.currentNPO,
+            nposLoading: false,
           }))
-          return application
+          return npo
         } catch (error: unknown) {
           set({
-            applicationsError:
+            nposError:
               getErrorMessage(error) || 'Failed to submit application',
-            applicationsLoading: false,
+            nposLoading: false,
           })
           throw error
         }

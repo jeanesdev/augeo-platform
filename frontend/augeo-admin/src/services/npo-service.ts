@@ -98,12 +98,11 @@ export const applicationApi = {
   /**
    * Submit NPO application for approval
    */
-  async submitApplication(npoId: string): Promise<NPOApplication> {
-    const response = await apiClient.post<{ application: NPOApplication }>(
-      '/applications',
-      { npo_id: npoId }
+  async submitApplication(npoId: string): Promise<NPO> {
+    const response = await apiClient.post<NPO>(
+      `/npos/${npoId}/submit`
     )
-    return response.data.application
+    return response.data
   },
 
   /**
