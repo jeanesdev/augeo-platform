@@ -48,30 +48,31 @@ function isValidUrl(url: string): boolean {
   }
 }
 
-function isValidEmail(email: string): boolean {
-  if (!email) return true // Empty is valid (optional field)
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
-}
+// Utility functions (available for future use)
+// function isValidEmail(email: string): boolean {
+//   if (!email) return true // Empty is valid (optional field)
+//   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+//   return emailRegex.test(email)
+// }
 
-function formatPhoneNumber(phone: string): string {
-  const phoneNumber = phone.replace(/\D/g, '')
-  if (phoneNumber.length === 0) return ''
-
-  // Handle 11-digit numbers with +1
-  if (phoneNumber.length === 11 && phoneNumber.startsWith('1')) {
-    const digits = phoneNumber.slice(1)
-    if (digits.length <= 3) return `+1(${digits}`
-    if (digits.length <= 6) return `+1(${digits.slice(0, 3)})${digits.slice(3)}`
-    return `+1(${digits.slice(0, 3)})${digits.slice(3, 6)}-${digits.slice(6)}`
-  }
-
-  // Handle 10-digit numbers
-  if (phoneNumber.length <= 3) return `(${phoneNumber}`
-  if (phoneNumber.length <= 6)
-    return `(${phoneNumber.slice(0, 3)})${phoneNumber.slice(3)}`
-  return `(${phoneNumber.slice(0, 3)})${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`
-}
+// function formatPhoneNumber(phone: string): string {
+//   const phoneNumber = phone.replace(/\D/g, '')
+//   if (phoneNumber.length === 0) return ''
+//
+//   // Handle 11-digit numbers with +1
+//   if (phoneNumber.length === 11 && phoneNumber.startsWith('1')) {
+//     const digits = phoneNumber.slice(1)
+//     if (digits.length <= 3) return `+1(${digits}`
+//     if (digits.length <= 6) return `+1(${digits.slice(0, 3)})${digits.slice(3)}`
+//     return `+1(${digits.slice(0, 3)})${digits.slice(3, 6)}-${digits.slice(6)}`
+//   }
+//
+//   // Handle 10-digit numbers
+//   if (phoneNumber.length <= 3) return `(${phoneNumber}`
+//   if (phoneNumber.length <= 6)
+//     return `(${phoneNumber.slice(0, 3)})${phoneNumber.slice(3)}`
+//   return `(${phoneNumber.slice(0, 3)})${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`
+// }
 
 // Helper function to calculate contrast ratio (WCAG AA requires 4.5:1)
 function getContrastRatio(color1: string, color2: string): number {
@@ -155,7 +156,7 @@ function createImage(url: string): Promise<HTMLImageElement> {
 }
 
 export default function NpoBrandingPage() {
-  const { npoId } = useParams({ from: '/_authenticated/npos/$npoId/branding' })
+  const { npoId } = useParams({ from: '/_authenticated/npos/$npoId/' })
   const { currentNPO, loadNPOById } = useNPOStore()
   const navigate = useNavigate()
 

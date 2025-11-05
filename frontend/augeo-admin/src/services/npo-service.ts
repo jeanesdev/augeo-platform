@@ -26,7 +26,8 @@ import type {
   NPOListParams,
   NPOListResponse,
   NPOMember,
-  NPOUpdateRequest
+  NPOUpdateRequest,
+  PendingInvitation,
 } from '@/types/npo'
 
 // ============================================

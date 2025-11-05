@@ -14,7 +14,6 @@ import type {
   MemberInviteRequest,
   MemberListParams,
   MemberRoleUpdateRequest,
-  MemberStatusUpdateRequest,
   NPO,
   NPOApplication,
   NPOBranding,
@@ -88,14 +87,11 @@ interface NPOState {
   inviteMember: (npoId: string, data: MemberInviteRequest) => Promise<void>
   addMember: (npoId: string, data: MemberAddRequest) => Promise<NPOMember>
   updateMemberRole: (
+    npoId: string,
     memberId: string,
     data: MemberRoleUpdateRequest
   ) => Promise<NPOMember>
-  updateMemberStatus: (
-    memberId: string,
-    data: MemberStatusUpdateRequest
-  ) => Promise<NPOMember>
-  removeMember: (memberId: string, reason?: string) => Promise<void>
+  removeMember: (npoId: string, memberId: string, reason?: string) => Promise<void>
 
   // Actions - Branding
   loadBranding: (npoId: string) => Promise<void>
@@ -398,10 +394,11 @@ export const useNPOStore = create<NPOState>()(
         }
       },
 
-      updateMemberRole: async (memberId, data) => {
+      updateMemberRole: async (npoId, memberId, data) => {
         set({ membersLoading: true, membersError: null })
         try {
           const updatedMember = await npoService.member.updateMemberRole(
+            npoId,
             memberId,
             data
           )
@@ -423,35 +420,10 @@ export const useNPOStore = create<NPOState>()(
         }
       },
 
-      updateMemberStatus: async (memberId, data) => {
+      removeMember: async (npoId, memberId, reason) => {
         set({ membersLoading: true, membersError: null })
         try {
-          const updatedMember = await npoService.member.updateMemberStatus(
-            memberId,
-            data
-          )
-          // Update in list
-          set((state) => ({
-            members: state.members.map((member) =>
-              member.id === memberId ? updatedMember : member
-            ),
-            membersLoading: false,
-          }))
-          return updatedMember
-        } catch (error: unknown) {
-          set({
-            membersError:
-              getErrorMessage(error) || 'Failed to update member status',
-            membersLoading: false,
-          })
-          throw error
-        }
-      },
-
-      removeMember: async (memberId, reason) => {
-        set({ membersLoading: true, membersError: null })
-        try {
-          await npoService.member.removeMember(memberId, reason)
+          await npoService.member.removeMember(npoId, memberId, reason)
           // Remove from list
           set((state) => ({
             members: state.members.filter((member) => member.id !== memberId),
