@@ -69,7 +69,7 @@ export function UserAuthForm({
         setIsLoading(false)
 
         // Extract error details
-        const apiError = err as any
+        const apiError = err as { response?: { data?: { detail?: { code?: string } } } }
         const errorCode = apiError?.response?.data?.detail?.code
         const errorMessage = getErrorMessage(err, 'Login failed. Please try again.')
 

@@ -19,8 +19,7 @@ import { AlertCircle, ArrowLeft, Building2, Facebook, Instagram, Linkedin, Palet
 import { useCallback, useEffect, useState } from 'react'
 import { HexColorPicker } from 'react-colorful'
 import { useDropzone } from 'react-dropzone'
-import type { Area } from 'react-easy-crop'
-import Cropper from 'react-easy-crop'
+import Cropper, { type Area } from 'react-easy-crop'
 import { toast } from 'sonner'
 
 // Helper to get full logo URL
@@ -228,8 +227,7 @@ export default function NpoBrandingPage() {
             linkedin: brandingData.social_media_links.linkedin || '',
           })
         }
-      } catch (error) {
-        console.error('Failed to load branding:', error)
+      } catch (_error) {
         toast.error('Failed to load branding configuration')
       } finally {
         setLoading(false)
@@ -283,9 +281,6 @@ export default function NpoBrandingPage() {
       // Upload the cropped image
       const result = await brandingApi.uploadLogoLocal(npoId, croppedFile)
 
-      console.log('Upload successful, result:', result)
-      console.log('Logo URL from response:', result.logo_url)
-
       // Update logo URL
       setLogoUrl(result.logo_url)
 
@@ -295,19 +290,16 @@ export default function NpoBrandingPage() {
       setImageToCrop(null)
 
       toast.success('Logo uploaded successfully')
-    } catch (error: any) {
-      console.error('Logo upload failed:', error)
-      console.error('Error response:', error.response?.data)
-
+    } catch (error: unknown) {
       // Extract detailed error message from backend
-      const errorDetail = error.response?.data?.detail
+      const errorDetail = (error as { response?: { data?: { detail?: unknown } } }).response?.data?.detail
       let errorMsg = 'Failed to upload logo'
 
-      if (errorDetail?.message) {
-        errorMsg = errorDetail.message
-      } else if (typeof error.response?.data?.detail === 'string') {
-        errorMsg = error.response.data.detail
-      } else if (error.message) {
+      if (errorDetail && typeof errorDetail === 'object' && 'message' in errorDetail) {
+        errorMsg = String(errorDetail.message)
+      } else if (typeof errorDetail === 'string') {
+        errorMsg = errorDetail
+      } else if (error instanceof Error && error.message) {
         errorMsg = error.message
       }
 
@@ -356,8 +348,7 @@ export default function NpoBrandingPage() {
 
       // Navigate back to NPO detail page
       navigate({ to: '/npos/$npoId', params: { npoId } })
-    } catch (error) {
-      console.error('Failed to save branding:', error)
+    } catch (_error) {
       toast.error('Failed to save branding')
     } finally {
       setSaving(false)
@@ -546,12 +537,7 @@ export default function NpoBrandingPage() {
                       alt="Logo preview"
                       className="mx-auto h-32 w-auto object-contain"
                       onError={(e) => {
-                        console.error('Failed to load logo:', logoUrl)
-                        console.error('Attempted URL:', getLogoUrl(logoUrl))
                         e.currentTarget.style.display = 'none'
-                      }}
-                      onLoad={() => {
-                        console.log('Logo loaded successfully:', getLogoUrl(logoUrl))
                       }}
                     />
                     <p className="text-sm text-muted-foreground">

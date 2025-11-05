@@ -54,33 +54,40 @@ export default function AcceptInvitationPage() {
     },
   })
 
+
   // Extract token from URL and validate on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const urlToken = params.get('token')
 
     if (!urlToken) {
-      setError('Invalid invitation link - no token provided')
-      setValidating(false)
+      // Use queueMicrotask to avoid synchronous setState in effect
+      queueMicrotask(() => {
+        setError('Invalid invitation link - no token provided')
+        setValidating(false)
+      })
       return
     }
 
-    setToken(urlToken)
+    // Use queueMicrotask for all state updates
+    queueMicrotask(() => {
+      setToken(urlToken)
 
-    // Decode JWT token to extract invitation details
-    try {
-      const payload = JSON.parse(atob(urlToken.split('.')[1]))
-      setDetails({
-        npo_name: payload.npo_name || 'Unknown Organization',
-        role: payload.role || 'staff',
-        inviter_name: payload.inviter_name,
-        email: payload.email,
-      })
-      setValidating(false)
-    } catch (err) {
-      setError('Invalid invitation token format')
-      setValidating(false)
-    }
+      // Decode JWT token to extract invitation details
+      try {
+        const payload = JSON.parse(atob(urlToken.split('.')[1]))
+        setDetails({
+          npo_name: payload.npo_name || 'Unknown Organization',
+          role: payload.role || 'staff',
+          inviter_name: payload.inviter_name,
+          email: payload.email,
+        })
+        setValidating(false)
+      } catch (_err) {
+        setError('Invalid invitation token format')
+        setValidating(false)
+      }
+    })
   }, [])
 
   const handleAccept = () => {

@@ -79,7 +79,7 @@ export default function NpoDetailPage() {
       await deleteNPO(npoId)
       toast.success('Organization deleted successfully')
       navigate({ to: '/npos' })
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to delete organization')
     }
   }

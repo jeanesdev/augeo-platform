@@ -216,13 +216,10 @@ export const memberApi = {
     npoId: string,
     data: MemberInviteRequest
   ): Promise<MemberInviteResponse> {
-    console.log('📤 API: inviteMember called', { npoId, data })
-    console.log('📍 URL:', `/npos/${npoId}/members`)
     const response = await apiClient.post<{ invitation: MemberInviteResponse }>(
       `/npos/${npoId}/members`,
       data
     )
-    console.log('📥 API: inviteMember response', response.data)
     return response.data.invitation
   },
 
@@ -334,7 +331,7 @@ export const brandingApi = {
     const formData = new FormData()
     formData.append('file', file)
 
-    const response = await apiClient.post<{ message: string; branding: any }>(
+    const response = await apiClient.post<{ message: string; branding: { logo_url: string } }>(
       `/npos/${npoId}/branding/logo-upload-local`,
       formData,
       {

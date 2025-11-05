@@ -32,9 +32,8 @@ export default function EditNPOPage() {
       await updateNPO(npoId, data)
       toast.success('Organization updated successfully')
       navigate({ to: '/npos/$npoId', params: { npoId } })
-    } catch (error: any) {
-      console.error('Failed to update NPO:', error)
-      const errorMessage = error.response?.data?.detail || 'Failed to update organization'
+    } catch (error: unknown) {
+      const errorMessage = (error as { response?: { data?: { detail?: string } } }).response?.data?.detail || 'Failed to update organization'
       toast.error(errorMessage)
       throw error
     }

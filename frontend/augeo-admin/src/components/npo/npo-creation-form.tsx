@@ -276,7 +276,6 @@ export function NPOCreationForm({
       // Check if feature is enabled
       const isEnabled = import.meta.env.VITE_ENABLE_ADDRESS_AUTOCOMPLETE === 'true'
       if (!isEnabled) {
-        console.info('Address autocomplete is disabled via feature flag')
         return
       }
 
@@ -285,7 +284,6 @@ export function NPOCreationForm({
 
       const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
       if (!apiKey) {
-        console.warn('Google Maps API key not configured')
         return
       }
 
@@ -346,8 +344,8 @@ export function NPOCreationForm({
         })
 
         autocompleteRef.current = autocomplete
-      } catch (error) {
-        console.error('Error loading Google Places:', error)
+      } catch (_error) {
+        // Error loading Google Places
       }
     }
 

@@ -16,8 +16,7 @@ import { Building2, Facebook, Instagram, Linkedin, Save, Twitter, X } from 'luci
 import { useCallback, useEffect, useState } from 'react'
 import { HexColorPicker } from 'react-colorful'
 import { useDropzone } from 'react-dropzone'
-import type { Area } from 'react-easy-crop'
-import Cropper from 'react-easy-crop'
+import Cropper, { type Area } from 'react-easy-crop'
 import { toast } from 'sonner'
 
 // Helper to get full logo URL
@@ -183,8 +182,8 @@ export function NPOBrandingSection({ npoId, onSave }: NPOBrandingSectionProps) {
             linkedin: brandingData.social_media_links.linkedin || '',
           })
         }
-      } catch (error) {
-        console.error('Failed to load branding:', error)
+      } catch (_error) {
+        // Error loading branding
       } finally {
         setLoading(false)
       }
@@ -237,16 +236,15 @@ export function NPOBrandingSection({ npoId, onSave }: NPOBrandingSectionProps) {
       setImageToCrop(null)
 
       toast.success('Logo uploaded successfully')
-    } catch (error: any) {
-      console.error('Logo upload failed:', error)
-      const errorDetail = error.response?.data?.detail
+    } catch (error: unknown) {
+      const errorDetail = (error as { response?: { data?: { detail?: unknown } } }).response?.data?.detail
       let errorMsg = 'Failed to upload logo'
 
-      if (errorDetail?.message) {
-        errorMsg = errorDetail.message
-      } else if (typeof error.response?.data?.detail === 'string') {
-        errorMsg = error.response.data.detail
-      } else if (error.message) {
+      if (errorDetail && typeof errorDetail === 'object' && 'message' in errorDetail) {
+        errorMsg = String(errorDetail.message)
+      } else if (typeof errorDetail === 'string') {
+        errorMsg = errorDetail
+      } else if (error instanceof Error && error.message) {
         errorMsg = error.message
       }
 
@@ -289,8 +287,7 @@ export function NPOBrandingSection({ npoId, onSave }: NPOBrandingSectionProps) {
       await brandingApi.updateBranding(npoId, updateData)
       toast.success('Branding saved successfully')
       onSave?.()
-    } catch (error) {
-      console.error('Failed to save branding:', error)
+    } catch (_error) {
       toast.error('Failed to save branding')
     } finally {
       setSaving(false)

@@ -188,7 +188,7 @@ export function SignUpForm({
       const error = err as {
         response?: {
           data?: {
-            detail?: string | { code?: string; message?: string; details?: any }
+            detail?: string | { code?: string; message?: string; details?: unknown }
             error?: { message?: string }
           }
         }

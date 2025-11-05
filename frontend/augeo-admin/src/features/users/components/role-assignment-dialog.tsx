@@ -1,6 +1,6 @@
 import React from 'react'
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -80,9 +80,9 @@ export function RoleAssignmentDialog({
     }
   }, [user, form])
 
-  const selectedRole = form.watch('role')
+  const selectedRole = useWatch({ control: form.control, name: 'role' })
   const requiresNpoId = ['npo_admin', 'event_coordinator'].includes(
-    selectedRole
+    selectedRole || ''
   )
 
   const onSubmit = async (values: RoleAssignmentForm) => {
