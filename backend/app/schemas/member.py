@@ -2,8 +2,9 @@
 
 import uuid
 from datetime import datetime
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, model_serializer
 
 from app.models.npo_member import MemberRole, MemberStatus
 
@@ -55,6 +56,25 @@ class MemberResponse(MemberBase):
     user_full_name: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+    @model_serializer
+    def serialize_model(self) -> dict[str, Any]:
+        """Add email alias for backward compatibility."""
+        data = {
+            "id": self.id,
+            "npo_id": self.npo_id,
+            "user_id": self.user_id,
+            "role": self.role,
+            "status": self.status,
+            "joined_at": self.joined_at,
+            "created_at": self.created_at,
+            "user_email": self.user_email,
+            "email": self.user_email,  # Alias for backward compatibility
+            "user_first_name": self.user_first_name,
+            "user_last_name": self.user_last_name,
+            "user_full_name": self.user_full_name,
+        }
+        return data
 
 
 class InvitationResponse(InvitationBase):

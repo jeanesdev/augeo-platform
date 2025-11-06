@@ -25,7 +25,7 @@ class TestAcceptInvitationEndpoint:
         test_invitation_token: str,
     ):
         """User can accept valid invitation"""
-        response = await client.post(f"/invitations/{test_invitation_token}/accept")
+        response = await client.post(f"/api/v1/invitations/{test_invitation_token}/accept")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -39,7 +39,7 @@ class TestAcceptInvitationEndpoint:
     ):
         """Rejects invalid token"""
         fake_token = "invalid_token"
-        response = await client.post(f"/invitations/{fake_token}/accept")
+        response = await client.post(f"/api/v1/invitations/{fake_token}/accept")
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert "not found" in response.json()["detail"].lower()
@@ -50,7 +50,7 @@ class TestAcceptInvitationEndpoint:
         test_expired_invitation_token: str,
     ):
         """Rejects expired token"""
-        response = await client.post(f"/invitations/{test_expired_invitation_token}/accept")
+        response = await client.post(f"/api/v1/invitations/{test_expired_invitation_token}/accept")
 
         assert response.status_code == status.HTTP_410_GONE
         assert "expired" in response.json()["detail"].lower()
@@ -61,7 +61,7 @@ class TestAcceptInvitationEndpoint:
         test_accepted_invitation_token: str,
     ):
         """Rejects already accepted invitation"""
-        response = await client.post(f"/invitations/{test_accepted_invitation_token}/accept")
+        response = await client.post(f"/api/v1/invitations/{test_accepted_invitation_token}/accept")
 
         assert response.status_code == status.HTTP_409_CONFLICT
         assert "already" in response.json()["detail"].lower()
@@ -72,7 +72,7 @@ class TestAcceptInvitationEndpoint:
         test_revoked_invitation_token: str,
     ):
         """Rejects revoked invitation"""
-        response = await client.post(f"/invitations/{test_revoked_invitation_token}/accept")
+        response = await client.post(f"/api/v1/invitations/{test_revoked_invitation_token}/accept")
 
         assert response.status_code == status.HTTP_410_GONE
         assert "revoked" in response.json()["detail"].lower()
@@ -83,7 +83,9 @@ class TestAcceptInvitationEndpoint:
         test_invitation_token_existing_member: str,
     ):
         """Rejects if user is already a member"""
-        response = await client.post(f"/invitations/{test_invitation_token_existing_member}/accept")
+        response = await client.post(
+            f"/api/v1/invitations/{test_invitation_token_existing_member}/accept"
+        )
 
         assert response.status_code == status.HTTP_409_CONFLICT
         assert "already a member" in response.json()["detail"].lower()

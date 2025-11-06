@@ -1151,11 +1151,14 @@ async def authenticated_client_other_user(
 
 
 @pytest_asyncio.fixture
-async def test_invitation_token(db_session: AsyncSession, test_npo: Any, test_user: Any) -> str:
+async def test_invitation_token(
+    db_session: AsyncSession, test_npo: Any, test_user: Any, test_invited_user: Any
+) -> str:
     """
     Create a valid invitation token for testing.
 
     Returns invitation ID as token string for acceptance.
+    NOTE: Depends on test_invited_user to ensure user exists with matching email.
     """
     import hashlib
     import uuid
@@ -1170,7 +1173,7 @@ async def test_invitation_token(db_session: AsyncSession, test_npo: Any, test_us
     # Create invitation
     invitation = Invitation(
         npo_id=test_npo.id,
-        email="invited@example.com",
+        email="invited@example.com",  # Matches test_invited_user email
         role="staff",
         status=InvitationStatus.PENDING,
         expires_at=datetime.now(UTC) + timedelta(days=7),
@@ -1182,6 +1185,43 @@ async def test_invitation_token(db_session: AsyncSession, test_npo: Any, test_us
     await db_session.refresh(invitation)
 
     return str(invitation.id)
+
+
+@pytest_asyncio.fixture
+async def test_invited_user(db_session: AsyncSession) -> Any:
+    """
+    Create a user for invitation acceptance testing.
+    Email matches the invitation email in test_invitation_token fixture.
+    """
+    from sqlalchemy import select
+
+    from app.core.security import hash_password
+    from app.models.role import Role
+    from app.models.user import User
+
+    # Get or create donor role
+    stmt = select(Role).where(Role.name == "donor")
+    result = await db_session.execute(stmt)
+    donor_role = result.scalar_one_or_none()
+
+    if not donor_role:
+        donor_role = Role(name="donor", description="Regular donor user")
+        db_session.add(donor_role)
+        await db_session.flush()
+
+    user = User(
+        email="invited@example.com",
+        password_hash=hash_password("Password123!"),
+        first_name="Invited",
+        last_name="User",
+        email_verified=True,
+        is_active=True,
+        role_id=donor_role.id,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
 
 
 @pytest_asyncio.fixture
