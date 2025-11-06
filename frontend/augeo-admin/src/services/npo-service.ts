@@ -391,9 +391,18 @@ export const adminApi = {
     decision: 'approved' | 'rejected',
     notes?: string
   ): Promise<NPO> {
+    // Backend expects 'approve' or 'reject', not 'approved' or 'rejected'
+    const backendDecision = decision === 'approved' ? 'approve' : 'reject'
+
+    // Only include notes if provided
+    const payload: { decision: string; notes?: string } = { decision: backendDecision }
+    if (notes) {
+      payload.notes = notes
+    }
+
     const response = await apiClient.post<NPO>(
       `/admin/npos/${npoId}/review`,
-      { decision, notes }
+      payload
     )
     return response.data
   },

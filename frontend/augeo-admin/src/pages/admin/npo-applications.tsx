@@ -27,7 +27,8 @@ import {
 import npoService from '@/services/npo-service'
 import type { ApplicationStatus, NPOApplication } from '@/types/npo'
 import { useQuery } from '@tanstack/react-query'
-import { Building2, Search } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import { Building2, ExternalLink, Search } from 'lucide-react'
 import { useState } from 'react'
 
 // Status badge color mapping
@@ -200,23 +201,31 @@ export default function NPOApplicationsPage() {
                         {new Date(application.submitted_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
-                        {application.status === 'submitted' ||
-                          application.status === 'under_review' ? (
-                          <Button
-                            size="sm"
-                            onClick={() => setSelectedApplication(application)}
-                          >
-                            Review
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setSelectedApplication(application)}
-                          >
-                            View
-                          </Button>
-                        )}
+                        <div className="flex justify-end gap-2">
+                          <Link to="/npos/$id" params={{ id: application.npo_id }}>
+                            <Button size="sm" variant="outline">
+                              <ExternalLink className="mr-2 h-4 w-4" />
+                              View Details
+                            </Button>
+                          </Link>
+                          {application.status === 'submitted' ||
+                            application.status === 'under_review' ? (
+                            <Button
+                              size="sm"
+                              onClick={() => setSelectedApplication(application)}
+                            >
+                              Review
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setSelectedApplication(application)}
+                            >
+                              View
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

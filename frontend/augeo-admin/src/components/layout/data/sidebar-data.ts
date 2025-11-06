@@ -4,6 +4,7 @@ import {
   Bell,
   Bug,
   Building2,
+  ClipboardList,
   Construction,
   FileX,
   HelpCircle,
@@ -71,6 +72,11 @@ export const sidebarData: SidebarData = {
           title: 'Organizations',
           url: '/npos',
           icon: Building2,
+        },
+        {
+          title: 'NPO Applications',
+          url: '/admin/npo-applications',
+          icon: ClipboardList,
         },
         {
           title: 'Secured by Clerk',

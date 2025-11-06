@@ -38,7 +38,8 @@ def require_superadmin(current_user: Annotated[User, Depends(get_current_user)])
         HTTPException: 403 if user is not SuperAdmin
     """
     # Check if user has SuperAdmin role
-    if current_user.role.name != "super_admin":
+    # Note: role_name is attached by get_current_user middleware
+    if getattr(current_user, "role_name", None) != "super_admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="SuperAdmin privileges required for this operation",
@@ -55,6 +56,7 @@ def require_superadmin(current_user: Annotated[User, Depends(get_current_user)])
 async def get_pending_applications(
     page: int = 1,
     page_size: int = 50,
+    status: str | None = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_superadmin),
 ) -> dict[str, int | list[NPOResponse]]:
@@ -68,6 +70,7 @@ async def get_pending_applications(
     Args:
         page: Page number (1-indexed)
         page_size: Number of items per page
+        status: Filter by status (optional, currently ignored - always returns pending)
         db: Database session
         current_user: Current SuperAdmin user
 
@@ -148,6 +151,12 @@ async def review_application(
     Raises:
         HTTPException: If validation fails or NPO not found
     """
+    # Debug logging
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.error(f"DEBUG: Received review request - npo_id: {npo_id}, decision: {review_request.decision}, notes: {review_request.notes}")
+    logger.error(f"DEBUG: Request type: decision={type(review_request.decision)}, notes={type(review_request.notes)}")
+
     # Validate decision
     if review_request.decision not in ("approve", "reject"):
         raise HTTPException(

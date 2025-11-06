@@ -3,6 +3,7 @@
  * Displays detailed information about a specific NPO with edit and delete actions
  */
 
+import { ApplicationReviewDialog } from '@/components/admin/application-review-dialog'
 import { ApplicationStatusBadge } from '@/components/npo/application-status-badge'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,12 +13,15 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { MemberList } from '@/features/npo-management/components/MemberList'
 import { PendingInvitations } from '@/features/npo-management/components/PendingInvitations'
 import { StaffInvitation } from '@/features/npo-management/components/StaffInvitation'
+import { useAuthStore } from '@/stores/auth-store'
 import { useNPOStore } from '@/stores/npo-store'
+import type { NPOApplication } from '@/types/npo'
 import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import {
   ArrowLeft,
   Building2,
   Calendar,
+  ClipboardCheck,
   Edit,
   Globe,
   Mail,
@@ -26,7 +30,7 @@ import {
   Trash2,
   Users,
 } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 // Helper to get full logo URL
@@ -81,12 +85,22 @@ export default function NpoDetailPage() {
   const { npoId } = useParams({ from: '/_authenticated/npos/$npoId/' })
   const navigate = useNavigate()
   const { currentNPO, nposLoading, nposError, loadNPOById, deleteNPO } = useNPOStore()
+  const user = useAuthStore((state) => state.user)
+  const [showReviewDialog, setShowReviewDialog] = useState(false)
 
   useEffect(() => {
     if (npoId) {
       loadNPOById(npoId)
     }
   }, [npoId, loadNPOById])
+
+  const handleReviewComplete = async () => {
+    setShowReviewDialog(false)
+    // Reload the NPO to get updated status
+    if (npoId) {
+      await loadNPOById(npoId)
+    }
+  }
 
   const handleDelete = async () => {
     if (!npoId) return
@@ -156,7 +170,7 @@ export default function NpoDetailPage() {
   return (
     <div className="container mx-auto space-y-6 py-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
           <Link to="/npos">
             <Button variant="ghost" size="icon">
@@ -165,7 +179,7 @@ export default function NpoDetailPage() {
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">{npo.name}</h1>
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{npo.name}</h1>
               <Badge
                 variant="secondary"
                 className={`${statusColors[npo.status as keyof typeof statusColors]} text-white`}
@@ -176,16 +190,23 @@ export default function NpoDetailPage() {
             <p className="text-muted-foreground">Organization Details</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Link to="/npos/$npoId/edit" params={{ npoId }}>
-            <Button variant="outline">
+        <div className="flex flex-wrap gap-2">
+          {/* Review button - only for super_admin when NPO is pending approval */}
+          {user?.role === 'super_admin' && npo.status === 'pending_approval' && (
+            <Button onClick={() => setShowReviewDialog(true)} className="flex-1 md:flex-none">
+              <ClipboardCheck className="mr-2 h-4 w-4" />
+              <span>Review Application</span>
+            </Button>
+          )}
+          <Link to="/npos/$npoId/edit" params={{ npoId }} className="flex-1 md:flex-none">
+            <Button variant="outline" className="w-full">
               <Edit className="mr-2 h-4 w-4" />
-              Edit
+              <span>Edit</span>
             </Button>
           </Link>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button variant="destructive" onClick={handleDelete} className="flex-1 md:flex-none">
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete
+            <span>Delete</span>
           </Button>
         </div>
       </div>
@@ -560,6 +581,25 @@ export default function NpoDetailPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Review Dialog */}
+      {showReviewDialog && currentNPO && (
+        <ApplicationReviewDialog
+          application={{
+            id: currentNPO.id,
+            npo_id: currentNPO.id,
+            status: 'submitted',
+            npo_name: currentNPO.name,
+            npo_email: currentNPO.email,
+            submitted_at: currentNPO.created_at,
+            created_at: currentNPO.created_at,
+            updated_at: currentNPO.updated_at,
+          } as NPOApplication}
+          open={showReviewDialog}
+          onClose={() => setShowReviewDialog(false)}
+          onComplete={handleReviewComplete}
+        />
       )}
     </div>
   )

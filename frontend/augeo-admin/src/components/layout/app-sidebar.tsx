@@ -29,6 +29,10 @@ export function AppSidebar() {
       if (item.title === 'Organizations' && user?.role !== 'super_admin') {
         return false
       }
+      // Hide NPO Applications link for non-super_admin users
+      if (item.title === 'NPO Applications' && user?.role !== 'super_admin') {
+        return false
+      }
       return true
     }),
   }))
