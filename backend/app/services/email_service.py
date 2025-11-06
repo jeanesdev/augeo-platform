@@ -42,7 +42,7 @@ def _create_email_html_template(
     # Build CTA button if provided
     cta_html = ""
     if cta_text and cta_url:
-        cta_html = f'''
+        cta_html = f"""
         <table role="presentation" style="margin: 32px 0;">
           <tr>
             <td>
@@ -59,7 +59,7 @@ def _create_email_html_template(
             </td>
           </tr>
         </table>
-        '''
+        """
 
     # Build footer
     footer_html = ""
