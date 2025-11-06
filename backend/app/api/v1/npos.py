@@ -200,7 +200,16 @@ async def get_npo(
             detail=f"NPO with ID {npo_id} not found",
         )
 
-    return NPODetailResponse.model_validate(npo)
+    # Calculate member counts
+    member_count = len(npo.members) if npo.members else 0
+    active_member_count = sum(1 for m in npo.members if m.status == "active") if npo.members else 0
+
+    # Create response with member counts
+    response_data = NPODetailResponse.model_validate(npo)
+    response_data.member_count = member_count
+    response_data.active_member_count = active_member_count
+
+    return response_data
 
 
 @router.patch("/{npo_id}", response_model=NPOResponse)
