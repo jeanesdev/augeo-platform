@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { NPOLegalAgreementModal } from '@/components/npo/npo-legal-agreement-modal'
 import { npoService } from '@/services/npo-service'
 import { useNPOStore } from '@/stores/npo-store'
 import type { NPODetail } from '@/types/npo'
@@ -50,6 +51,7 @@ export function ApplicationStatusBadge({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [showLegalModal, setShowLegalModal] = useState(false)
 
   // Validate required fields
   const validateRequiredFields = (): { valid: boolean; error?: string } => {
@@ -95,15 +97,21 @@ export function ApplicationStatusBadge({
   // Check if submit button should be disabled
   const isSubmitDisabled = isSubmitting || !!errorMessage
 
-  // Handle click on submit button - show confirmation if valid
+  // Handle click on submit button - show legal modal first
   const handleSubmitClick = () => {
     const validation = validateRequiredFields()
     if (!validation.valid) {
       setErrorMessage(validation.error!)
       return
     }
-    // Validation passed, clear any errors and show confirmation dialog
+    // Validation passed, clear any errors and show legal agreement modal
     setErrorMessage(null)
+    setShowLegalModal(true)
+  }
+
+  // Handle legal agreements accepted - show final confirmation
+  const handleLegalAccepted = () => {
+    setShowLegalModal(false)
     setShowConfirmDialog(true)
   }
 
@@ -246,6 +254,13 @@ export function ApplicationStatusBadge({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Legal Agreement Modal */}
+      <NPOLegalAgreementModal
+        open={showLegalModal}
+        onClose={() => setShowLegalModal(false)}
+        onAccepted={handleLegalAccepted}
+      />
     </div>
   )
 }
