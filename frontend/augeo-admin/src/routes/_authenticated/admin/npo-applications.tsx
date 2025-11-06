@@ -8,10 +8,7 @@ export const Route = createFileRoute('/_authenticated/admin/npo-applications')({
     const user = useAuthStore.getState().user
     if (user?.role !== 'super_admin') {
       throw redirect({
-        to: '/dashboard',
-        search: {
-          redirect: '/admin/npo-applications',
-        },
+        to: '/',
       })
     }
   },
