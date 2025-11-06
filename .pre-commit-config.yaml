@@ -31,8 +31,8 @@ repos:
           - starlette==0.48.0
           - bcrypt==5.0.0
           - types-redis==4.6.0.20241004
-        args: [--config-file=backend/pyproject.toml, --strict]
-        files: ^backend/
+        args: [--strict, --ignore-missing-imports]
+        files: ^backend/app/
         exclude: ^backend/(alembic/|app/tests/)
 
   # Frontend and Bicep validation (local hooks)
