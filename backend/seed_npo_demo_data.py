@@ -36,7 +36,13 @@ DEMO_NPOS = [
         "description": "Supporting education in underserved communities worldwide. We provide scholarships, school supplies, and mentorship programs to help children reach their full potential.",
         "email": "contact@hopefoundation.org",
         "phone": "+1 (555) 123-4567",
-        "address": "123 Education Lane, Learning City, CA 90210",
+        "address": {
+            "street": "123 Education Lane",
+            "city": "Learning City",
+            "state": "CA",
+            "postal_code": "90210",
+            "country": "USA",
+        },
         "tax_id": "12-3456789",
         "registration_number": "NPO-2024-001",
         "website_url": "https://hopefoundation.org",
@@ -45,10 +51,12 @@ DEMO_NPOS = [
             "primary_color": "#1E40AF",
             "secondary_color": "#3B82F6",
             "accent_color": "#60A5FA",
-            "text_color": "#1F2937",
-            "facebook_url": "https://facebook.com/hopefoundation",
-            "twitter_url": "https://twitter.com/hopefound",
-            "instagram_url": "https://instagram.com/hopefoundation",
+            "background_color": "#FFFFFF",
+            "social_media_links": {
+                "facebook": "https://facebook.com/hopefoundation",
+                "twitter": "https://twitter.com/hopefound",
+                "instagram": "https://instagram.com/hopefoundation",
+            },
         },
         "members": [
             {
@@ -76,18 +84,28 @@ DEMO_NPOS = [
         "description": "Environmental conservation and sustainability programs. We focus on reforestation, ocean cleanup, and renewable energy education.",
         "email": "info@greenearthinitiative.org",
         "phone": "+1 (555) 234-5678",
-        "address": "456 Forest Drive, Eco City, OR 97201",
+        "address": {
+            "street": "456 Forest Drive",
+            "city": "Eco City",
+            "state": "OR",
+            "postal_code": "97201",
+            "country": "USA",
+        },
         "tax_id": "23-4567890",
         "registration_number": "NPO-2024-002",
         "website_url": "https://greenearthinitiative.org",
         "status": NPOStatus.PENDING_APPROVAL,
         "branding": {
-            "primary_color": "#059669",
-            "secondary_color": "#10B981",
-            "accent_color": "#34D399",
-            "text_color": "#064E3B",
-            "facebook_url": "https://facebook.com/greenearthinitiative",
-            "linkedin_url": "https://linkedin.com/company/green-earth-initiative",
+            "primary_color": "#10B981",
+            "secondary_color": "#34D399",
+            "accent_color": "#6EE7B7",
+            "background_color": "#FFFFFF",
+            "social_media_links": {
+                "facebook": "https://facebook.com/greenearth",
+                "twitter": "https://twitter.com/greenearthinit",
+                "instagram": "https://instagram.com/greenearth",
+                "linkedin": "https://linkedin.com/company/green-earth-initiative",
+            },
         },
         "members": [
             {
@@ -109,7 +127,13 @@ DEMO_NPOS = [
         "description": "Providing free healthcare services to underserved populations. Mobile clinics, health education, and preventive care programs.",
         "email": "contact@communityhealthnetwork.org",
         "phone": "+1 (555) 345-6789",
-        "address": "789 Medical Plaza, Healthcare City, NY 10001",
+        "address": {
+            "street": "789 Medical Plaza",
+            "city": "Healthcare City",
+            "state": "NY",
+            "postal_code": "10001",
+            "country": "USA",
+        },
         "tax_id": "34-5678901",
         "registration_number": "NPO-2024-003",
         "website_url": "https://communityhealthnetwork.org",
@@ -118,10 +142,13 @@ DEMO_NPOS = [
             "primary_color": "#DC2626",
             "secondary_color": "#EF4444",
             "accent_color": "#F87171",
-            "text_color": "#7F1D1D",
-            "facebook_url": "https://facebook.com/communityhealthnetwork",
-            "twitter_url": "https://twitter.com/comhealthnet",
-            "youtube_url": "https://youtube.com/@communityhealthnetwork",
+            "background_color": "#FFFFFF",
+            "social_media_links": {
+                "facebook": "https://facebook.com/communityhealthnetwork",
+                "twitter": "https://twitter.com/communityhealth",
+                "linkedin": "https://linkedin.com/company/community-health-network",
+                "youtube": "https://youtube.com/@communityhealthnetwork",
+            },
         },
         "members": [
             {
@@ -155,7 +182,13 @@ DEMO_NPOS = [
         "description": "Empowering youth through creative arts programs. Music, dance, theater, and visual arts education for children and teens.",
         "email": "hello@youthartsacademy.org",
         "phone": "+1 (555) 456-7890",
-        "address": "321 Creative Way, Arts District, TX 75001",
+        "address": {
+            "street": "321 Creative Way",
+            "city": "Arts District",
+            "state": "TX",
+            "postal_code": "75001",
+            "country": "USA",
+        },
         "tax_id": "45-6789012",
         "website_url": "https://youthartsacademy.org",
         "status": NPOStatus.DRAFT,
@@ -163,9 +196,11 @@ DEMO_NPOS = [
             "primary_color": "#7C3AED",
             "secondary_color": "#8B5CF6",
             "accent_color": "#A78BFA",
-            "text_color": "#4C1D95",
-            "instagram_url": "https://instagram.com/youthartsacademy",
-            "facebook_url": "https://facebook.com/youthartsacademy",
+            "background_color": "#FFFFFF",
+            "social_media_links": {
+                "instagram": "https://instagram.com/youthartsacademy",
+                "facebook": "https://facebook.com/youthartsacademy",
+            },
         },
         "members": [
             {
@@ -181,7 +216,13 @@ DEMO_NPOS = [
         "description": "Rescuing and rehoming abandoned animals. We provide veterinary care, foster programs, and adoption services.",
         "email": "info@animalrescuealliance.org",
         "phone": "+1 (555) 567-8901",
-        "address": "654 Rescue Road, Pet City, FL 33101",
+        "address": {
+            "street": "654 Rescue Road",
+            "city": "Pet City",
+            "state": "FL",
+            "postal_code": "33101",
+            "country": "USA",
+        },
         "tax_id": "56-7890123",
         "registration_number": "NPO-2024-005",
         "website_url": "https://animalrescuealliance.org",
@@ -190,10 +231,12 @@ DEMO_NPOS = [
             "primary_color": "#EA580C",
             "secondary_color": "#F97316",
             "accent_color": "#FB923C",
-            "text_color": "#7C2D12",
-            "facebook_url": "https://facebook.com/animalrescuealliance",
-            "instagram_url": "https://instagram.com/animalrescuealliance",
-            "twitter_url": "https://twitter.com/animalrescue",
+            "background_color": "#FFFFFF",
+            "social_media_links": {
+                "facebook": "https://facebook.com/animalrescuealliance",
+                "instagram": "https://instagram.com/animalrescuealliance",
+                "twitter": "https://twitter.com/animalrescue",
+            },
         },
         "members": [
             {
@@ -214,7 +257,7 @@ DEMO_NPOS = [
 
 
 async def get_or_create_user(
-    db: AsyncSession, email: str, first_name: str, last_name: str, role_name: str = "admin"
+    db: AsyncSession, email: str, first_name: str, last_name: str, role_name: str = "npo_admin"
 ) -> User:
     """Get existing user or create new one."""
     # Check if user exists
@@ -229,11 +272,21 @@ async def get_or_create_user(
     role = result.scalar_one_or_none()
 
     if not role:
-        # Create role if it doesn't exist
+        # Create role if it doesn't exist (shouldn't happen in production)
+        scope_map = {
+            "super_admin": "platform",
+            "npo_admin": "npo",
+            "event_coordinator": "npo",
+            "staff": "event",
+            "donor": "own",
+        }
+        scope = scope_map.get(role_name, "npo")
+
         role = Role(
             id=uuid4(),
             name=role_name,
-            description=f"{role_name.title()} role",
+            description=f"{role_name.replace('_', ' ').title()} role",
+            scope=scope,
         )
         db.add(role)
         await db.flush()
@@ -291,7 +344,7 @@ async def seed_npo_data() -> None:
                 registration_number=npo_data.get("registration_number"),
                 website_url=npo_data.get("website_url"),
                 status=npo_data["status"],
-                creator_id=creator.id,
+                created_by_user_id=creator.id,
             )
             db.add(npo)
             await db.flush()
@@ -335,9 +388,8 @@ async def seed_npo_data() -> None:
                 application = NPOApplication(
                     id=uuid4(),
                     npo_id=npo.id,
-                    status=app_status,
+                    status=app_status,  # Pass enum directly, model handles conversion
                     submitted_at=datetime.utcnow() - timedelta(days=random.randint(1, 30)),
-                    submitted_by_user_id=creator.id,
                 )
 
                 # Add review details if approved or rejected

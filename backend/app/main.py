@@ -117,16 +117,7 @@ app = FastAPI(
     ],
 )
 
-# Request ID middleware (must be before CORS)
-app.add_middleware(RequestIDMiddleware)
-
-# Metrics middleware (after request ID for accurate tracking)
-app.add_middleware(MetricsMiddleware)
-
-# Consent check middleware (after metrics, before CORS)
-app.add_middleware(ConsentCheckMiddleware)
-
-# CORS middleware
+# CORS middleware (MUST be first to add headers to all responses)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.get_cors_origins_list(),
@@ -134,6 +125,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Request ID middleware
+app.add_middleware(RequestIDMiddleware)
+
+# Metrics middleware
+app.add_middleware(MetricsMiddleware)
+
+# Consent check middleware
+app.add_middleware(ConsentCheckMiddleware)
 
 # Exception handlers
 app.add_exception_handler(Exception, generic_exception_handler)

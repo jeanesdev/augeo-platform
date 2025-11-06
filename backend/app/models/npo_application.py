@@ -49,7 +49,11 @@ class NPOApplication(Base, UUIDMixin, TimestampMixin):
 
     # Status
     status: Mapped[ApplicationStatus] = mapped_column(
-        Enum(ApplicationStatus, name="application_status", native_enum=False),
+        Enum(
+            ApplicationStatus,
+            name="application_status",
+            values_callable=lambda x: [e.value for e in x],
+        ),
         nullable=False,
         default=ApplicationStatus.SUBMITTED,
         server_default=ApplicationStatus.SUBMITTED.value,
