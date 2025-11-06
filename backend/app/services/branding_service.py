@@ -25,7 +25,7 @@ SOCIAL_MEDIA_PATTERNS = {
     "twitter": r"^https?://(www\.)?(twitter|x)\.com/[\w]+/?.*$",
     "instagram": r"^https?://(www\.)?instagram\.com/[\w\.]+/?.*$",
     "linkedin": r"^https?://(www\.)?linkedin\.com/(company|in)/[\w\-]+/?.*$",
-    "youtube": r"^https?://(www\.)?youtube\.com/(c|@|channel|user)/[\w\-]+/?.*$",
+    "youtube": r"^https?://(www\.)?youtube\.com/(c/|@|channel/|user/)[\w\-]+/?.*$",
     "website": r"^https?://[\w\-\.]+\.[a-z]{2,}(/.*)?$",
 }
 
