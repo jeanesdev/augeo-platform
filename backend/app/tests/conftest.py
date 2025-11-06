@@ -124,38 +124,47 @@ async def test_engine(test_database_url: str) -> AsyncGenerator[AsyncEngine, Non
         # Reflect the roles table into Base.metadata so auth_service can use it
         await conn.run_sync(lambda sync_conn: Base.metadata.reflect(bind=sync_conn, only=["roles"]))
 
-        # Create PostgreSQL enum types for legal documentation (matching migration 007)
-        # Use exception handling since CREATE TYPE doesn't support IF NOT EXISTS
-        try:
+    # Create PostgreSQL enum types for legal documentation (matching migration 007)
+    # Each enum creation needs its own transaction block since CREATE TYPE errors
+    # leave the transaction in a failed state
+    try:
+        async with engine.begin() as conn:
             await conn.execute(
                 text(
                     "CREATE TYPE legal_document_type AS ENUM ('terms_of_service', 'privacy_policy')"
                 )
             )
-        except Exception:
-            pass  # Type already exists
-        try:
+    except Exception:
+        pass  # Type already exists
+
+    try:
+        async with engine.begin() as conn:
             await conn.execute(
                 text("CREATE TYPE legal_document_status AS ENUM ('draft', 'published', 'archived')")
             )
-        except Exception:
-            pass
-        try:
+    except Exception:
+        pass
+
+    try:
+        async with engine.begin() as conn:
             await conn.execute(
                 text("CREATE TYPE consent_status AS ENUM ('active', 'withdrawn', 'superseded')")
             )
-        except Exception:
-            pass
-        try:
+    except Exception:
+        pass
+
+    try:
+        async with engine.begin() as conn:
             await conn.execute(
                 text(
                     "CREATE TYPE consent_action AS ENUM ('consent_given', 'consent_updated', 'consent_withdrawn', 'data_export_requested', 'data_deletion_requested', 'cookie_consent_updated')"
                 )
             )
-        except Exception:
-            pass
+    except Exception:
+        pass
 
-        # Then create other tables
+    # Create all other tables in a fresh transaction
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     yield engine

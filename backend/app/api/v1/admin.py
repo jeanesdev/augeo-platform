@@ -96,9 +96,7 @@ async def get_pending_applications(
             {
                 "id": str(npo.id),
                 "npo_id": str(npo.id),
-                "status": "submitted"
-                if npo.status.value == "pending_approval"
-                else npo.status.value,
+                "status": npo.status.value,
                 "review_notes": None,
                 "reviewed_by_user_id": None,
                 "submitted_at": npo.created_at.isoformat(),
@@ -111,7 +109,7 @@ async def get_pending_applications(
         )
 
     return {
-        "items": applications,
+        "applications": applications,
         "total": total,
         "page": page,
         "page_size": page_size,
