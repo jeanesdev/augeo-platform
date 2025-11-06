@@ -202,7 +202,7 @@ export default function NPOApplicationsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Link to="/npos/$id" params={{ id: application.npo_id }}>
+                          <Link to="/npos/$npoId" params={{ npoId: application.npo_id }}>
                             <Button size="sm" variant="outline">
                               <ExternalLink className="mr-2 h-4 w-4" />
                               View Details

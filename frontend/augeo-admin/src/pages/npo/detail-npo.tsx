@@ -598,7 +598,7 @@ export default function NpoDetailPage() {
           } as NPOApplication}
           open={showReviewDialog}
           onClose={() => setShowReviewDialog(false)}
-          onComplete={handleReviewComplete}
+          onReviewComplete={handleReviewComplete}
         />
       )}
     </div>
