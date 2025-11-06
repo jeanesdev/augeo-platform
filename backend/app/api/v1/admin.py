@@ -53,8 +53,8 @@ def require_superadmin(current_user: Annotated[User, Depends(get_current_user)])
     description="Retrieve list of NPO applications with PENDING_APPROVAL status (SuperAdmin only)",
 )
 async def get_pending_applications(
-    skip: int = 0,
-    limit: int = 50,
+    page: int = 1,
+    page_size: int = 50,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(require_superadmin),
 ) -> dict[str, int | list[NPOResponse]]:
@@ -66,25 +66,49 @@ async def get_pending_applications(
     Returns paginated list of NPOs awaiting approval.
 
     Args:
-        skip: Number of records to skip (pagination)
-        limit: Maximum number of records to return
+        page: Page number (1-indexed)
+        page_size: Number of items per page
         db: Database session
         current_user: Current SuperAdmin user
 
     Returns:
-        Dictionary with applications list and total count
+        Dictionary with applications list and pagination metadata
     """
+    # Calculate skip from page number
+    skip = (page - 1) * page_size
+
     npos, total = await ApplicationService.get_pending_applications(
         db=db,
         skip=skip,
-        limit=limit,
+        limit=page_size,
     )
 
+    # Calculate total pages
+    total_pages = (total + page_size - 1) // page_size
+
+    # Transform NPOs into application format expected by frontend
+    applications = []
+    for npo in npos:
+        applications.append({
+            "id": str(npo.id),
+            "npo_id": str(npo.id),
+            "status": "submitted" if npo.status.value == "pending_approval" else npo.status.value,
+            "review_notes": None,
+            "reviewed_by_user_id": None,
+            "submitted_at": npo.created_at.isoformat(),
+            "reviewed_at": None,
+            "created_at": npo.created_at.isoformat(),
+            "updated_at": npo.updated_at.isoformat(),
+            "npo_name": npo.name,
+            "npo_email": npo.email,
+        })
+
     return {
-        "applications": [NPOResponse.model_validate(npo) for npo in npos],
+        "items": applications,
         "total": total,
-        "skip": skip,
-        "limit": limit,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
     }
 
 
