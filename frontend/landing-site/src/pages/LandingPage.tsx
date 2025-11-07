@@ -60,7 +60,7 @@ export const LandingPage = () => {
               <div className="feature-icon">📱</div>
               <h3 className="feature-title">Mobile Bidding</h3>
               <p className="feature-description">
-                Digital bid paddles work on any device. Your donors can participate from anywhere, increasing engagement and bids.
+                Silent auction bidding with push notifications from any device. Donors can track auctions throughout the event, increasing engagement and bids.
               </p>
             </div>
 

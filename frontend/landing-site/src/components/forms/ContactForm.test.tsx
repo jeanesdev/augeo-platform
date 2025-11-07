@@ -4,9 +4,9 @@
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { ContactForm } from './ContactForm';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as api from '../../services/api';
+import { ContactForm } from './ContactForm';
 
 // Mock the API
 vi.mock('../../services/api', () => ({

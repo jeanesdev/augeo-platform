@@ -64,25 +64,19 @@ describe('ContactPage', () => {
     expect(screen.getByText(/we typically respond within 24-48 hours/i)).toBeInTheDocument();
   });
 
-  it('displays support hours', () => {
-    renderWithProviders(<ContactPage />);
-    expect(screen.getByText(/monday - friday, 9am - 5pm pst/i)).toBeInTheDocument();
-  });
-
   it('renders all contact info items with icons', () => {
     const { container } = renderWithProviders(<ContactPage />);
     const infoItems = container.querySelectorAll('.info-item');
-    expect(infoItems.length).toBe(3);
+    expect(infoItems.length).toBe(2);
 
     const infoIcons = container.querySelectorAll('.info-icon');
-    expect(infoIcons.length).toBe(3);
+    expect(infoIcons.length).toBe(2);
   });
 
-  it('displays info item headings for email, response time, and support', () => {
+  it('displays info item headings for email and response time', () => {
     renderWithProviders(<ContactPage />);
     expect(screen.getByRole('heading', { name: /^email$/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /response time/i })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /^support$/i })).toBeInTheDocument();
   });
 
   // ContactForm Integration Tests

@@ -64,13 +64,15 @@ async def submit_contact_form(
         # Track failed submission
         CONTACT_SUBMISSIONS_TOTAL.labels(status="failure").inc()
 
-        # Log error with context
+        # Log error with context AND full exception details
         logger.error(
             "Contact form submission failed",
             extra={
                 "error": str(e),
+                "error_type": type(e).__name__,
                 "sender_email": data.sender_email,
             },
+            exc_info=True,  # This will log the full traceback
         )
 
         # Don't expose details to client

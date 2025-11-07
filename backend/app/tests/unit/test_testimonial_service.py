@@ -169,14 +169,15 @@ async def test_get_testimonial_by_id(
     )
     db_session.add(created)
     await db_session.commit()
+    await db_session.refresh(created)
     test_id = created.id
     test_quote = created.quote_text
 
-    testimonial = await testimonial_service.get_testimonial_by_id(test_id)
+    testimonial = await testimonial_service.get_testimonial_by_id(test_id)  # type: ignore[arg-type]
 
     assert testimonial is not None
-    assert testimonial.id == test_id
-    assert testimonial.quote_text == test_quote
+    assert testimonial.id == test_id  # type: ignore[comparison-overlap]
+    assert testimonial.quote_text == test_quote  # type: ignore[comparison-overlap]
 
 
 @pytest.mark.asyncio
@@ -208,12 +209,12 @@ async def test_create_testimonial(
     )
 
     assert testimonial.id is not None
-    assert testimonial.quote_text == data.quote_text
-    assert testimonial.author_name == data.author_name
-    assert testimonial.author_role == data.author_role.value
-    assert testimonial.organization_name == data.organization_name
-    assert testimonial.is_published == data.is_published
-    assert testimonial.created_by == test_super_admin_user.id
+    assert testimonial.quote_text == data.quote_text  # type: ignore[comparison-overlap]
+    assert testimonial.author_name == data.author_name  # type: ignore[comparison-overlap]
+    assert testimonial.author_role == data.author_role.value  # type: ignore[comparison-overlap]
+    assert testimonial.organization_name == data.organization_name  # type: ignore[comparison-overlap]
+    assert testimonial.is_published == data.is_published  # type: ignore[comparison-overlap]
+    assert testimonial.created_by == test_super_admin_user.id  # type: ignore[comparison-overlap]
 
 
 @pytest.mark.asyncio
@@ -234,18 +235,19 @@ async def test_update_testimonial(
     )
     db_session.add(created)
     await db_session.commit()
+    await db_session.refresh(created)
     test_id = created.id
     original_author = created.author_name
 
     update_data = TestimonialUpdate(
         quote_text="Updated quote text with enough characters for validation"
-    )
+    )  # type: ignore[call-arg]
 
-    updated = await testimonial_service.update_testimonial(test_id, update_data)
+    updated = await testimonial_service.update_testimonial(test_id, update_data)  # type: ignore[arg-type]
 
     assert updated is not None
-    assert updated.quote_text == update_data.quote_text
-    assert updated.author_name == original_author  # Unchanged
+    assert updated.quote_text == update_data.quote_text  # type: ignore[comparison-overlap]
+    assert updated.author_name == original_author  # type: ignore[comparison-overlap]
 
 
 @pytest.mark.asyncio
@@ -253,7 +255,7 @@ async def test_update_testimonial_not_found(
     testimonial_service: TestimonialService,
 ) -> None:
     """Test updating non-existent testimonial returns None."""
-    update_data = TestimonialUpdate(quote_text="Updated quote text with sufficient length")
+    update_data = TestimonialUpdate(quote_text="Updated quote text with sufficient length")  # type: ignore[call-arg]
     updated = await testimonial_service.update_testimonial(uuid.uuid4(), update_data)
     assert updated is None
 
@@ -276,13 +278,14 @@ async def test_delete_testimonial(
     )
     db_session.add(created)
     await db_session.commit()
+    await db_session.refresh(created)
     test_id = created.id
 
-    success = await testimonial_service.delete_testimonial(test_id)
+    success = await testimonial_service.delete_testimonial(test_id)  # type: ignore[arg-type]
     assert success is True
 
     # Verify it's soft deleted
-    deleted = await testimonial_service.get_testimonial_by_id(test_id)
+    deleted = await testimonial_service.get_testimonial_by_id(test_id)  # type: ignore[arg-type]
     assert deleted is None  # Should not be returned after soft delete
 
 
@@ -363,5 +366,5 @@ async def test_testimonials_ordered_by_display_order(
 
     # Should be ordered by display_order
     assert len(our_testimonials) == 3
-    assert our_testimonials[0].display_order <= our_testimonials[1].display_order
-    assert our_testimonials[1].display_order <= our_testimonials[2].display_order
+    assert our_testimonials[0].display_order <= our_testimonials[1].display_order  # type: ignore[comparison-overlap]
+    assert our_testimonials[1].display_order <= our_testimonials[2].display_order  # type: ignore[comparison-overlap]

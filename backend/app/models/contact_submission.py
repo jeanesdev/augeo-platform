@@ -35,7 +35,9 @@ class ContactSubmission(Base):
     message = Column(Text, nullable=False)
     ip_address = Column(String(45), nullable=False)
     status: Column[SubmissionStatus] = Column(
-        Enum(SubmissionStatus), nullable=False, default=SubmissionStatus.PENDING
+        Enum(SubmissionStatus, native_enum=True, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+        default=SubmissionStatus.PENDING,
     )
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)

@@ -61,14 +61,6 @@ export const ContactPage = () => {
                     <p>We typically respond within 24-48 hours</p>
                   </div>
                 </div>
-
-                <div className="info-item">
-                  <div className="info-icon">💬</div>
-                  <div>
-                    <h3>Support</h3>
-                    <p>Monday - Friday, 9am - 5pm PST</p>
-                  </div>
-                </div>
               </div>
             </div>
 
