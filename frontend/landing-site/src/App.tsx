@@ -9,6 +9,7 @@ import { PublicLayout } from './components/layout/PublicLayout';
 
 // Lazy load pages for code splitting
 const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
+const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Routes>
             <Route element={<PublicLayout />}>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/about" element={<AboutPage />} />
               {/* Additional routes will be added in future phases */}
             </Route>
           </Routes>
