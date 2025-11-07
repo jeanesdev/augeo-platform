@@ -12,6 +12,13 @@
 - Manual QA: Visual design, filters, responsive layout validated
 - **Total: 88 tests passing** (35 backend, 53 frontend)
 
+### User Story 4 (Contact Form): BACKEND + FRONTEND COMPLETE ✅
+
+- Tasks T058-T073: 16/16 completed (100%)
+- Backend (T058-T064): ContactService, API endpoint, rate limiting, metrics
+- Frontend (T065-T073): ContactForm component, ContactPage, validation, error handling
+- Testing remaining: T074-T082 (contract tests, integration tests, manual testing)
+
 ## Task Organization
 
 Tasks are organized by user story priority (P1 → P2 → P3) to enable incremental delivery and testing. Each user story is independently testable and delivers standalone value.
@@ -164,28 +171,28 @@ Tasks are organized by user story priority (P1 → P2 → P3) to enable incremen
 
 ### Backend - Contact Service
 
-- [ ] [T058] [P3] [US4] Create ContactService in `backend/app/services/contact_service.py` with create_submission method
-- [ ] [T059] [P3] [US4] Add send_email_notification method to ContactService using existing EmailService
-- [ ] [T060] [P3] [US4] Implement retry logic for email failures with exponential backoff
-- [ ] [T061] [P3] [US4] Create contact endpoint POST `/api/v1/public/contact/submit` in `backend/app/api/v1/public/contact.py`
-- [ ] [T062] [P3] [US4] Add rate limiting decorator to contact endpoint: 5 submissions/hour per IP
-- [ ] [T063] [P3] [US4] Register contact route in `backend/app/main.py`
-- [ ] [T064] [P3] [US4] Add Prometheus metrics for contact submissions (counter for success/failure)
+- [x] [T058] [P3] [US4] Create ContactService in `backend/app/services/contact_service.py` with create_submission method ✅
+- [x] [T059] [P3] [US4] Add send_email_notification method to ContactService using existing EmailService ✅
+- [x] [T060] [P3] [US4] Implement retry logic for email failures with exponential backoff ✅
+- [x] [T061] [P3] [US4] Create contact endpoint POST `/api/v1/public/contact/submit` in `backend/app/api/v1/public/contact.py` ✅
+- [x] [T062] [P3] [US4] Add rate limiting decorator to contact endpoint: 5 submissions/hour per IP ✅
+- [x] [T063] [P3] [US4] Register contact route in `backend/app/main.py` ✅
+- [x] [T064] [P3] [US4] Add Prometheus metrics for contact submissions (counter for success/failure) ✅
 
 **Sequential** (T058-T060 must be sequential)
 **Parallel Group 10** (T061-T062 can run in parallel after T058-T060)
 
 ### Frontend - Contact Form
 
-- [ ] [T065] [P3] [US4] Add contactApi.submit method to `frontend/landing-site/src/services/api.ts`
-- [ ] [T066] [P3] [US4] Create ContactForm component in `frontend/landing-site/src/components/forms/ContactForm.tsx` with react-hook-form
-- [ ] [T067] [P3] [US4] Add Zod validation schema to ContactForm: name (1-100), email (valid), subject (1-200), message (1-5000)
-- [ ] [T068] [P3] [US4] Implement error handling in ContactForm: rate limit, validation, server errors
-- [ ] [T069] [P3] [US4] Create ContactPage component in `frontend/landing-site/src/pages/ContactPage.tsx` using ContactForm
-- [ ] [T070] [P3] [US4] Add success message and form reset after submission
-- [ ] [T071] [P3] [US4] Implement responsive layout for ContactPage
-- [ ] [T072] [P3] [US4] Add meta tags to ContactPage
-- [ ] [T073] [P3] [US4] Add Contact link to Navigation component and Footer
+- [x] [T065] [P3] [US4] Add contactApi.submit method to `frontend/landing-site/src/services/api.ts` ✅
+- [x] [T066] [P3] [US4] Create ContactForm component in `frontend/landing-site/src/components/forms/ContactForm.tsx` with react-hook-form ✅
+- [x] [T067] [P3] [US4] Add Zod validation schema to ContactForm: name (1-100), email (valid), subject (1-200), message (1-5000) ✅
+- [x] [T068] [P3] [US4] Implement error handling in ContactForm: rate limit, validation, server errors ✅
+- [x] [T069] [P3] [US4] Create ContactPage component in `frontend/landing-site/src/pages/ContactPage.tsx` using ContactForm ✅
+- [x] [T070] [P3] [US4] Add success message and form reset after submission ✅
+- [x] [T071] [P3] [US4] Implement responsive layout for ContactPage ✅
+- [x] [T072] [P3] [US4] Add meta tags to ContactPage ✅
+- [x] [T073] [P3] [US4] Add Contact link to Navigation component and Footer ✅
 
 **Sequential** (T065-T073 must be sequential)
 

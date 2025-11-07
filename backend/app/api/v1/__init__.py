@@ -16,6 +16,7 @@ from app.api.v1 import (
     public_testimonials,
     users,
 )
+from app.api.v1.public import contact as public_contact
 
 # Create v1 API router
 api_router = APIRouter()
@@ -30,6 +31,7 @@ api_router.include_router(branding.router, tags=["branding"])
 api_router.include_router(legal_documents.router, prefix="/legal", tags=["legal"])
 api_router.include_router(consent.router, prefix="/consent", tags=["consent"])
 api_router.include_router(cookies.router, prefix="/cookies", tags=["cookies"])
+api_router.include_router(public_contact.router, prefix="/public", tags=["public-contact"])
 api_router.include_router(public_testimonials.router, tags=["public-testimonials"])
 api_router.include_router(admin_testimonials.router, tags=["admin-testimonials"])
 api_router.include_router(admin.router, tags=["admin"])

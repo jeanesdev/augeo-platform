@@ -11,6 +11,7 @@ import { PublicLayout } from './components/layout/PublicLayout';
 const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
 const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
 const TestimonialsPage = lazy(() => import('./pages/TestimonialsPage').then(m => ({ default: m.TestimonialsPage })));
+const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/testimonials" element={<TestimonialsPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               {/* Additional routes will be added in future phases */}
             </Route>
           </Routes>
