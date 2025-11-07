@@ -4,7 +4,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -32,7 +32,7 @@ class Testimonial(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     quote_text = Column(String(500), nullable=False)
     author_name = Column(String(100), nullable=False)
-    author_role: Column[AuthorRole] = Column(Enum(AuthorRole), nullable=False)
+    author_role = Column(String(50), nullable=False)  # Changed from Enum to String
     organization_name = Column(String(200), nullable=True)
     photo_url = Column(String(500), nullable=True)
     display_order = Column(Integer, nullable=False, default=0)

@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     admin,
+    admin_testimonials,
     auth,
     branding,
     consent,
@@ -12,6 +13,7 @@ from app.api.v1 import (
     legal_documents,
     members,
     npos,
+    public_testimonials,
     users,
 )
 
@@ -28,6 +30,8 @@ api_router.include_router(branding.router, tags=["branding"])
 api_router.include_router(legal_documents.router, prefix="/legal", tags=["legal"])
 api_router.include_router(consent.router, prefix="/consent", tags=["consent"])
 api_router.include_router(cookies.router, prefix="/cookies", tags=["cookies"])
+api_router.include_router(public_testimonials.router, tags=["public-testimonials"])
+api_router.include_router(admin_testimonials.router, tags=["admin-testimonials"])
 api_router.include_router(admin.router, tags=["admin"])
 
 __all__ = ["api_router"]
