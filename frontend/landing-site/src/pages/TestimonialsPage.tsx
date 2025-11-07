@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { TestimonialCard } from '../components/testimonials/TestimonialCard';
-import { Testimonial, testimonialApi } from '../services/api';
+import { type Testimonial, testimonialApi } from '../services/api';
 import './TestimonialsPage.css';
 
 type RoleFilter = '' | 'donor' | 'auctioneer' | 'npo_admin';
@@ -36,6 +36,7 @@ export const TestimonialsPage = () => {
         setTestimonials(data);
       } catch (err) {
         setError('Failed to load testimonials. Please try again later.');
+        // eslint-disable-next-line no-console
         console.error('Error fetching testimonials:', err);
       } finally {
         setLoading(false);

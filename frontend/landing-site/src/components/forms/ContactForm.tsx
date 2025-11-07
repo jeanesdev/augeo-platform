@@ -61,17 +61,19 @@ export const ContactForm = ({ onSuccess }: ContactFormProps) => {
       if (onSuccess) {
         onSuccess();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle different error types
-      if (error.response?.status === 429) {
+      const err = error as { response?: { status?: number } };
+      if (err.response?.status === 429) {
         setSubmitError(
           'You have submitted too many messages. Please try again later (limit: 5 per hour).'
         );
-      } else if (error.response?.status === 422) {
+      } else if (err.response?.status === 422) {
         setSubmitError('Please check your form fields and try again.');
       } else {
         setSubmitError('Failed to send message. Please try again later.');
       }
+      // eslint-disable-next-line no-console
       console.error('Contact form submission error:', error);
     } finally {
       setIsSubmitting(false);
