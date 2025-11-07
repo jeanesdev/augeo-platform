@@ -201,10 +201,10 @@ Tasks are organized by user story priority (P1 → P2 → P3) to enable incremen
 - [x] [T074] [P3] [US4] Create contract tests for POST `/api/v1/public/contact/submit` in `backend/tests/contract/test_contact_api.py` ✅ (10/15 passing, 5 need email mocking)
 - [x] [T075] [P3] [US4] Test rate limiting: submit 6 requests, verify 6th returns 429 ✅ (covered in contract tests)
 - [x] [T076] [P3] [US4] Test validation errors: invalid email, missing fields, message too long ✅ (11 validation tests passing)
-- [ ] [T077] [P3] [US4] Create integration test for full contact submission flow with email in `backend/tests/integration/test_contact_submission_flow.py`
+- [x] [T077] [P3] [US4] Create integration test for full contact submission flow with email in `backend/tests/integration/test_contact_submission_flow.py` ✅ (8 tests: 5 passing, 3 skipped due to feature gaps)
 - [x] [T078] [P3] [US4] Create unit tests for ContactService in `backend/tests/unit/test_contact_service.py` ✅ (14 tests passing)
-- [ ] [T079] [P3] [US4] Create ContactForm.test.tsx with form validation and submission tests
-- [ ] [T080] [P3] [US4] Create ContactPage.test.tsx with success/error state tests
+- [x] [T079] [P3] [US4] Create ContactForm.test.tsx with form validation and submission tests ✅ (21 tests passing)
+- [x] [T080] [P3] [US4] Create ContactPage.test.tsx with success/error state tests ✅ (24 tests passing)
 - [x] [T081] [P3] [US4] Run accessibility audit on ContactPage (focus on form accessibility) ✅ (Grade A+, report in .specify/specs/006-landing-page/MANUAL_TESTING_GUIDE.md)
 - [x] [T082] [P3] [US4] Manual testing: Submit contact form, verify email received, test rate limiting ✅ (All tests passing except rate limiting bug)
 
