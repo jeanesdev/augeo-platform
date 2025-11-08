@@ -3,6 +3,7 @@
 import re
 import uuid
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 
@@ -151,7 +152,7 @@ class EventLinkCreateRequest(BaseModel):
 
     @field_validator("url")
     @classmethod
-    def validate_video_url(cls, v: str, info) -> str:
+    def validate_video_url(cls, v: str, info: Any) -> str:
         """Validate video URLs are YouTube or Vimeo."""
         if info.data.get("link_type") == EventLinkType.VIDEO:
             youtube_pattern = r"(youtube\.com|youtu\.be)"
@@ -267,6 +268,7 @@ class EventSummaryResponse(BaseModel):
     slug: str
     status: EventStatus
     event_datetime: datetime
+    timezone: str
     venue_name: str | None
     logo_url: str | None
     created_at: datetime

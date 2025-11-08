@@ -73,8 +73,8 @@ class TestEventListing:
                 timezone="America/New_York",
                 venue_name=f"Venue {i}",
                 version=1,
-                created_by_user_id=test_npo_admin_user.id,
-                updated_by_user_id=test_npo_admin_user.id,
+                created_by=test_npo_admin_user.id,
+                updated_by=test_npo_admin_user.id,
             )
             events.append(event)
         db_session.add_all(events)
@@ -227,8 +227,8 @@ class TestEventListing:
                 timezone="America/New_York",
                 venue_name=f"Venue {i}",
                 version=1,
-                created_by_user_id=test_npo_admin_user.id,
-                updated_by_user_id=test_npo_admin_user.id,
+                created_by=test_npo_admin_user.id,
+                updated_by=test_npo_admin_user.id,
             )
             events.append(event)
         db_session.add_all(events)
