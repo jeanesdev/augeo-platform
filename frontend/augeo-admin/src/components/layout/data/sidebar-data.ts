@@ -4,6 +4,7 @@ import {
   Bell,
   Bug,
   Building2,
+  Calendar,
   ClipboardList,
   Construction,
   FileX,
@@ -72,6 +73,11 @@ export const sidebarData: SidebarData = {
           title: 'Organizations',
           url: '/npos',
           icon: Building2,
+        },
+        {
+          title: 'Events',
+          url: '/events',
+          icon: Calendar,
         },
         {
           title: 'NPO Applications',
