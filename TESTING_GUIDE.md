@@ -25,12 +25,12 @@ f6a01f90-8940-4aa7-9274-8742a1cc868e
 
 ### 1. Authentication & Navigation
 
-- [ ] **Login**
+- [x] **Login**
   - Navigate to http://localhost:5173
   - Login with `npo_admin@test.com` / `NpoAdmin123!`
   - Verify successful authentication
 
-- [ ] **Sidebar Navigation**
+- [x] **Sidebar Navigation**
   - Check that "Events" link appears in sidebar (Calendar icon)
   - Click "Events" link
   - Verify navigation to `/events` route
@@ -39,7 +39,7 @@ f6a01f90-8940-4aa7-9274-8742a1cc868e
 ### 2. Event List Page (`/events`)
 
 #### Empty State
-- [ ] **No Events Yet**
+- [x] **No Events Yet**
   - Verify "No events found" message displays
   - Verify "Create Your First Event" button appears
   - Click button → should navigate to `/events/create`
@@ -85,7 +85,7 @@ f6a01f90-8940-4aa7-9274-8742a1cc868e
 ### 3. Event Create Page (`/events/create`)
 
 #### Navigation
-- [ ] **Access Create Page**
+- [x] **Access Create Page**
   - Click "Create Your First Event" or "+ Create Event" button
   - Verify navigation to `/events/create`
   - Verify page header: "Create Event"

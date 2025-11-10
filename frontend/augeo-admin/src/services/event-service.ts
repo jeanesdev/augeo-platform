@@ -228,10 +228,45 @@ export const foodOptionApi = {
   },
 }
 
+// ============================================
+// NPO Branding (for event defaults)
+// ============================================
+
+export interface NPOBranding {
+  id: string
+  npo_id: string
+  primary_color: string | null
+  secondary_color: string | null
+  background_color: string | null
+  accent_color: string | null
+  logo_url: string | null
+  social_media_links: Record<string, string> | null
+  custom_css_properties: Record<string, string> | null
+  created_at: string
+  updated_at: string
+}
+
+export interface NPODetail {
+  id: string
+  name: string
+  branding?: NPOBranding
+}
+
+export const npoApi = {
+  /**
+   * Get NPO details including branding
+   */
+  async getNPOById(npoId: string): Promise<NPODetail> {
+    const response = await apiClient.get<NPODetail>(`/npos/${npoId}`)
+    return response.data
+  },
+}
+
 // Default export combining all APIs
 export default {
   ...eventApi,
   media: mediaApi,
   links: linkApi,
+  npo: npoApi,
   foodOptions: foodOptionApi,
 }

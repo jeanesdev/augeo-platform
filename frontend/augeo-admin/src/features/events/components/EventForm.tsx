@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import type { NPOBranding } from '@/services/event-service'
 import type { EventCreateRequest, EventDetail, EventUpdateRequest } from '@/types/event'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Calendar, Clock, MapPin } from 'lucide-react'
@@ -46,13 +47,21 @@ type EventFormValues = z.infer<typeof eventFormSchema>
 interface EventFormProps {
   event?: EventDetail
   npoId: string
+  npoBranding?: NPOBranding | null
   onSubmit: (data: EventCreateRequest & Partial<EventUpdateRequest>) => Promise<void>
   onCancel?: () => void
   isSubmitting?: boolean
 }
 
-export function EventForm({ event, npoId, onSubmit, onCancel, isSubmitting }: EventFormProps) {
-  // Initialize form with existing event data or defaults
+export function EventForm({
+  event,
+  npoId,
+  npoBranding,
+  onSubmit,
+  onCancel,
+  isSubmitting,
+}: EventFormProps) {
+  // Initialize form with existing event data or NPO branding defaults
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: {
@@ -69,10 +78,11 @@ export function EventForm({ event, npoId, onSubmit, onCancel, isSubmitting }: Ev
       venue_city: event?.venue_city || '',
       venue_state: event?.venue_state || '',
       venue_zip: event?.venue_zip || '',
-      primary_color: event?.primary_color || '',
-      secondary_color: event?.secondary_color || '',
-      background_color: event?.background_color || '',
-      accent_color: event?.accent_color || '',
+      // Use event colors if editing, otherwise use NPO branding colors
+      primary_color: event?.primary_color || npoBranding?.primary_color || '',
+      secondary_color: event?.secondary_color || npoBranding?.secondary_color || '',
+      background_color: event?.background_color || npoBranding?.background_color || '',
+      accent_color: event?.accent_color || npoBranding?.accent_color || '',
     },
   })
 

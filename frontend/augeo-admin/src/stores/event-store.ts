@@ -3,7 +3,7 @@
  * Manages event state, media, links, and food options
  */
 
-import eventService from '@/services/event-service'
+import eventService, { type NPOBranding } from '@/services/event-service'
 import type {
   Event,
   EventCreateRequest,
@@ -51,6 +51,10 @@ interface EventState {
   currentEvent: EventDetail | null
   currentEventId: string | null
 
+  // NPO branding for event defaults
+  npoBranding: NPOBranding | null
+  npoBrandingLoading: boolean
+
   // Event lists
   events: Event[]
   eventsTotalCount: number
@@ -60,6 +64,9 @@ interface EventState {
   // Upload state
   uploadProgress: Record<string, number>
   uploadingFiles: Record<string, boolean>
+
+  // Actions - NPO Branding
+  loadNPOBranding: (npoId: string) => Promise<void>
 
   // Actions - Event Management
   setCurrentEvent: (event: EventDetail | null) => void
@@ -109,12 +116,29 @@ export const useEventStore = create<EventState>((set, get) => ({
   // Initial state
   currentEvent: null,
   currentEventId: null,
+  npoBranding: null,
+  npoBrandingLoading: false,
   events: [],
   eventsTotalCount: 0,
   eventsLoading: false,
   eventsError: null,
   uploadProgress: {},
   uploadingFiles: {},
+
+  // NPO Branding Actions
+  loadNPOBranding: async (npoId) => {
+    set({ npoBrandingLoading: true })
+    try {
+      const npoDetail = await eventService.npo.getNPOById(npoId)
+      set({
+        npoBranding: npoDetail.branding ?? null,
+        npoBrandingLoading: false,
+      })
+    } catch (_error) {
+      // Silent failure - branding is optional
+      set({ npoBrandingLoading: false })
+    }
+  },
 
   // Event Management Actions
   setCurrentEvent: (event) => {

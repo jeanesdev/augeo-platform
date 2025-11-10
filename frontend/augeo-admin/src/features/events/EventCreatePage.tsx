@@ -9,18 +9,23 @@ import { useEventStore } from '@/stores/event-store'
 import type { EventCreateRequest, EventUpdateRequest } from '@/types/event'
 import { useNavigate } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { EventForm } from './components/EventForm'
 
 export function EventCreatePage() {
   const navigate = useNavigate()
-  const { createEvent } = useEventStore()
+  const { createEvent, loadNPOBranding, npoBranding } = useEventStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // TODO: Get npoId from actual NPO context when auth integration is complete
   // Using Hope Foundation NPO ID for testing
   const npoId = 'a3423046-8a83-409c-8ad3-16fc4420a40b' // Hope Foundation (from seed data)
+
+  // Load NPO branding on mount
+  useEffect(() => {
+    loadNPOBranding(npoId)
+  }, [npoId, loadNPOBranding])
 
   const handleSubmit = async (data: EventCreateRequest & Partial<EventUpdateRequest>) => {
     setIsSubmitting(true)
@@ -64,6 +69,7 @@ export function EventCreatePage() {
         <CardContent>
           <EventForm
             npoId={npoId}
+            npoBranding={npoBranding}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
             isSubmitting={isSubmitting}

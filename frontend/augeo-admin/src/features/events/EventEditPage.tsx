@@ -28,6 +28,8 @@ export function EventEditPage() {
     currentEvent,
     eventsLoading,
     loadEventById,
+    loadNPOBranding,
+    npoBranding,
     updateEvent,
     uploadMedia,
     deleteMedia,
@@ -52,6 +54,13 @@ export function EventEditPage() {
   useEffect(() => {
     loadEvent()
   }, [loadEvent])
+
+  // Load NPO branding when event is loaded
+  useEffect(() => {
+    if (currentEvent?.npo_id && !npoBranding) {
+      loadNPOBranding(currentEvent.npo_id)
+    }
+  }, [currentEvent?.npo_id, npoBranding, loadNPOBranding])
 
   const handleSubmit = async (data: EventUpdateRequest) => {
     setIsSubmitting(true)
@@ -123,10 +132,10 @@ export function EventEditPage() {
             <span className="text-sm text-muted-foreground">Status:</span>
             <span
               className={`text-xs px-2 py-1 rounded ${currentEvent.status === 'draft'
-                  ? 'bg-gray-100 text-gray-800'
-                  : currentEvent.status === 'active'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
+                ? 'bg-gray-100 text-gray-800'
+                : currentEvent.status === 'active'
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
                 }`}
             >
               {currentEvent.status.charAt(0).toUpperCase() + currentEvent.status.slice(1)}
@@ -156,6 +165,7 @@ export function EventEditPage() {
               <EventForm
                 event={currentEvent}
                 npoId={currentEvent.npo_id}
+                npoBranding={npoBranding}
                 onSubmit={handleSubmit}
                 onCancel={handleCancel}
                 isSubmitting={isSubmitting}
