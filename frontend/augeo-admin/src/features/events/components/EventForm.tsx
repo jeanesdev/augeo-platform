@@ -201,7 +201,12 @@ export function EventForm({
                   <FormControl>
                     <div className="relative">
                       <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input type="datetime-local" className="pl-10" {...field} />
+                      <Input
+                        type="datetime-local"
+                        className="pl-10"
+                        autoComplete="off"
+                        {...field}
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -215,9 +220,13 @@ export function EventForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Timezone *</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    name={field.name}
+                  >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger id="timezone">
                         <SelectValue placeholder="Select timezone" />
                       </SelectTrigger>
                     </FormControl>
@@ -303,9 +312,13 @@ export function EventForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>State</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    name={field.name}
+                  >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger id="venue_state">
                         <SelectValue placeholder="Select state" />
                       </SelectTrigger>
                     </FormControl>
