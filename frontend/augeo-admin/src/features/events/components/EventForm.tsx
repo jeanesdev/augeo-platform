@@ -14,6 +14,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { StateSelect } from '@/components/ui/state-select'
+import { TimezoneSelect } from '@/components/ui/timezone-select'
 import type { NPOBranding } from '@/services/event-service'
 import type { EventCreateRequest, EventDetail, EventUpdateRequest } from '@/types/event'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -209,9 +211,12 @@ export function EventForm({
                 <FormItem>
                   <FormLabel>Timezone *</FormLabel>
                   <FormControl>
-                    <Input placeholder="America/New_York" {...field} />
+                    <TimezoneSelect
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
                   </FormControl>
-                  <FormDescription>IANA timezone (e.g., America/New_York)</FormDescription>
+                  <FormDescription>Select event timezone</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -271,7 +276,11 @@ export function EventForm({
                 <FormItem>
                   <FormLabel>State</FormLabel>
                   <FormControl>
-                    <Input placeholder="NY" {...field} />
+                    <StateSelect
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select state"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
