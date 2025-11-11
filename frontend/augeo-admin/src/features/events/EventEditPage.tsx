@@ -130,23 +130,30 @@ export function EventEditPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
-      <div className="mb-6">
-        <Button variant="ghost" onClick={handleCancel} className="mb-4">
+    <div className="container mx-auto py-4 md:py-8 max-w-6xl">
+      <div className="mb-4 md:mb-6 space-y-4">
+        <Button variant="ghost" onClick={handleCancel} className="px-0 hover:bg-transparent">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Events
         </Button>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">{currentEvent.name}</h1>
-            <p className="text-muted-foreground mt-2">Edit event details and content</p>
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl md:text-3xl font-bold truncate">{currentEvent.name}</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2">
+              {currentEvent.npo_name && (
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium">Organization:</span> {currentEvent.npo_name}
+                </p>
+              )}
+              <p className="text-sm text-muted-foreground hidden sm:block">Edit event details and content</p>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Status:</span>
               <span
-                className={`text-xs px-2 py-1 rounded ${currentEvent.status === 'draft'
+                className={`text-xs px-2 py-1 rounded whitespace-nowrap ${currentEvent.status === 'draft'
                   ? 'bg-gray-100 text-gray-800'
                   : currentEvent.status === 'active'
                     ? 'bg-green-100 text-green-800'
@@ -161,6 +168,7 @@ export function EventEditPage() {
                 variant="destructive"
                 size="sm"
                 onClick={handleDelete}
+                className="w-full sm:w-auto"
               >
                 Delete Event
               </Button>
@@ -169,12 +177,20 @@ export function EventEditPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="details" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="details">Event Details</TabsTrigger>
-          <TabsTrigger value="media">Media ({currentEvent.media?.length || 0})</TabsTrigger>
-          <TabsTrigger value="links">Links ({currentEvent.links?.length || 0})</TabsTrigger>
-          <TabsTrigger value="food">Food Options ({currentEvent.food_options?.length || 0})</TabsTrigger>
+      <Tabs defaultValue="details" className="space-y-4 md:space-y-6">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto">
+          <TabsTrigger value="details" className="text-xs sm:text-sm">
+            <span className="hidden sm:inline">Event </span>Details
+          </TabsTrigger>
+          <TabsTrigger value="media" className="text-xs sm:text-sm">
+            Media <span className="hidden sm:inline">({currentEvent.media?.length || 0})</span>
+          </TabsTrigger>
+          <TabsTrigger value="links" className="text-xs sm:text-sm">
+            Links <span className="hidden sm:inline">({currentEvent.links?.length || 0})</span>
+          </TabsTrigger>
+          <TabsTrigger value="food" className="text-xs sm:text-sm">
+            <span className="hidden md:inline">Food </span>Options<span className="hidden sm:inline"> ({currentEvent.food_options?.length || 0})</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* Event Details Tab */}

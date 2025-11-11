@@ -72,8 +72,8 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   }
 
   return (
-    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'edit' | 'preview')}>
-      <div className="flex items-center justify-between mb-2">
+    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'edit' | 'preview')} className="w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
         <TabsList>
           <TabsTrigger value="edit">Edit</TabsTrigger>
           <TabsTrigger value="preview">Preview</TabsTrigger>
@@ -81,7 +81,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
         {/* Markdown toolbar (only show in edit mode) */}
         {activeTab === 'edit' && (
-          <div className="flex gap-1">
+          <div className="flex gap-1 flex-wrap">
             <Button
               type="button"
               variant="ghost"
@@ -136,7 +136,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="min-h-[200px] font-mono text-sm"
+          className="min-h-[200px] w-full font-mono text-sm resize-y"
           rows={10}
         />
         <p className="text-xs text-muted-foreground mt-2">
@@ -146,7 +146,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
       <TabsContent value="preview" className="mt-0">
         <div
-          className="min-h-[200px] p-4 rounded-md border bg-muted/50"
+          className="min-h-[200px] w-full p-4 rounded-md border bg-muted/50 overflow-auto"
           dangerouslySetInnerHTML={{ __html: renderPreview(value) }}
         />
       </TabsContent>

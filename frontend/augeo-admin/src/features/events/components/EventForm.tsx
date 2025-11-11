@@ -112,10 +112,10 @@ export function EventForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 md:space-y-8">
         {/* Basic Information Section */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Basic Information</h3>
+          <h3 className="text-base md:text-lg font-semibold">Basic Information</h3>
 
           <FormField
             control={form.control}
@@ -169,7 +169,7 @@ export function EventForm({
             render={({ field }) => (
               <FormItem>
                 <Label>Description</Label>
-                <div>
+                <div className="w-full overflow-hidden">
                   <RichTextEditor
                     value={field.value || ''}
                     onChange={field.onChange}
@@ -187,8 +187,8 @@ export function EventForm({
 
         {/* Date, Time & Location Section */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
+          <h3 className="text-base md:text-lg font-semibold flex items-center gap-2">
+            <Calendar className="h-4 w-4 md:h-5 md:w-5" />
             Date, Time & Location
           </h3>
 
@@ -255,7 +255,6 @@ export function EventForm({
                       <SelectItem value="UTC">UTC (Coordinated Universal Time)</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormDescription>Select event timezone</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -410,8 +409,8 @@ export function EventForm({
 
         {/* Branding Colors Section */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Branding Colors</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="text-base md:text-lg font-semibold">Branding Colors</h3>
+          <p className="text-xs md:text-sm text-muted-foreground">
             Customize the event page appearance with your organization's colors
           </p>
 
@@ -491,12 +490,12 @@ export function EventForm({
         </div>
 
         {/* Form Actions */}
-        <div className="flex gap-4">
-          <Button type="submit" disabled={isSubmitting}>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
+          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
             {isSubmitting ? 'Saving...' : event ? 'Update Event' : 'Create Event'}
           </Button>
           {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
               Cancel
             </Button>
           )}

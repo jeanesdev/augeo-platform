@@ -59,17 +59,19 @@ export function EventCreatePage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
-      <div className="mb-6">
-        <Button variant="ghost" onClick={handleCancel} className="mb-4">
+    <div className="container mx-auto py-4 md:py-8 max-w-4xl">
+      <div className="mb-4 md:mb-6 space-y-4">
+        <Button variant="ghost" onClick={handleCancel} className="px-0 hover:bg-transparent">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Events
         </Button>
 
-        <h1 className="text-3xl font-bold">Create New Event</h1>
-        <p className="text-muted-foreground mt-2">
-          Set up a new fundraising event for your organization
-        </p>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold">Create New Event</h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1 md:mt-2">
+            Set up a new fundraising event for your organization
+          </p>
+        </div>
       </div>
 
       {/* Step 1: NPO Selection (Super Admin Only) */}

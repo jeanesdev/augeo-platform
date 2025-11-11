@@ -39,7 +39,19 @@ async def create_event(
     - Authenticated user with NPO Admin or Staff role
     """
     event = await EventService.create_event(db, event_data, current_user)
-    return EventDetailResponse.model_validate(event)
+
+    # Reload event with NPO relationship
+    event_with_npo = await EventService.get_event_by_id(db, event.id)
+    if not event_with_npo:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Event with ID {event.id} not found",
+        )
+
+    # Manually construct response to include NPO name
+    event_dict = event_with_npo.__dict__.copy()
+    event_dict["npo_name"] = event_with_npo.npo.name if event_with_npo.npo else None
+    return EventDetailResponse(**event_dict)
 
 
 @router.get("/{event_id}", response_model=EventDetailResponse)
@@ -55,7 +67,11 @@ async def get_event(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Event with ID {event_id} not found",
         )
-    return EventDetailResponse.model_validate(event)
+
+    # Manually construct response to include NPO name
+    event_dict = event.__dict__.copy()
+    event_dict["npo_name"] = event.npo.name if event.npo else None
+    return EventDetailResponse(**event_dict)
 
 
 @router.patch("/{event_id}", response_model=EventDetailResponse)
@@ -72,7 +88,20 @@ async def update_event(
     Returns 409 Conflict if event was modified by another user.
     """
     event = await EventService.update_event(db, event_id, event_data, current_user)
-    return EventDetailResponse.model_validate(event)
+
+    # Reload event with NPO relationship
+    reloaded_event = await EventService.get_event_by_id(db, event_id)
+    if not reloaded_event:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Event with ID {event_id} not found",
+        )
+    event = reloaded_event
+
+    # Manually construct response to include NPO name
+    event_dict = event.__dict__.copy()
+    event_dict["npo_name"] = event.npo.name if event.npo else None
+    return EventDetailResponse(**event_dict)
 
 
 @router.post("/{event_id}/publish", response_model=EventDetailResponse)
@@ -83,7 +112,20 @@ async def publish_event(
 ) -> EventDetailResponse:
     """Change event status from DRAFT to ACTIVE."""
     event = await EventService.publish_event(db, event_id, current_user)
-    return EventDetailResponse.model_validate(event)
+
+    # Reload event with NPO relationship
+    reloaded_event = await EventService.get_event_by_id(db, event_id)
+    if not reloaded_event:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Event with ID {event_id} not found",
+        )
+    event = reloaded_event
+
+    # Manually construct response to include NPO name
+    event_dict = event.__dict__.copy()
+    event_dict["npo_name"] = event.npo.name if event.npo else None
+    return EventDetailResponse(**event_dict)
 
 
 @router.post("/{event_id}/close", response_model=EventDetailResponse)
@@ -94,7 +136,20 @@ async def close_event(
 ) -> EventDetailResponse:
     """Manually close an active event."""
     event = await EventService.close_event(db, event_id, current_user)
-    return EventDetailResponse.model_validate(event)
+
+    # Reload event with NPO relationship
+    reloaded_event = await EventService.get_event_by_id(db, event_id)
+    if not reloaded_event:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Event with ID {event_id} not found",
+        )
+    event = reloaded_event
+
+    # Manually construct response to include NPO name
+    event_dict = event.__dict__.copy()
+    event_dict["npo_name"] = event.npo.name if event.npo else None
+    return EventDetailResponse(**event_dict)
 
 
 @router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)

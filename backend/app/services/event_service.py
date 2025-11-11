@@ -289,6 +289,7 @@ class EventService:
             select(Event)
             .where(Event.id == event_id)
             .options(
+                selectinload(Event.npo),
                 selectinload(Event.media),
                 selectinload(Event.links),
                 selectinload(Event.food_options),
