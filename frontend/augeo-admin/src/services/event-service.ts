@@ -56,32 +56,32 @@ export const eventApi = {
    * Create a new event
    */
   async createEvent(data: EventCreateRequest): Promise<Event> {
-    const response = await apiClient.post<{ event: Event }>('/events', data)
-    return response.data.event
+    const response = await apiClient.post<Event>('/events', data)
+    return response.data
   },
 
   /**
    * Update event details
    */
   async updateEvent(eventId: string, data: EventUpdateRequest): Promise<Event> {
-    const response = await apiClient.patch<{ event: Event }>(`/events/${eventId}`, data)
-    return response.data.event
+    const response = await apiClient.patch<Event>(`/events/${eventId}`, data)
+    return response.data
   },
 
   /**
    * Publish event (draft → active)
    */
   async publishEvent(eventId: string): Promise<Event> {
-    const response = await apiClient.post<{ event: Event }>(`/events/${eventId}/publish`)
-    return response.data.event
+    const response = await apiClient.post<Event>(`/events/${eventId}/publish`)
+    return response.data
   },
 
   /**
    * Close event (active → closed)
    */
   async closeEvent(eventId: string): Promise<Event> {
-    const response = await apiClient.post<{ event: Event }>(`/events/${eventId}/close`)
-    return response.data.event
+    const response = await apiClient.post<Event>(`/events/${eventId}/close`)
+    return response.data
   },
 
   /**
