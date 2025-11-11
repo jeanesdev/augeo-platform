@@ -94,6 +94,27 @@ export function EventForm({
     },
   })
 
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+  }
+
+  const handleNameBlur = () => {
+    const currentName = form.getValues('name')
+    const currentSlug = form.getValues('slug')
+
+    // Only auto-generate if slug is empty and name has content
+    if (currentName && !currentSlug) {
+      const generatedSlug = generateSlug(currentName)
+      form.setValue('slug', generatedSlug)
+    }
+  }
+
   const handleSubmit = async (values: EventFormValues) => {
     const baseData = {
       ...values,
@@ -124,7 +145,14 @@ export function EventForm({
               <FormItem>
                 <FormLabel>Event Name *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Spring Gala 2025" {...field} />
+                  <Input
+                    placeholder="Spring Gala 2025"
+                    {...field}
+                    onBlur={() => {
+                      field.onBlur()
+                      handleNameBlur()
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -141,7 +169,7 @@ export function EventForm({
                   <Input placeholder="spring-gala-2025" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Leave blank to auto-generate from event name
+                  Auto-generated from event name. Edit to customize the URL.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
