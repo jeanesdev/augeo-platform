@@ -244,6 +244,42 @@ class EventService:
         return event
 
     @staticmethod
+    async def delete_event(
+        db: AsyncSession,
+        event_id: uuid.UUID,
+        current_user: User,
+    ) -> None:
+        """
+        Delete an event.
+
+        Business Rules:
+        - Cannot delete published/active events (must close first)
+        - Authorization checked at endpoint level with @require_role
+        """
+        # Get event
+        result = await db.execute(select(Event).where(Event.id == event_id))
+        event = result.scalar_one_or_none()
+
+        if not event:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Event with ID {event_id} not found",
+            )
+
+        # Cannot delete active events
+        if event.status == EventStatus.ACTIVE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot delete an active event. Please close it first.",
+            )
+
+        # Delete event (hard delete - cascades to related entities)
+        await db.delete(event)
+        await db.commit()
+
+        logger.info(f"Event deleted: {event.name} (ID: {event.id}) by user {current_user.id}")
+
+    @staticmethod
     async def get_event_by_id(
         db: AsyncSession,
         event_id: uuid.UUID,

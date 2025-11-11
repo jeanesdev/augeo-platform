@@ -97,6 +97,22 @@ async def close_event(
     return EventDetailResponse.model_validate(event)
 
 
+@router.delete("/{event_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_event(
+    event_id: uuid.UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> None:
+    """
+    Delete an event.
+
+    Requirements:
+    - Event must be in DRAFT or CLOSED status (cannot delete active events)
+    - User must be NPO Admin/Event Coordinator for the NPO or Super Admin
+    """
+    await EventService.delete_event(db, event_id, current_user)
+
+
 @router.get("", response_model=EventListResponse)
 async def list_events(
     db: Annotated[AsyncSession, Depends(get_db)],

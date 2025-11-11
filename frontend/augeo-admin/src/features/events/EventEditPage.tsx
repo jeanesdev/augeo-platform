@@ -31,6 +31,7 @@ export function EventEditPage() {
     loadNPOBranding,
     npoBranding,
     updateEvent,
+    deleteEvent,
     uploadMedia,
     deleteMedia,
     createLink,
@@ -83,6 +84,19 @@ export function EventEditPage() {
     navigate({ to: '/events' })
   }
 
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this event? This action cannot be undone.')) return
+
+    try {
+      await deleteEvent(eventId)
+      toast.success('Event deleted successfully')
+      navigate({ to: '/events' })
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete event'
+      toast.error(errorMessage)
+    }
+  }
+
   const handleMediaUpload = async (file: File) => {
     await uploadMedia(eventId, file)
   }
@@ -128,18 +142,29 @@ export function EventEditPage() {
             <h1 className="text-3xl font-bold">{currentEvent.name}</h1>
             <p className="text-muted-foreground mt-2">Edit event details and content</p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Status:</span>
-            <span
-              className={`text-xs px-2 py-1 rounded ${currentEvent.status === 'draft'
-                ? 'bg-gray-100 text-gray-800'
-                : currentEvent.status === 'active'
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'
-                }`}
-            >
-              {currentEvent.status.charAt(0).toUpperCase() + currentEvent.status.slice(1)}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Status:</span>
+              <span
+                className={`text-xs px-2 py-1 rounded ${currentEvent.status === 'draft'
+                  ? 'bg-gray-100 text-gray-800'
+                  : currentEvent.status === 'active'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                  }`}
+              >
+                {currentEvent.status.charAt(0).toUpperCase() + currentEvent.status.slice(1)}
+              </span>
+            </div>
+            {(currentEvent.status === 'draft' || currentEvent.status === 'closed') && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+              >
+                Delete Event
+              </Button>
+            )}
           </div>
         </div>
       </div>

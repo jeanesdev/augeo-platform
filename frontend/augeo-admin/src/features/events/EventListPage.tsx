@@ -28,7 +28,7 @@ import { toast } from 'sonner'
 
 export function EventListPage() {
   const navigate = useNavigate()
-  const { events, eventsLoading, loadEvents, publishEvent, closeEvent } = useEventStore()
+  const { events, eventsLoading, loadEvents, publishEvent, closeEvent, deleteEvent } = useEventStore()
   const [statusFilter, setStatusFilter] = useState<EventStatus | 'all'>('all')
 
   const loadEventsCallback = useCallback(() => {
@@ -66,6 +66,19 @@ export function EventListPage() {
       toast.success('Event closed successfully')
     } catch (_err) {
       toast.error('Failed to close event')
+    }
+  }
+
+  const handleDelete = async (eventId: string) => {
+    if (!confirm('Are you sure you want to delete this event? This action cannot be undone.')) return
+
+    try {
+      await deleteEvent(eventId)
+      toast.success('Event deleted successfully')
+      loadEventsCallback()
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete event'
+      toast.error(errorMessage)
     }
   }
 
@@ -140,13 +153,22 @@ export function EventListPage() {
           </Button>
 
           {event.status === 'draft' && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => handlePublish(event.id)}
-            >
-              Publish
-            </Button>
+            <>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => handlePublish(event.id)}
+              >
+                Publish
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleDelete(event.id)}
+              >
+                Delete
+              </Button>
+            </>
           )}
 
           {event.status === 'active' && (
@@ -156,6 +178,16 @@ export function EventListPage() {
               onClick={() => handleClose(event.id)}
             >
               Close
+            </Button>
+          )}
+
+          {event.status === 'closed' && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => handleDelete(event.id)}
+            >
+              Delete
             </Button>
           )}
         </div>
