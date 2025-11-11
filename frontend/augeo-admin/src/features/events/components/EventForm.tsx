@@ -46,6 +46,10 @@ const eventFormSchema = z.object({
   venue_city: z.string().optional(),
   venue_state: z.string().optional(),
   venue_zip: z.string().optional(),
+  attire: z.string().optional(),
+  primary_contact_name: z.string().optional(),
+  primary_contact_email: z.string().email('Invalid email address').optional().or(z.literal('')),
+  primary_contact_phone: z.string().optional(),
   primary_color: z.string().optional(),
   secondary_color: z.string().optional(),
   background_color: z.string().optional(),
@@ -93,6 +97,10 @@ export function EventForm({
       venue_city: event?.venue_city || '',
       venue_state: event?.venue_state || '',
       venue_zip: event?.venue_zip || '',
+      attire: event?.attire || '',
+      primary_contact_name: event?.primary_contact_name || '',
+      primary_contact_email: event?.primary_contact_email || '',
+      primary_contact_phone: event?.primary_contact_phone || '',
       // Use event colors if editing, otherwise use NPO branding colors
       primary_color: event?.primary_color || npoBranding?.primary_color || '',
       secondary_color: event?.secondary_color || npoBranding?.secondary_color || '',
@@ -516,6 +524,78 @@ export function EventForm({
                   <FormLabel>ZIP Code</FormLabel>
                   <FormControl>
                     <Input placeholder="10001" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        {/* Event Details Section */}
+        <div className="space-y-4">
+          <h3 className="text-base md:text-lg font-semibold">Event Details</h3>
+
+          <FormField
+            control={form.control}
+            name="attire"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Attire (Optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Black Tie, Cocktail Attire, Business Casual" {...field} />
+                </FormControl>
+                <FormDescription>Dress code or recommended attire for guests</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Contact Information Section */}
+        <div className="space-y-4">
+          <h3 className="text-base md:text-lg font-semibold">Primary Contact</h3>
+          <p className="text-xs md:text-sm text-muted-foreground">
+            Contact information for event inquiries (optional)
+          </p>
+
+          <FormField
+            control={form.control}
+            name="primary_contact_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contact Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="John Doe" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="primary_contact_email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contact Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="contact@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="primary_contact_phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contact Phone</FormLabel>
+                  <FormControl>
+                    <Input type="tel" placeholder="(555) 123-4567" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -31,6 +31,10 @@ export interface Event {
   venue_city: string | null
   venue_state: string | null
   venue_zip: string | null
+  attire: string | null
+  primary_contact_name: string | null
+  primary_contact_email: string | null
+  primary_contact_phone: string | null
   primary_color: string | null
   secondary_color: string | null
   background_color: string | null
@@ -63,6 +67,10 @@ export interface EventCreateRequest {
   venue_city?: string
   venue_state?: string
   venue_zip?: string
+  attire?: string
+  primary_contact_name?: string
+  primary_contact_email?: string
+  primary_contact_phone?: string
   primary_color?: string
   secondary_color?: string
   background_color?: string
@@ -81,6 +89,10 @@ export interface EventUpdateRequest {
   venue_city?: string
   venue_state?: string
   venue_zip?: string
+  attire?: string
+  primary_contact_name?: string
+  primary_contact_email?: string
+  primary_contact_phone?: string
   primary_color?: string
   secondary_color?: string
   background_color?: string

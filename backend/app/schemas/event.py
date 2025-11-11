@@ -36,6 +36,10 @@ class EventCreateRequest(BaseModel):
     venue_city: str | None = Field(default=None, max_length=100)
     venue_state: str | None = Field(default=None, max_length=50)
     venue_zip: str | None = Field(default=None, max_length=20)
+    attire: str | None = Field(default=None, max_length=100)
+    primary_contact_name: str | None = Field(default=None, max_length=255)
+    primary_contact_email: str | None = Field(default=None, max_length=255)
+    primary_contact_phone: str | None = Field(default=None, max_length=20)
     description: str | None = Field(default=None, description="Rich text description (Markdown)")
     primary_color: str | None = Field(default=None, pattern=r"^#[0-9A-Fa-f]{6}$")
     secondary_color: str | None = Field(default=None, pattern=r"^#[0-9A-Fa-f]{6}$")
@@ -86,6 +90,10 @@ class EventUpdateRequest(BaseModel):
     venue_city: str | None = Field(default=None, max_length=100)
     venue_state: str | None = Field(default=None, max_length=50)
     venue_zip: str | None = Field(default=None, max_length=20)
+    attire: str | None = Field(default=None, max_length=100)
+    primary_contact_name: str | None = Field(default=None, max_length=255)
+    primary_contact_email: str | None = Field(default=None, max_length=255)
+    primary_contact_phone: str | None = Field(default=None, max_length=20)
     description: str | None = Field(default=None)
     logo_url: str | None = Field(default=None, max_length=500)
     primary_color: str | None = Field(default=None, pattern=r"^#[0-9A-Fa-f]{6}$")
@@ -331,6 +339,10 @@ class EventDetailResponse(BaseModel):
     venue_city: str | None
     venue_state: str | None
     venue_zip: str | None
+    attire: str | None
+    primary_contact_name: str | None
+    primary_contact_email: str | None
+    primary_contact_phone: str | None
     description: str | None
     logo_url: str | None
     primary_color: str | None
@@ -364,6 +376,10 @@ class EventPublicResponse(BaseModel):
     venue_city: str | None
     venue_state: str | None
     venue_zip: str | None
+    attire: str | None
+    primary_contact_name: str | None
+    primary_contact_email: str | None
+    primary_contact_phone: str | None
     description: str | None
     logo_url: str | None
     primary_color: str | None

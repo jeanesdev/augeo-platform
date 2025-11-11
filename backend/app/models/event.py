@@ -136,6 +136,30 @@ class Event(Base, UUIDMixin, TimestampMixin):
         comment="ZIP/Postal code where event is held",
     )
 
+    # Event Details
+    attire: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+        comment="Dress code or attire (e.g., 'Black Tie', 'Cocktail Attire', 'Business Casual')",
+    )
+
+    # Primary Contact Information
+    primary_contact_name: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="Primary contact person for event inquiries",
+    )
+    primary_contact_email: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="Email address for event inquiries",
+    )
+    primary_contact_phone: Mapped[str | None] = mapped_column(
+        String(20),
+        nullable=True,
+        comment="Phone number for event inquiries",
+    )
+
     # Content
     description: Mapped[str | None] = mapped_column(
         Text,
