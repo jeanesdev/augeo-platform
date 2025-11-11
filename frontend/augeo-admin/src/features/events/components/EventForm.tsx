@@ -33,6 +33,27 @@ import { z } from 'zod'
 import { ColorPicker } from './ColorPicker.tsx'
 import { RichTextEditor } from './RichTextEditor.tsx'
 
+// Phone number formatting helper
+const formatPhoneNumber = (value: string): string => {
+  const phoneNumber = value.replace(/\D/g, '')
+  if (phoneNumber.length === 0) return ''
+
+  // Handle 11-digit numbers with +1
+  if (phoneNumber.length === 11 && phoneNumber.startsWith('1')) {
+    const digits = phoneNumber.slice(1)
+    if (digits.length <= 3) return `+1(${digits}`
+    if (digits.length <= 6)
+      return `+1(${digits.slice(0, 3)})${digits.slice(3)}`
+    return `+1(${digits.slice(0, 3)})${digits.slice(3, 6)}-${digits.slice(6)}`
+  }
+
+  // Handle 10-digit numbers
+  if (phoneNumber.length <= 3) return `(${phoneNumber}`
+  if (phoneNumber.length <= 6)
+    return `(${phoneNumber.slice(0, 3)})${phoneNumber.slice(3)}`
+  return `(${phoneNumber.slice(0, 3)})${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`
+}
+
 // Form validation schema
 const eventFormSchema = z.object({
   name: z.string().min(3, 'Event name must be at least 3 characters'),
@@ -581,7 +602,15 @@ export function EventForm({
                 <FormItem>
                   <FormLabel>Contact Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="contact@example.com" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="contact@example.com"
+                      {...field}
+                      onBlur={async () => {
+                        field.onBlur()
+                        await form.trigger('primary_contact_email')
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -595,7 +624,23 @@ export function EventForm({
                 <FormItem>
                   <FormLabel>Contact Phone</FormLabel>
                   <FormControl>
-                    <Input type="tel" placeholder="(555) 123-4567" {...field} />
+                    <Input
+                      type="tel"
+                      placeholder="(555) 123-4567"
+                      value={field.value ? formatPhoneNumber(field.value) : ''}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, '')
+                        // Only allow 10 or 11 digits (11 must start with 1)
+                        if (
+                          digits.length <= 10 ||
+                          (digits.length === 11 && digits.startsWith('1'))
+                        ) {
+                          field.onChange(digits)
+                        }
+                      }}
+                      onBlur={field.onBlur}
+                      maxLength={17}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
