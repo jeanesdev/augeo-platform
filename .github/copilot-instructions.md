@@ -11,6 +11,7 @@ Auto-generated from all feature plans. Last updated: 2025-10-25
 - PostgreSQL (contact submissions, testimonials), Redis (rate limiting) (006-landing-page)
 - Python 3.11+ (Backend), TypeScript (Frontend) + FastAPI, SQLAlchemy, Pydantic, Alembic (Backend); React, Vite, Zustand, React Router (Frontend) (003-event-creation-ability)
 - Azure Database for PostgreSQL (event data, audit logs), Azure Blob Storage (media files: logos, images, flyers), Azure Cache for Redis (rate limiting, caching) (003-event-creation-ability)
+- Azure Database for PostgreSQL (sponsor data), Azure Blob Storage (sponsor logos), Azure Cache for Redis (optional caching) (007-sponsors)
 
 ## Project Structure
 ```
@@ -95,9 +96,9 @@ git commit -m "message"
 ```
 
 ## Recent Changes
+- 007-sponsors: Added Python 3.11+ (Backend), TypeScript (Frontend) + FastAPI, SQLAlchemy, Pydantic, Alembic (Backend); React, Vite, Zustand, React Router (Frontend)
 - 003-event-creation-ability: Added Python 3.11+ (Backend), TypeScript (Frontend) + FastAPI, SQLAlchemy, Pydantic, Alembic (Backend); React, Vite, Zustand, React Router (Frontend)
 - 006-landing-page: Added Python 3.11+ (Backend), TypeScript (Frontend) + FastAPI, SQLAlchemy, Pydantic (Backend); React, Vite, Zustand, React Router (Frontend)
-- 004-cloud-infrastructure-deployment: Completed Phase 1-4 (Setup, Foundational, Infrastructure, CI/CD)
   - ✅ Azure Bicep templates for 9 Azure resources (App Service, Static Web Apps, PostgreSQL, Redis, Key Vault, etc.)
   - ✅ Environment configurations for dev/staging/production
   - ✅ GitHub Actions workflows: pr-checks, backend-deploy, frontend-deploy, infrastructure-deploy
