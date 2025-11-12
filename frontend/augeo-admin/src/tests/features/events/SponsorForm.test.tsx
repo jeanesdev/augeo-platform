@@ -168,7 +168,7 @@ describe('SponsorForm', () => {
             logo_file_name: 'logo.png',
             logo_file_type: 'image/png',
             logo_file_size: 1024,
-            logo_size: LogoSize.MEDIUM, // default
+            logo_size: LogoSize.LARGE, // default changed to LARGE
           }),
           file
         )
@@ -442,6 +442,133 @@ describe('SponsorForm', () => {
       render(<SponsorForm onSubmit={onSubmit} onCancel={onCancel} />)
 
       expect(screen.getByLabelText(/internal notes/i)).toBeInTheDocument()
+    })
+  })
+
+  describe('Contact Information (Phase 6 - T080)', () => {
+    it('should allow submission without contact fields', async () => {
+      const user = userEvent.setup()
+      render(<SponsorForm onSubmit={onSubmit} onCancel={onCancel} />)
+
+      // Fill only required fields
+      await user.type(screen.getByLabelText(/sponsor name/i), 'Minimal Corp')
+      const file = createMockFile('logo.png', 1024, 'image/png')
+      await user.upload(screen.getByLabelText(/sponsor logo/i), file)
+
+      await user.click(screen.getByRole('button', { name: /create sponsor/i }))
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledTimes(1)
+        expect(onSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'Minimal Corp',
+            logo_file_name: 'logo.png',
+            logo_file_type: 'image/png',
+            logo_file_size: 1024,
+          }),
+          file
+        )
+      })
+    })
+
+    it('should validate email format', async () => {
+      const user = userEvent.setup()
+      render(<SponsorForm onSubmit={onSubmit} onCancel={onCancel} />)
+
+      // Type invalid email
+      const emailInput = screen.getByLabelText(/contact email/i) as HTMLInputElement
+      await user.type(emailInput, 'not-an-email')
+
+      // HTML5 validation should mark as invalid
+      expect(emailInput.validity.valid).toBe(false)
+      expect(emailInput.validity.typeMismatch).toBe(true)
+    })
+
+    it('should accept valid email', async () => {
+      const user = userEvent.setup()
+      render(<SponsorForm onSubmit={onSubmit} onCancel={onCancel} />)
+
+      const emailInput = screen.getByLabelText(/contact email/i) as HTMLInputElement
+      await user.type(emailInput, 'valid@example.com')
+
+      expect(emailInput.validity.valid).toBe(true)
+    })
+
+    it('should submit all contact fields', async () => {
+      const user = userEvent.setup()
+      render(<SponsorForm onSubmit={onSubmit} onCancel={onCancel} />)
+
+      // Required fields
+      await user.type(screen.getByLabelText(/sponsor name/i), 'Full Contact Corp')
+      const file = createMockFile('logo.png', 1024, 'image/png')
+      await user.upload(screen.getByLabelText(/sponsor logo/i), file)
+
+      // All contact fields
+      await user.type(screen.getByLabelText(/contact name/i), 'Alice Johnson')
+      await user.type(screen.getByLabelText(/contact email/i), 'alice@fullcontact.com')
+      await user.type(screen.getByLabelText(/contact phone/i), '(555) 999-8888')
+
+      // All address fields
+      await user.type(screen.getByLabelText(/address line 1/i), '789 Pine Street')
+      await user.type(screen.getByLabelText(/address line 2/i), 'Building B')
+      await user.type(screen.getByLabelText(/city/i), 'Austin')
+      await user.type(screen.getByLabelText(/state/i), 'TX')
+      await user.type(screen.getByLabelText(/postal code/i), '78701')
+      await user.type(screen.getByLabelText(/country/i), 'United States')
+
+      // Financial fields
+      await user.type(screen.getByLabelText(/donation amount/i), '15000.75')
+      await user.type(screen.getByLabelText(/internal notes/i), 'Multi-year partnership agreement')
+
+      await user.click(screen.getByRole('button', { name: /create sponsor/i }))
+
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'Full Contact Corp',
+            contact_name: 'Alice Johnson',
+            contact_email: 'alice@fullcontact.com',
+            contact_phone: '(555) 999-8888',
+            address_line1: '789 Pine Street',
+            address_line2: 'Building B',
+            city: 'Austin',
+            state: 'TX',
+            postal_code: '78701',
+            country: 'United States',
+            donation_amount: 15000.75, // Parsed as number
+            notes: 'Multi-year partnership agreement',
+          }),
+          file
+        )
+      })
+    })
+
+    it('should mark contact fields as optional in HTML', () => {
+      render(<SponsorForm onSubmit={onSubmit} onCancel={onCancel} />)
+
+      const contactNameInput = screen.getByLabelText(/contact name/i) as HTMLInputElement
+      const contactEmailInput = screen.getByLabelText(/contact email/i) as HTMLInputElement
+      const contactPhoneInput = screen.getByLabelText(/contact phone/i) as HTMLInputElement
+      const addressLine1Input = screen.getByLabelText(/address line 1/i) as HTMLInputElement
+      const donationInput = screen.getByLabelText(/donation amount/i) as HTMLInputElement
+
+      expect(contactNameInput.required).toBe(false)
+      expect(contactEmailInput.required).toBe(false)
+      expect(contactPhoneInput.required).toBe(false)
+      expect(addressLine1Input.required).toBe(false)
+      expect(donationInput.required).toBe(false)
+    })
+
+    it('should validate donation amount as non-negative', async () => {
+      const user = userEvent.setup()
+      render(<SponsorForm onSubmit={onSubmit} onCancel={onCancel} />)
+
+      const donationInput = screen.getByLabelText(/donation amount/i) as HTMLInputElement
+      await user.type(donationInput, '-100')
+
+      // HTML5 validation should prevent negative
+      expect(donationInput.validity.valid).toBe(false)
+      expect(donationInput.validity.rangeUnderflow).toBe(true)
     })
   })
 })

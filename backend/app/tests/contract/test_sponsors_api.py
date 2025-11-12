@@ -657,3 +657,232 @@ class TestSponsorDelete:
         remaining_sponsors = list_response2.json()
         assert len(remaining_sponsors) == 1
         assert remaining_sponsors[0]["id"] != sponsor_to_delete_id
+
+
+@pytest.mark.asyncio
+class TestSponsorContactInformation:
+    """Test sponsor contact information fields (Phase 6 - User Story 7)."""
+
+    async def test_create_sponsor_with_all_contact_fields(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+        db_session: AsyncSession,
+    ) -> None:
+        """Test creating sponsor with all contact information fields."""
+        from app.models.sponsor import Sponsor
+
+        payload = {
+            "name": "Contact Test Corp",
+            "logo_file_name": "contact-logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+            "logo_size": "medium",
+            # Contact fields
+            "contact_name": "Jane Smith",
+            "contact_email": "jane.smith@contacttest.com",
+            "contact_phone": "(555) 987-6543",
+            # Address fields
+            "address_line1": "456 Oak Avenue",
+            "address_line2": "Floor 3",
+            "city": "Portland",
+            "state": "OR",
+            "postal_code": "97201",
+            "country": "USA",
+            # Financial fields
+            "donation_amount": 7500.50,
+            "notes": "Returning sponsor from last year",
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        sponsor = data["sponsor"]
+
+        # Verify contact fields
+        assert sponsor["contact_name"] == "Jane Smith"
+        assert sponsor["contact_email"] == "jane.smith@contacttest.com"
+        assert sponsor["contact_phone"] == "(555) 987-6543"
+
+        # Verify address fields
+        assert sponsor["address_line1"] == "456 Oak Avenue"
+        assert sponsor["address_line2"] == "Floor 3"
+        assert sponsor["city"] == "Portland"
+        assert sponsor["state"] == "OR"
+        assert sponsor["postal_code"] == "97201"
+        assert sponsor["country"] == "USA"
+
+        # Verify financial fields
+        assert float(sponsor["donation_amount"]) == 7500.50
+        assert sponsor["notes"] == "Returning sponsor from last year"
+
+        # Verify persistence in database
+        result = await db_session.execute(
+            Sponsor.__table__.select().where(Sponsor.id == sponsor["id"])
+        )
+        db_sponsor = result.fetchone()
+        assert db_sponsor is not None
+        assert db_sponsor.contact_name == "Jane Smith"
+        assert db_sponsor.contact_email == "jane.smith@contacttest.com"
+        assert db_sponsor.contact_phone == "(555) 987-6543"
+        assert db_sponsor.address_line1 == "456 Oak Avenue"
+        assert db_sponsor.city == "Portland"
+        assert float(db_sponsor.donation_amount) == 7500.50
+
+    async def test_create_sponsor_contact_email_validation(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test that invalid contact_email is rejected."""
+        payload = {
+            "name": "Invalid Email Corp",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+            "contact_email": "not-an-email",  # Invalid email
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 422  # Pydantic validation error
+        error = response.json()
+        assert "detail" in error
+
+    async def test_create_sponsor_contact_fields_optional(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+        db_session: AsyncSession,
+    ) -> None:
+        """Test that all contact fields are optional."""
+        from app.models.sponsor import Sponsor
+
+        payload = {
+            "name": "Minimal Contact Corp",
+            "logo_file_name": "minimal-logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+            # No contact, address, or financial fields
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        sponsor = data["sponsor"]
+
+        # All contact fields should be None
+        assert sponsor["contact_name"] is None
+        assert sponsor["contact_email"] is None
+        assert sponsor["contact_phone"] is None
+        assert sponsor["address_line1"] is None
+        assert sponsor["address_line2"] is None
+        assert sponsor["city"] is None
+        assert sponsor["state"] is None
+        assert sponsor["postal_code"] is None
+        assert sponsor["country"] is None
+        assert sponsor["donation_amount"] is None
+        assert sponsor["notes"] is None
+
+        # Verify database
+        result = await db_session.execute(
+            Sponsor.__table__.select().where(Sponsor.id == sponsor["id"])
+        )
+        db_sponsor = result.fetchone()
+        assert db_sponsor is not None
+        assert db_sponsor.contact_name is None
+        assert db_sponsor.contact_email is None
+        assert db_sponsor.donation_amount is None
+
+    async def test_update_sponsor_contact_information(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+        db_session: AsyncSession,
+    ) -> None:
+        """Test updating sponsor contact information."""
+        from app.models.sponsor import Sponsor
+
+        # Create sponsor
+        create_payload = {
+            "name": "Update Contact Corp",
+            "logo_file_name": "update-logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+        }
+        create_response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=create_payload,
+        )
+        assert create_response.status_code == 201
+        sponsor_id = create_response.json()["sponsor"]["id"]
+
+        # Update with contact info
+        update_payload = {
+            "contact_name": "Bob Johnson",
+            "contact_email": "bob@updatecontact.com",
+            "contact_phone": "555-1234",
+            "city": "Seattle",
+            "state": "WA",
+            "donation_amount": 10000.00,
+            "notes": "Updated notes",
+        }
+        update_response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/{sponsor_id}",
+            json=update_payload,
+        )
+
+        assert update_response.status_code == 200
+        updated = update_response.json()
+
+        assert updated["contact_name"] == "Bob Johnson"
+        assert updated["contact_email"] == "bob@updatecontact.com"
+        assert updated["contact_phone"] == "555-1234"
+        assert updated["city"] == "Seattle"
+        assert updated["state"] == "WA"
+        assert float(updated["donation_amount"]) == 10000.00
+        assert updated["notes"] == "Updated notes"
+
+        # Verify in database
+        result = await db_session.execute(
+            Sponsor.__table__.select().where(Sponsor.id == sponsor_id)
+        )
+        db_sponsor = result.fetchone()
+        assert db_sponsor is not None
+        assert db_sponsor.contact_name == "Bob Johnson"
+        assert db_sponsor.city == "Seattle"
+        assert float(db_sponsor.donation_amount) == 10000.00
+
+    async def test_donation_amount_validation(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test donation_amount rejects negative values."""
+        payload = {
+            "name": "Negative Donation Corp",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+            "donation_amount": -100.00,  # Negative value
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 422  # Pydantic validation error
+        error = response.json()
+        assert "detail" in error
