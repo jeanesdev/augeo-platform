@@ -381,3 +381,279 @@ class TestSponsorLogoUpload:
         error = response.json()
         # Error structure: {'detail': {'code': 'VALIDATION_ERROR', 'details': [...]}}
         assert "less than or equal to" in str(error).lower() or "5242880" in str(error)
+
+
+@pytest.mark.asyncio
+class TestSponsorUpdate:
+    """Test PATCH /api/v1/events/{event_id}/sponsors/{sponsor_id} endpoint contract."""
+
+    async def test_update_sponsor_name(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+        db_session: AsyncSession,
+    ) -> None:
+        """Test updating sponsor name."""
+        from app.models.sponsor import Sponsor
+
+        # Create sponsor
+        create_payload = {
+            "name": "Original Name",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+        }
+        create_response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=create_payload,
+        )
+        sponsor_id = create_response.json()["sponsor"]["id"]
+
+        # Update sponsor name
+        update_payload = {"name": "Updated Name"}
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/{sponsor_id}",
+            json=update_payload,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["name"] == "Updated Name"
+        assert data["id"] == sponsor_id
+
+        # Verify in database
+        from sqlalchemy import select
+
+        stmt = select(Sponsor).where(Sponsor.id == sponsor_id)
+        result = await db_session.execute(stmt)
+        db_sponsor = result.scalar_one()
+        assert db_sponsor.name == "Updated Name"
+
+    async def test_update_sponsor_logo_size(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test updating sponsor logo_size."""
+        # Create sponsor
+        create_payload = {
+            "name": "Test Sponsor",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+            "logo_size": "medium",
+        }
+        create_response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=create_payload,
+        )
+        sponsor_id = create_response.json()["sponsor"]["id"]
+
+        # Update logo_size
+        update_payload = {"logo_size": "xlarge"}
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/{sponsor_id}",
+            json=update_payload,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["logo_size"] == "xlarge"
+
+    async def test_update_sponsor_optional_fields(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test updating optional fields (sponsor_level, contact_name, etc.)."""
+        # Create sponsor with minimal data
+        create_payload = {
+            "name": "Test Sponsor",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+        }
+        create_response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=create_payload,
+        )
+        sponsor_id = create_response.json()["sponsor"]["id"]
+
+        # Update with optional fields
+        update_payload = {
+            "sponsor_level": "Platinum",
+            "contact_name": "John Doe",
+            "contact_email": "john@example.com",
+            "donation_amount": 5000.00,
+        }
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/{sponsor_id}",
+            json=update_payload,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["sponsor_level"] == "Platinum"
+        assert data["contact_name"] == "John Doe"
+        assert data["contact_email"] == "john@example.com"
+        assert float(data["donation_amount"]) == 5000.00
+
+    async def test_update_sponsor_duplicate_name_rejected(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test 400 for duplicate name when updating."""
+        # Create first sponsor
+        create_payload1 = {
+            "name": "Sponsor A",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+        }
+        await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=create_payload1,
+        )
+
+        # Create second sponsor
+        create_payload2 = {
+            "name": "Sponsor B",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+        }
+        create_response2 = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=create_payload2,
+        )
+        sponsor_id = create_response2.json()["sponsor"]["id"]
+
+        # Try to update second sponsor to use first sponsor's name
+        update_payload = {"name": "Sponsor A"}
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/{sponsor_id}",
+            json=update_payload,
+        )
+
+        assert response.status_code == 400
+        error = response.json()
+        detail = error["detail"] if isinstance(error["detail"], str) else str(error["detail"])
+        assert "already exists" in detail.lower()
+
+    async def test_update_sponsor_not_found(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test 404 for non-existent sponsor."""
+        fake_id = "00000000-0000-0000-0000-000000000000"
+        update_payload = {"name": "Updated Name"}
+
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/{fake_id}",
+            json=update_payload,
+        )
+
+        assert response.status_code == 404
+        error = response.json()
+        detail = error["detail"] if isinstance(error["detail"], str) else str(error["detail"])
+        assert "not found" in detail.lower()
+
+
+@pytest.mark.asyncio
+class TestSponsorDelete:
+    """Test DELETE /api/v1/events/{event_id}/sponsors/{sponsor_id} endpoint contract."""
+
+    async def test_delete_sponsor_success(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+        db_session: AsyncSession,
+    ) -> None:
+        """Test successful sponsor deletion returns 204."""
+        from app.models.sponsor import Sponsor
+
+        # Create sponsor
+        create_payload = {
+            "name": "To Delete",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+        }
+        create_response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=create_payload,
+        )
+        sponsor_id = create_response.json()["sponsor"]["id"]
+
+        # Delete sponsor
+        response = await npo_admin_client.delete(
+            f"/api/v1/events/{test_event.id}/sponsors/{sponsor_id}"
+        )
+
+        assert response.status_code == 204
+
+        # Verify sponsor removed from database
+        from sqlalchemy import select
+
+        stmt = select(Sponsor).where(Sponsor.id == sponsor_id)
+        result = await db_session.execute(stmt)
+        db_sponsor = result.scalar_one_or_none()
+        assert db_sponsor is None
+
+    async def test_delete_sponsor_not_found(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test 404 for non-existent sponsor."""
+        fake_id = "00000000-0000-0000-0000-000000000000"
+
+        response = await npo_admin_client.delete(
+            f"/api/v1/events/{test_event.id}/sponsors/{fake_id}"
+        )
+
+        assert response.status_code == 404
+        error = response.json()
+        detail = error["detail"] if isinstance(error["detail"], str) else str(error["detail"])
+        assert "not found" in detail.lower()
+
+    async def test_delete_sponsor_removes_from_list(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test deleted sponsor doesn't appear in list."""
+        # Create two sponsors
+        for i in range(2):
+            create_payload = {
+                "name": f"Sponsor {i}",
+                "logo_file_name": "logo.png",
+                "logo_file_type": "image/png",
+                "logo_file_size": 50000,
+            }
+            await npo_admin_client.post(
+                f"/api/v1/events/{test_event.id}/sponsors",
+                json=create_payload,
+            )
+
+        # Get list (should have 2)
+        list_response = await npo_admin_client.get(f"/api/v1/events/{test_event.id}/sponsors")
+        assert list_response.status_code == 200
+        sponsors = list_response.json()
+        assert len(sponsors) == 2
+        sponsor_to_delete_id = sponsors[0]["id"]
+
+        # Delete one
+        delete_response = await npo_admin_client.delete(
+            f"/api/v1/events/{test_event.id}/sponsors/{sponsor_to_delete_id}"
+        )
+        assert delete_response.status_code == 204
+
+        # Get list again (should have 1)
+        list_response2 = await npo_admin_client.get(f"/api/v1/events/{test_event.id}/sponsors")
+        assert list_response2.status_code == 200
+        remaining_sponsors = list_response2.json()
+        assert len(remaining_sponsors) == 1
+        assert remaining_sponsors[0]["id"] != sponsor_to_delete_id
