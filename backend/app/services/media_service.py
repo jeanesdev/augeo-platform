@@ -205,8 +205,8 @@ class MediaService:
         await db.commit()
 
         # Generate SAS URL for upload
-        account_name = blob_client.account_name
-        if not account_name:
+        storage_account_name: str | None = blob_client.account_name
+        if not storage_account_name:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Azure Storage account name not available",
@@ -224,7 +224,7 @@ class MediaService:
             )
 
         sas_token = generate_blob_sas(
-            account_name=account_name,
+            account_name=storage_account_name,
             container_name=container_name,
             blob_name=blob_name,
             account_key=account_key,
