@@ -102,7 +102,9 @@ jobs:
         with:
           file: ./backend/coverage.xml
           flags: backend
+          token: ${{ secrets.CODECOV_TOKEN }}
         continue-on-error: true
+        timeout-minutes: 2
 
   # Frontend validation
   frontend-validation:
@@ -163,12 +165,14 @@ jobs:
           scan-ref: '.'
           format: 'sarif'
           output: 'trivy-results.sarif'
+        timeout-minutes: 5
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
         continue-on-error: true
+        timeout-minutes: 2
 
   # Summary
   pr-validation-summary:
