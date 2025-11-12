@@ -143,6 +143,9 @@ jobs:
           files: ./backend/coverage.xml
           flags: backend
           name: backend-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+        continue-on-error: true
+        timeout-minutes: 2
 
   security-check:
     name: Security Check
