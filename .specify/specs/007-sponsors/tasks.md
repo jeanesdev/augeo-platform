@@ -528,28 +528,37 @@
 
 ### Frontend Components (User Story 5)
 
-- [ ] T086 [P] [US5] Add website_url field to SponsorForm in `frontend/augeo-admin/src/features/events/components/SponsorForm.tsx`:
+- [x] T086 [P] [US5] Add website_url field to SponsorForm in `frontend/augeo-admin/src/features/events/components/SponsorForm.tsx`:
   - Text input (optional, URL validation)
   - Placeholder: `https://example.com`
   - Zod validation: z.string().url().optional()
-- [ ] T087 [US5] Make SponsorCard logo/name clickable in `frontend/augeo-admin/src/features/events/components/SponsorCard.tsx`:
+  - **NOTE**: Field already existed from Phase 3 implementation
+- [x] T087 [US5] Make SponsorCard logo/name clickable in `frontend/augeo-admin/src/features/events/components/SponsorCard.tsx`:
   - If website_url present: wrap in anchor tag with link
   - target="_blank" rel="noopener noreferrer"
   - aria-label="Visit {sponsor.name} website"
   - Visual indicator (cursor pointer, underline on hover)
+  - **IMPLEMENTED**: LogoWrapper component conditionally wraps logo and name in clickable links
 
 ### Tests (User Story 5)
 
-- [ ] T088 [P] [US5] Contract test for website_url in `backend/app/tests/test_sponsors_api.py`:
-  - Test create sponsor with valid URL
-  - Test website_url validation rejects invalid URLs
-  - Test website_url is optional
-- [ ] T089 [P] [US5] Frontend test for clickable logo in `frontend/augeo-admin/src/tests/features/events/SponsorCard.test.tsx`:
-  - Test logo is clickable link if website_url present
-  - Test link has target="_blank" and rel="noopener noreferrer"
-  - Test logo is not clickable if no website_url
+- [x] T088 [P] [US5] Contract test for website_url in `backend/app/tests/contract/test_sponsors_api.py`:
+  - Test create sponsor with valid URL ✅
+  - Test website_url validation rejects invalid URLs ✅
+  - Test website_url is optional ✅
+  - Test update sponsor website_url ✅
+  - Test clear website_url (set to null) ✅
+  - **ADDED**: TestSponsorWebsiteLinks class with 5 new tests
+- [x] T089 [P] [US5] Frontend test for clickable logo in `frontend/augeo-admin/src/tests/features/events/SponsorCard.test.tsx`:
+  - Test logo is clickable link if website_url present ✅
+  - Test link has target="_blank" and rel="noopener noreferrer" ✅
+  - Test logo is not clickable if no website_url ✅
+  - Test sponsor name is clickable when website_url present ✅
+  - Test "Visit Website" link displayed when website_url present ✅
+  - Test hover underline styling ✅
+  - **ADDED**: 8 new tests for clickable sponsor links
 
-**Checkpoint**: User Story 5 complete - sponsors linkable to websites
+**Checkpoint**: ✅ User Story 5 complete - sponsors linkable to websites (126 total tests: 64 backend + 62 frontend)
 
 ---
 

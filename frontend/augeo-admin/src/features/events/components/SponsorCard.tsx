@@ -41,23 +41,58 @@ export function SponsorCard({ sponsor, onEdit, onDelete, readOnly = false }: Spo
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           {/* Logo Thumbnail */}
-          <div className={`shrink-0 ${logoSize} rounded-md bg-muted flex items-center justify-center overflow-hidden`}>
-            {sponsor.thumbnail_url || sponsor.logo_url ? (
-              <img
-                src={sponsor.thumbnail_url || sponsor.logo_url}
-                alt={`${sponsor.name} logo`}
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              <Building2 className="w-12 h-12 text-muted-foreground" />
-            )}
-          </div>
+          {sponsor.website_url ? (
+            <a
+              href={sponsor.website_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Visit ${sponsor.name} website`}
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+            >
+              <div className={`shrink-0 ${logoSize} rounded-md bg-muted flex items-center justify-center overflow-hidden`}>
+                {sponsor.thumbnail_url || sponsor.logo_url ? (
+                  <img
+                    src={sponsor.thumbnail_url || sponsor.logo_url}
+                    alt={`${sponsor.name} logo`}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <Building2 className="w-12 h-12 text-muted-foreground" />
+                )}
+              </div>
+            </a>
+          ) : (
+            <div className={`shrink-0 ${logoSize} rounded-md bg-muted flex items-center justify-center overflow-hidden`}>
+              {sponsor.thumbnail_url || sponsor.logo_url ? (
+                <img
+                  src={sponsor.thumbnail_url || sponsor.logo_url}
+                  alt={`${sponsor.name} logo`}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <Building2 className="w-12 h-12 text-muted-foreground" />
+              )}
+            </div>
+          )}
 
           {/* Sponsor Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-base md:text-lg truncate">{sponsor.name}</h3>
+                {sponsor.website_url ? (
+                  <a
+                    href={sponsor.website_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Visit ${sponsor.name} website`}
+                  >
+                    <h3 className="font-semibold text-base md:text-lg truncate hover:underline">
+                      {sponsor.name}
+                    </h3>
+                  </a>
+                ) : (
+                  <h3 className="font-semibold text-base md:text-lg truncate">{sponsor.name}</h3>
+                )}
                 {sponsor.sponsor_level && (
                   <Badge variant="secondary" className="mt-1">
                     {sponsor.sponsor_level}

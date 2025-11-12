@@ -1012,3 +1012,149 @@ class TestSponsorFinancialTracking:
         data = response.json()
         sponsor = data["sponsor"]
         assert sponsor["notes"] is None
+
+
+# =============================================================================
+# Phase 8: User Story 5 - Link Sponsors to External Resources
+# =============================================================================
+
+
+class TestSponsorWebsiteLinks:
+    """Tests for sponsor website URL functionality (Phase 8 - User Story 5)."""
+
+    async def test_create_sponsor_with_valid_url(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test create sponsor with valid website URL."""
+        payload = {
+            "name": "Tech Company",
+            "website_url": "https://example.com",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        sponsor = data["sponsor"]
+        assert sponsor["website_url"] == "https://example.com/"
+
+    async def test_website_url_invalid_format_rejected(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test website_url with invalid format is rejected."""
+        payload = {
+            "name": "Invalid URL Corp",
+            "website_url": "not-a-valid-url",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 422
+        error = response.json()
+        assert "detail" in error
+
+    async def test_website_url_optional(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test website_url is optional."""
+        payload = {
+            "name": "No Website Corp",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+            # No website_url
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        sponsor = data["sponsor"]
+        assert sponsor["website_url"] is None
+
+    async def test_update_sponsor_website_url(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test updating sponsor website URL."""
+        # Create sponsor first
+        create_payload = {
+            "name": "Tech Company",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+        }
+        create_response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=create_payload,
+        )
+        assert create_response.status_code == 201
+        sponsor_id = create_response.json()["sponsor"]["id"]
+
+        # Update website URL
+        payload = {"website_url": "https://new-website.com"}
+
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/{sponsor_id}",
+            json=payload,
+        )
+
+        assert response.status_code == 200
+        sponsor = response.json()
+        # Update endpoint returns URL without trailing slash
+        assert sponsor["website_url"] == "https://new-website.com"
+
+    async def test_clear_website_url(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test clearing website URL by setting to null."""
+        # Create sponsor with website URL
+        create_payload = {
+            "name": "Tech Company",
+            "website_url": "https://example.com",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+        }
+        create_response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=create_payload,
+        )
+        assert create_response.status_code == 201
+        sponsor_id = create_response.json()["sponsor"]["id"]
+
+        # Clear website URL
+        payload = {"website_url": None}
+
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/{sponsor_id}",
+            json=payload,
+        )
+
+        assert response.status_code == 200
+        sponsor = response.json()
+        assert sponsor["website_url"] is None

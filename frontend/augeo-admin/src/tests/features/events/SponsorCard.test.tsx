@@ -224,3 +224,89 @@ describe('SponsorCard - Visual Rendering with Logo Sizes', () => {
     expect(img).toHaveAttribute('src', 'https://example.com/large.png')
   })
 })
+
+// =============================================================================
+// Phase 8: User Story 5 - Link Sponsors to External Resources
+// =============================================================================
+
+describe('SponsorCard - Website URL Links (Phase 8 - User Story 5)', () => {
+  it('renders clickable logo when website_url is present', () => {
+    const sponsor = { ...mockSponsor, website_url: 'https://acme.example.com' }
+    const { container } = render(<SponsorCard sponsor={sponsor} />)
+
+    // Logo should be wrapped in an anchor tag
+    const logoLink = container.querySelector('a[href="https://acme.example.com"]')
+    expect(logoLink).toBeInTheDocument()
+    expect(logoLink).toHaveAttribute('target', '_blank')
+    expect(logoLink).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(logoLink).toHaveAttribute('aria-label', 'Visit Acme Corporation website')
+  })
+
+  it('renders clickable sponsor name when website_url is present', () => {
+    const sponsor = { ...mockSponsor, website_url: 'https://acme.example.com' }
+    render(<SponsorCard sponsor={sponsor} />)
+
+    // Find the h3 heading
+    const heading = screen.getByRole('heading', { name: 'Acme Corporation' })
+
+    // Its parent should be an anchor tag
+    expect(heading.parentElement?.tagName).toBe('A')
+    expect(heading.parentElement).toHaveAttribute('href', 'https://acme.example.com')
+    expect(heading.parentElement).toHaveAttribute('target', '_blank')
+    expect(heading.parentElement).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+
+  it('does not make logo clickable when website_url is missing', () => {
+    const sponsor = { ...mockSponsor, website_url: undefined }
+    const { container } = render(<SponsorCard sponsor={sponsor} />)
+
+    // Logo container should not be wrapped in anchor
+    const logoContainer = container.querySelector('.w-32.h-32')
+    expect(logoContainer?.tagName).toBe('DIV')
+    expect(logoContainer?.parentElement?.tagName).not.toBe('A')
+  })
+
+  it('does not make sponsor name clickable when website_url is missing', () => {
+    const sponsor = { ...mockSponsor, website_url: undefined }
+    render(<SponsorCard sponsor={sponsor} />)
+
+    const heading = screen.getByRole('heading', { name: 'Acme Corporation' })
+    expect(heading.tagName).toBe('H3')
+    expect(heading.parentElement?.tagName).not.toBe('A')
+  })
+
+  it('displays "Visit Website" link when website_url is present', () => {
+    const sponsor = { ...mockSponsor, website_url: 'https://acme.example.com' }
+    render(<SponsorCard sponsor={sponsor} />)
+
+    const visitLink = screen.getByRole('link', { name: /visit website/i })
+    expect(visitLink).toBeInTheDocument()
+    expect(visitLink).toHaveAttribute('href', 'https://acme.example.com')
+    expect(visitLink).toHaveAttribute('target', '_blank')
+    expect(visitLink).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+
+  it('does not display "Visit Website" link when website_url is missing', () => {
+    const sponsor = { ...mockSponsor, website_url: undefined }
+    render(<SponsorCard sponsor={sponsor} />)
+
+    const visitLink = screen.queryByRole('link', { name: /visit website/i })
+    expect(visitLink).not.toBeInTheDocument()
+  })
+
+  it('applies hover underline style to clickable sponsor name', () => {
+    const sponsor = { ...mockSponsor, website_url: 'https://acme.example.com' }
+    render(<SponsorCard sponsor={sponsor} />)
+
+    const heading = screen.getByRole('heading', { name: 'Acme Corporation' })
+    expect(heading).toHaveClass('hover:underline')
+  })
+
+  it('does not apply hover underline when no website_url', () => {
+    const sponsor = { ...mockSponsor, website_url: undefined }
+    render(<SponsorCard sponsor={sponsor} />)
+
+    const heading = screen.getByRole('heading', { name: 'Acme Corporation' })
+    expect(heading).not.toHaveClass('hover:underline')
+  })
+})
