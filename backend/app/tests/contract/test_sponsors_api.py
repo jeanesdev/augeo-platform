@@ -886,3 +886,129 @@ class TestSponsorContactInformation:
         assert response.status_code == 422  # Pydantic validation error
         error = response.json()
         assert "detail" in error
+
+
+@pytest.mark.asyncio
+class TestSponsorFinancialTracking:
+    """Test sponsor financial tracking fields (Phase 7 - User Story 4)."""
+
+    async def test_donation_amount_max_value(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test donation_amount enforces maximum value (12 digits total, 2 decimal)."""
+        payload = {
+            "name": "Max Donation Corp",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+            "donation_amount": 10000000000.00,  # Exceeds max of 9,999,999,999.99 (12 digits)
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 422  # Pydantic validation error
+        error = response.json()
+        assert "detail" in error
+
+    async def test_donation_amount_at_max_value(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+        db_session: AsyncSession,
+    ) -> None:
+        """Test donation_amount accepts maximum valid value."""
+        from app.models.sponsor import Sponsor
+
+        payload = {
+            "name": "At Max Donation Corp",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+            "donation_amount": 9999999999.99,  # Exactly at max (12 digits with 2 decimal)
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        sponsor = data["sponsor"]
+        assert float(sponsor["donation_amount"]) == 9999999999.99
+
+        # Verify in database
+        result = await db_session.execute(
+            Sponsor.__table__.select().where(Sponsor.id == sponsor["id"])
+        )
+        db_sponsor = result.fetchone()
+        assert db_sponsor is not None
+        assert float(db_sponsor.donation_amount) == 9999999999.99
+
+    async def test_notes_field_accepts_long_text(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+        db_session: AsyncSession,
+    ) -> None:
+        """Test notes field accepts long text (no max length)."""
+        from app.models.sponsor import Sponsor
+
+        long_notes = "A" * 5000  # 5000 character note
+
+        payload = {
+            "name": "Long Notes Corp",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+            "notes": long_notes,
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        sponsor = data["sponsor"]
+        assert sponsor["notes"] == long_notes
+        assert len(sponsor["notes"]) == 5000
+
+        # Verify persistence in database
+        result = await db_session.execute(
+            Sponsor.__table__.select().where(Sponsor.id == sponsor["id"])
+        )
+        db_sponsor = result.fetchone()
+        assert db_sponsor is not None
+        assert db_sponsor.notes == long_notes
+        assert len(db_sponsor.notes) == 5000
+
+    async def test_notes_field_optional(
+        self,
+        npo_admin_client: AsyncClient,
+        test_event: Any,
+    ) -> None:
+        """Test notes field is optional."""
+        payload = {
+            "name": "No Notes Corp",
+            "logo_file_name": "logo.png",
+            "logo_file_type": "image/png",
+            "logo_file_size": 50000,
+            # No notes field
+        }
+
+        response = await npo_admin_client.post(
+            f"/api/v1/events/{test_event.id}/sponsors",
+            json=payload,
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        sponsor = data["sponsor"]
+        assert sponsor["notes"] is None

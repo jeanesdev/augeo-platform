@@ -92,9 +92,12 @@ export function SponsorCard({ sponsor, onEdit, onDelete, readOnly = false }: Spo
             )}
 
             {/* Donation Amount */}
-            {sponsor.donation_amount !== null && sponsor.donation_amount !== undefined && (
+            {sponsor.donation_amount !== null && sponsor.donation_amount !== undefined && sponsor.donation_amount > 0 && (
               <p className="text-sm font-medium text-green-600 dark:text-green-400 mt-2">
-                ${sponsor.donation_amount.toLocaleString()}
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                }).format(sponsor.donation_amount)}
               </p>
             )}
 
