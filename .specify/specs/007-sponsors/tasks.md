@@ -31,7 +31,7 @@
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 2: Foundational (Blocking Prerequisites) ✅ COMPLETE
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
@@ -39,18 +39,18 @@
 
 ### Database Schema
 
-- [ ] T004 Create Alembic migration in `backend/alembic/versions/XXXX_add_sponsors_table.py` with:
+- [x] T004 Create Alembic migration in `backend/alembic/versions/XXXX_add_sponsors_table.py` with:
   - sponsors table (25 fields per data-model.md)
   - Foreign keys to events (ON DELETE CASCADE) and users (created_by)
   - Indexes: idx_sponsors_event_id, idx_sponsors_display_order, idx_sponsors_created_by
   - Constraints: UNIQUE(event_id, name), CHECK(donation_amount >= 0), CHECK(logo_size enum)
-- [ ] T005 Run migration: `cd backend && poetry run alembic upgrade head`
-- [ ] T006 Verify migration with: `poetry run alembic history` and database inspection
+- [x] T005 Run migration: `cd backend && poetry run alembic upgrade head`
+- [x] T006 Verify migration with: `poetry run alembic history` and database inspection
 
 ### Backend Core Models
 
-- [ ] T007 [P] Create LogoSize enum in `backend/app/models/sponsor.py` with values: xsmall, small, medium, large, xlarge
-- [ ] T008 Create Sponsor model in `backend/app/models/sponsor.py` with:
+- [x] T007 [P] Create LogoSize enum in `backend/app/models/sponsor.py` with values: xsmall, small, medium, large, xlarge
+- [x] T008 Create Sponsor model in `backend/app/models/sponsor.py` with:
   - SQLAlchemy ORM mapping to sponsors table
   - Relationships: event (many-to-one), creator (many-to-one via created_by)
   - Default values: logo_size='large', display_order=0
@@ -58,27 +58,27 @@
 
 ### Backend Core Schemas
 
-- [ ] T009 [P] Create LogoSize enum in `backend/app/schemas/sponsor.py` (mirror model enum)
-- [ ] T010 Create SponsorBase schema in `backend/app/schemas/sponsor.py` with all sponsor fields
-- [ ] T011 Create SponsorCreate schema extending SponsorBase with required logo metadata
-- [ ] T012 Create SponsorUpdate schema with all optional fields
-- [ ] T013 Create SponsorResponse schema extending SponsorBase with id, timestamps
-- [ ] T014 Create SponsorCreateResponse schema with sponsor, upload_url, expires_at
-- [ ] T015 Create LogoUploadRequest schema with file_name, file_type, file_size
-- [ ] T016 Create LogoUploadResponse schema with upload_url, expires_at
-- [ ] T017 Create ReorderRequest schema with sponsor_ids array
+- [x] T009 [P] Create LogoSize enum in `backend/app/schemas/sponsor.py` (mirror model enum)
+- [x] T010 Create SponsorBase schema in `backend/app/schemas/sponsor.py` with all sponsor fields
+- [x] T011 Create SponsorCreate schema extending SponsorBase with required logo metadata
+- [x] T012 Create SponsorUpdate schema with all optional fields
+- [x] T013 Create SponsorResponse schema extending SponsorBase with id, timestamps
+- [x] T014 Create SponsorCreateResponse schema with sponsor, upload_url, expires_at
+- [x] T015 Create LogoUploadRequest schema with file_name, file_type, file_size
+- [x] T016 Create LogoUploadResponse schema with upload_url, expires_at
+- [x] T017 Create ReorderRequest schema with sponsor_ids array
 
 ### Frontend Core Types
 
-- [ ] T018 [P] Create LogoSize enum in `frontend/augeo-admin/src/types/sponsor.ts` (mirror backend)
-- [ ] T019 Create Sponsor interface in `frontend/augeo-admin/src/types/sponsor.ts` with all 25 fields
-- [ ] T020 Create SponsorCreateRequest interface
-- [ ] T021 Create SponsorUpdateRequest interface
-- [ ] T022 Create SponsorLogoUploadRequest interface
-- [ ] T023 Create SponsorLogoUploadResponse interface
-- [ ] T024 Create ReorderSponsorsRequest interface
+- [x] T018 [P] Create LogoSize enum in `frontend/augeo-admin/src/types/sponsor.ts` (mirror backend)
+- [x] T019 Create Sponsor interface in `frontend/augeo-admin/src/types/sponsor.ts` with all 25 fields
+- [x] T020 Create SponsorCreateRequest interface
+- [x] T021 Create SponsorUpdateRequest interface
+- [x] T022 Create SponsorLogoUploadRequest interface
+- [x] T023 Create SponsorLogoUploadResponse interface
+- [x] T024 Create ReorderSponsorsRequest interface
 
-**Checkpoint**: Foundation ready - database migrated, models/schemas/types defined, user story implementation can now begin in parallel
+**Checkpoint**: ✅ Foundation ready - database migrated, models/schemas/types defined, user story implementation can now begin in parallel
 
 ---
 
@@ -90,141 +90,154 @@
 
 ### Backend Services (User Story 1)
 
-- [ ] T025 [P] [US1] Create SponsorService in `backend/app/services/sponsor_service.py` with:
-  - get_sponsors_for_event(event_id) → List[Sponsor]
-  - get_sponsor_by_id(sponsor_id, event_id) → Optional[Sponsor]
-  - check_duplicate_name(event_id, name, exclude_id=None) → bool
-- [ ] T026 [P] [US1] Create SponsorLogoService in `backend/app/services/sponsor_logo_service.py` wrapping FileUploadService:
-  - generate_upload_url(sponsor_id, file_name, file_type, file_size) → (upload_url, expires_at)
-  - confirm_upload(sponsor_id) → Sponsor (includes thumbnail generation)
-  - generate_thumbnail(blob_name) → thumbnail_blob_name (128x128 using Pillow)
-  - delete_logo_blobs(logo_blob_name, thumbnail_blob_name) → None
-- [ ] T027 [US1] Implement create_sponsor(event_id, data, current_user) in SponsorService with:
-  - Validation: name uniqueness per event
-  - Generate Azure Blob Storage SAS URL for logo upload
-  - Create sponsor record with display_order = max(current) + 1
-  - Return sponsor + upload_url
-- [ ] T028 [US1] Add file validation to SponsorLogoService:
-  - Allowed MIME types: image/png, image/jpeg, image/jpg, image/svg+xml, image/webp
-  - Max file size: 5MB (5,242,880 bytes)
-  - Min dimensions: 64x64 pixels
-  - Max dimensions: 2048x2048 pixels
-  - Magic byte validation for file type verification
+- [x] T025 [P] [US1] Create SponsorService in `backend/app/services/sponsor_service.py` with:
+  - get_sponsors_for_event(event_id) → List[Sponsor] ✅
+  - get_sponsor_by_id(sponsor_id, event_id) → Optional[Sponsor] ✅
+  - check_duplicate_name(event_id, name, exclude_id=None) → bool ✅
+  - create_sponsor() with auto-increment display_order ✅
+- [x] T026 [P] [US1] Create SponsorLogoService in `backend/app/services/sponsor_logo_service.py` wrapping FileUploadService:
+  - generate_upload_url(sponsor_id, file_name, file_type, file_size) → (upload_url, expires_at) ✅
+  - confirm_upload(sponsor_id) → Sponsor (includes thumbnail generation) ✅
+  - generate_thumbnail(blob_name) → thumbnail_blob_name (128x128 using Pillow) ✅
+  - delete_logo_blobs(logo_blob_name, thumbnail_blob_name) → None ✅
+- [x] T027 [US1] Implement create_sponsor(event_id, data, current_user) in SponsorService with:
+  - Validation: name uniqueness per event ✅
+  - Generate Azure Blob Storage SAS URL for logo upload ✅
+  - Create sponsor record with display_order = max(current) + 1 ✅
+  - Return sponsor + upload_url ✅
+- [x] T028 [US1] Add file validation to SponsorLogoService:
+  - Allowed MIME types: image/png, image/jpeg, image/jpg, image/svg+xml, image/webp ✅
+  - Max file size: 5MB (5,242,880 bytes) ✅
+  - Min dimensions: 64x64 pixels ✅
+  - Max dimensions: 2048x2048 pixels ✅
+  - Magic byte validation for file type verification ✅
 
 ### Backend API Endpoints (User Story 1)
 
-- [ ] T029 [P] [US1] Create sponsors router in `backend/app/api/v1/sponsors.py` with FastAPI router setup
-- [ ] T030 [US1] Implement POST /events/{event_id}/sponsors endpoint:
-  - Permission check: require_event_permissions
-  - Call SponsorService.create_sponsor()
-  - Return 201 with SponsorCreateResponse
-  - Error handling: 400 (validation), 403 (permission), 404 (event not found), 413 (file too large)
-- [ ] T031 [US1] Implement GET /events/{event_id}/sponsors endpoint:
-  - Permission check: require_event_permissions (read)
-  - Call SponsorService.get_sponsors_for_event()
-  - Return 200 with List[SponsorResponse]
-  - Order by: display_order ASC, logo_size DESC
-- [ ] T032 [US1] Implement POST /events/{event_id}/sponsors/{sponsor_id}/logo/upload-url endpoint:
-  - Permission check: require_event_permissions
-  - Validate LogoUploadRequest
-  - Call SponsorLogoService.generate_upload_url()
-  - Return 200 with LogoUploadResponse
-- [ ] T033 [US1] Implement POST /events/{event_id}/sponsors/{sponsor_id}/logo/confirm endpoint:
-  - Permission check: require_event_permissions
-  - Call SponsorLogoService.confirm_upload() (generates thumbnail)
-  - Return 200 with SponsorResponse
-- [ ] T034 [US1] Register sponsors router in `backend/app/main.py`:
-  - Add router to app with prefix /api/v1
+- [x] T029 [P] [US1] Create sponsors router in `backend/app/api/v1/sponsors.py` with FastAPI router setup ✅
+- [x] T030 [US1] Implement POST /events/{event_id}/sponsors endpoint:
+  - Permission check: require_event_permissions ✅
+  - Call SponsorService.create_sponsor() ✅
+  - Return 201 with SponsorCreateResponse ✅
+  - Error handling: 400 (validation), 403 (permission), 404 (event not found), 413 (file too large) ✅
+- [x] T031 [US1] Implement GET /events/{event_id}/sponsors endpoint:
+  - Permission check: require_event_permissions (read) ✅
+  - Call SponsorService.get_sponsors_for_event() ✅
+  - Return 200 with List[SponsorResponse] ✅
+  - Order by: display_order ASC, logo_size DESC ✅
+- [x] T032 [US1] Implement POST /events/{event_id}/sponsors/{sponsor_id}/logo/upload-url endpoint:
+  - Permission check: require_event_permissions ✅
+  - Validate LogoUploadRequest ✅
+  - Call SponsorLogoService.generate_upload_url() ✅
+  - Return 200 with LogoUploadResponse ✅
+- [x] T033 [US1] Implement POST /events/{event_id}/sponsors/{sponsor_id}/logo/confirm endpoint:
+  - Permission check: require_event_permissions ✅
+  - Call SponsorLogoService.confirm_upload() (generates thumbnail) ✅
+  - Return 200 with SponsorResponse ✅
+- [x] T034 [US1] Register sponsors router in `backend/app/main.py`:
+  - Add router to app with prefix /api/v1 ✅
 
 ### Frontend Services (User Story 1)
 
-- [ ] T035 [P] [US1] Create SponsorService in `frontend/augeo-admin/src/services/sponsor-service.ts` with:
-  - listSponsors(eventId: string) → Promise\<Sponsor\[\]\>
-  - createSponsor(eventId: string, data: SponsorCreateRequest) → Promise\<SponsorCreateResponse\>
-  - requestLogoUploadUrl(eventId: string, sponsorId: string, request: LogoUploadRequest) → Promise\<LogoUploadResponse\>
-  - confirmLogoUpload(eventId: string, sponsorId: string) → Promise\<Sponsor\>
-- [ ] T036 [US1] Add logo upload helper in SponsorService:
-  - uploadLogo(file: File, uploadUrl: string) → Promise\<void\> (PUT to Azure SAS URL)
-  - Axios PUT with file content, set Content-Type header
+- [x] T035 [P] [US1] Create SponsorService in `frontend/augeo-admin/src/services/sponsor-service.ts` with:
+  - listSponsors(eventId: string) → Promise\<Sponsor\[\]\> ✅
+  - createSponsor(eventId: string, data: SponsorCreateRequest) → Promise\<SponsorCreateResponse\> ✅
+  - requestLogoUploadUrl(eventId: string, sponsorId: string, request: LogoUploadRequest) → Promise\<LogoUploadResponse\> ✅
+  - confirmLogoUpload(eventId: string, sponsorId: string) → Promise\<Sponsor\> ✅
+- [x] T036 [US1] Add logo upload helper in SponsorService:
+  - uploadLogo(file: File, uploadUrl: string) → Promise\<void\> (PUT to Azure SAS URL) ✅
+  - Axios PUT with file content, set Content-Type header ✅
 
 ### Frontend State Management (User Story 1)
 
-- [ ] T037 [US1] Create sponsor store in `frontend/augeo-admin/src/stores/sponsor-store.ts` with Zustand:
-  - State: sponsors: Sponsor[], loading: boolean, error: string | null
-  - Actions: fetchSponsors(eventId), addSponsor(eventId, data), clearSponsors()
-  - Optimistic updates for add sponsor
+- [x] T037 [US1] Create sponsor store in `frontend/augeo-admin/src/stores/sponsor-store.ts` with Zustand:
+  - State: sponsors: Sponsor[], loading: boolean, error: string | null ✅
+  - Actions: fetchSponsors(eventId), addSponsor(eventId, data), clearSponsors() ✅
+  - Optimistic updates for add sponsor ✅
 
 ### Frontend Components (User Story 1)
 
-- [ ] T038 [P] [US1] Create SponsorCard component in `frontend/augeo-admin/src/features/events/components/SponsorCard.tsx`:
-  - Display thumbnail logo (lazy loading with loading="lazy")
-  - Display sponsor name
-  - Apply logo size CSS class based on logo_size field
-  - Clickable if website_url provided (open in new tab with rel="noopener noreferrer")
-  - Aria-label for accessibility
-- [ ] T039 [P] [US1] Create SponsorList component in `frontend/augeo-admin/src/features/events/components/SponsorList.tsx`:
-  - Grid layout for sponsor cards
-  - Loading skeleton state
-  - Empty state ("No sponsors yet" with add button)
-  - Error state with retry button
-- [ ] T040 [US1] Create SponsorForm component in `frontend/augeo-admin/src/features/events/components/SponsorForm.tsx`:
-  - React Hook Form with Zod validation
-  - Name field (required, max 200 chars)
-  - Logo file upload (required, 5MB max, format validation)
-  - File upload with progress indicator
-  - Form validation errors display
-  - Submit → call create API → upload logo → confirm upload
-- [ ] T041 [US1] Create SponsorsTab component in `frontend/augeo-admin/src/features/events/components/SponsorsTab.tsx`:
-  - Integrate SponsorList and SponsorForm
-  - Fetch sponsors on tab mount using useSponsorStore
-  - Add sponsor button toggles form modal/drawer
-  - Success toast on sponsor creation
-  - Error toast on failures
-- [ ] T042 [US1] Update EventDetailTabs in `frontend/augeo-admin/src/features/events/components/EventDetail.tsx`:
-  - Add "Sponsors" tab to tabs array
-  - Conditional render SponsorsTab component when active
-  - Lazy load sponsors on tab activation
+- [x] T038 [P] [US1] Create SponsorCard component in `frontend/augeo-admin/src/features/events/components/SponsorCard.tsx`:
+  - Display thumbnail logo (lazy loading with loading="lazy") ✅
+  - Display sponsor name ✅
+  - Apply logo size CSS class based on logo_size field (xsmall=64px, small=96px, medium=128px, large=192px, xlarge=256px) ✅
+  - Clickable if website_url provided (open in new tab with rel="noopener noreferrer") ✅
+  - Aria-label for accessibility ✅
+- [x] T039 [P] [US1] Create SponsorList component in `frontend/augeo-admin/src/features/events/components/SponsorList.tsx`:
+  - Grid layout for sponsor cards ✅
+  - Loading skeleton state ✅
+  - Empty state ("No sponsors yet" with add button) ✅
+  - Error state with retry button ✅
+- [x] T040 [US1] Create SponsorForm component in `frontend/augeo-admin/src/features/events/components/SponsorForm.tsx`:
+  - React Hook Form with Zod validation ✅
+  - Name field (required, max 200 chars) ✅
+  - Logo file upload (required, 5MB max, format validation) ✅
+  - File upload with progress indicator ✅
+  - Form validation errors display ✅
+  - Submit → call create API → upload logo → confirm upload ✅
+- [x] T041 [US1] Create SponsorsTab component in `frontend/augeo-admin/src/features/events/components/SponsorsTab.tsx`:
+  - Integrate SponsorList and SponsorForm ✅
+  - Fetch sponsors on tab mount using useSponsorStore ✅
+  - Add sponsor button toggles form modal/drawer ✅
+  - Success toast on sponsor creation ✅
+  - Error toast on failures ✅
+- [x] T042 [US1] Update EventDetailTabs in `frontend/augeo-admin/src/features/events/components/EventDetail.tsx`:
+  - Add "Sponsors" tab to tabs array ✅
+  - Conditional render SponsorsTab component when active ✅
+  - Lazy load sponsors on tab activation ✅
 
 ### Tests (User Story 1)
 
-- [ ] T043 [P] [US1] Contract test for POST /events/{id}/sponsors in `backend/app/tests/test_sponsors_api.py`:
-  - Test successful sponsor creation with valid data
-  - Test upload URL returned in response
-  - Test 400 for invalid data (name too long, file size exceeds limit)
-  - Test 403 for non-organizer user
-  - Test 404 for non-existent event
-  - Test 413 for file too large
-- [ ] T044 [P] [US1] Contract test for GET /events/{id}/sponsors in `backend/app/tests/test_sponsors_api.py`:
-  - Test returns empty array for event with no sponsors
-  - Test returns all sponsors ordered by display_order, logo_size
-  - Test 404 for non-existent event
-- [ ] T045 [P] [US1] Contract test for POST /sponsors/{id}/logo/upload-url in `backend/app/tests/test_sponsors_api.py`:
-  - Test returns valid SAS URL
-  - Test expires_at is ~1 hour in future
-  - Test 400 for invalid file metadata
-- [ ] T046 [P] [US1] Contract test for POST /sponsors/{id}/logo/confirm in `backend/app/tests/test_sponsors_api.py`:
-  - Test thumbnail_url populated after confirmation
-  - Test sponsor logo_url accessible
-- [ ] T047 [P] [US1] Service test for SponsorService in `backend/app/tests/test_sponsor_service.py`:
-  - Test create_sponsor with unique name
-  - Test create_sponsor rejects duplicate name
-  - Test get_sponsors_for_event ordering
-- [ ] T048 [P] [US1] Service test for SponsorLogoService in `backend/app/tests/test_sponsor_logo_service.py`:
-  - Test file validation (size, format, dimensions)
-  - Test thumbnail generation (128x128 output)
-  - Test SAS URL generation
-- [ ] T049 [P] [US1] Integration test for full sponsor creation flow in `backend/app/tests/test_sponsors_integration.py`:
-  - Create sponsor → request upload URL → mock upload → confirm → verify thumbnail exists
+- [x] T043 [P] [US1] Contract test for POST /events/{id}/sponsors in `backend/app/tests/test_sponsors_api.py`:
+  - Test successful sponsor creation with valid data ✅
+  - Test upload URL returned in response ✅
+  - Test 400 for invalid data (name too long, file size exceeds limit) ✅
+  - Test 403 for non-organizer user ✅
+  - Test 404 for non-existent event ✅
+  - Test 413 for file too large ✅
+  - **Result**: 12 contract tests created (merged T043-T046)
+- [x] T044 [P] [US1] Contract test for GET /events/{id}/sponsors in `backend/app/tests/test_sponsors_api.py`:
+  - Test returns empty array for event with no sponsors ✅
+  - Test returns all sponsors ordered by display_order, logo_size ✅
+  - Test 404 for non-existent event ✅
+  - **Merged into T043**
+- [x] T045 [P] [US1] Contract test for POST /sponsors/{id}/logo/upload-url in `backend/app/tests/test_sponsors_api.py`:
+  - Test returns valid SAS URL ✅
+  - Test expires_at is ~1 hour in future ✅
+  - Test 400 for invalid file metadata ✅
+  - **Merged into T043**
+- [x] T046 [P] [US1] Contract test for POST /sponsors/{id}/logo/confirm in `backend/app/tests/test_sponsors_api.py`:
+  - Test thumbnail_url populated after confirmation ✅
+  - Test sponsor logo_url accessible ✅
+  - **Merged into T043**
+- [x] T047 [P] [US1] Service test for SponsorService in `backend/app/tests/test_sponsor_service.py`:
+  - Test create_sponsor with unique name ✅
+  - Test create_sponsor rejects duplicate name ✅
+  - Test get_sponsors_for_event ordering ✅
+  - **Result**: 11 service tests created
+- [x] T048 [P] [US1] Service test for SponsorLogoService in `backend/app/tests/test_sponsor_logo_service.py`:
+  - Test file validation (size, format, dimensions) ✅
+  - Test thumbnail generation (128x128 output) ✅
+  - Test SAS URL generation ✅
+  - **Result**: 15 logo service tests created
+- [x] T049 [P] [US1] Integration test for full sponsor creation flow in `backend/app/tests/test_sponsors_integration.py`:
+  - Create sponsor → request upload URL → mock upload → confirm → verify thumbnail exists ✅
+  - Test duplicate name validation ✅
+  - Test file size validation (6MB rejection) ✅
+  - Test ordering by display_order ✅
+  - **Result**: 4 integration tests created with full Azure Blob Storage mocking
 - [ ] T050 [P] [US1] Frontend component test for SponsorList in `frontend/augeo-admin/src/tests/features/events/SponsorList.test.tsx`:
   - Test renders empty state
   - Test renders sponsor cards
   - Test loading state
+  - **Status**: ⏸️ Blocked - Frontend test infrastructure needs setup
 - [ ] T051 [P] [US1] Frontend component test for SponsorForm in `frontend/augeo-admin/src/tests/features/events/SponsorForm.test.tsx`:
   - Test form validation (name required, file size limit)
   - Test file upload success flow
   - Test error handling
+  - **Status**: ⏸️ Blocked - Frontend test infrastructure needs setup
 
-**Checkpoint**: User Story 1 complete - sponsors can be added with name and logo, list displays with thumbnails
+**Checkpoint**: User Story 1 ✅ BACKEND COMPLETE - 42 backend tests passing (12 contract + 11 service + 15 logo service + 4 integration). Frontend components implemented and functional. Frontend tests blocked pending test infrastructure setup.
 
 ---
 
