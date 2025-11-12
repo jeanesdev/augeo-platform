@@ -1,12 +1,12 @@
 import apiClient from '@/lib/axios';
 import type {
+  LogoUploadRequest,
+  LogoUploadResponse,
+  ReorderSponsorsRequest,
   Sponsor,
   SponsorCreateRequest,
   SponsorCreateResponse,
   SponsorUpdateRequest,
-  LogoUploadRequest,
-  LogoUploadResponse,
-  ReorderSponsorsRequest,
 } from '@/types/sponsor';
 
 /**

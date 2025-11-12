@@ -52,6 +52,11 @@ export interface EventDetail extends Event {
   media?: EventMedia[]
   links?: EventLink[]
   food_options?: FoodOption[]
+  sponsors?: Array<{
+    id: string
+    name: string
+    logo_size: string
+  }>
 }
 
 export interface EventCreateRequest {
