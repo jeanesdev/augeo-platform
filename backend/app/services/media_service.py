@@ -56,6 +56,49 @@ class MediaService:
         return BlobServiceClient.from_connection_string(settings.azure_storage_connection_string)
 
     @staticmethod
+    def generate_read_sas_url(blob_name: str, expiry_hours: int = 24) -> str:
+        """
+        Generate a SAS URL with read permissions for a blob.
+
+        Args:
+            blob_name: The blob path (e.g., events/event-id/media-id/filename.png)
+            expiry_hours: How long the SAS token should be valid (default: 24 hours)
+
+        Returns:
+            Full URL with SAS token for read access
+        """
+        blob_client = MediaService._get_blob_client()
+        container_name = settings.azure_storage_container_name or "event-media"
+        account_name = blob_client.account_name
+
+        if not account_name:
+            # Fallback to base URL without SAS
+            account_name = settings.azure_storage_account_name or "storage"
+            return f"https://{account_name}.blob.core.windows.net/{container_name}/{blob_name}"
+
+        # Get account key from credential
+        account_key = None
+        if hasattr(blob_client.credential, "account_key"):
+            account_key = blob_client.credential.account_key
+
+        if not account_key:
+            # Fallback to base URL without SAS
+            return f"https://{account_name}.blob.core.windows.net/{container_name}/{blob_name}"
+
+        # Generate SAS token with read permission
+        sas_token = generate_blob_sas(
+            account_name=account_name,
+            container_name=container_name,
+            blob_name=blob_name,
+            account_key=account_key,
+            permission=BlobSasPermissions(read=True),
+            expiry=datetime.now(pytz.UTC) + timedelta(hours=expiry_hours),
+        )
+
+        base_url = f"https://{account_name}.blob.core.windows.net"
+        return f"{base_url}/{container_name}/{blob_name}?{sas_token}"
+
+    @staticmethod
     async def generate_upload_url(
         db: AsyncSession,
         event_id: uuid.UUID,
@@ -133,7 +176,15 @@ class MediaService:
 
         # Generate placeholder URL (will be replaced with actual URL after upload)
         blob_client = MediaService._get_blob_client()
-        file_url = f"{blob_client.url}/{container_name}/{blob_name}"
+        # blob_client.url is the service endpoint (e.g., https://account.blob.core.windows.net)
+        # Remove trailing slash if present to avoid double slashes
+        if blob_client.url:
+            base_url = blob_client.url.rstrip("/")
+            file_url = f"{base_url}/{container_name}/{blob_name}"
+        else:
+            # Fallback if blob_client.url is None
+            account_name = settings.azure_storage_account_name or "storage"
+            file_url = f"https://{account_name}.blob.core.windows.net/{container_name}/{blob_name}"
 
         media = EventMedia(
             id=media_id,

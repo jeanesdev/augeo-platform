@@ -98,23 +98,13 @@ export function EventEditPage() {
   }
 
   const handleMediaUpload = async (file: File) => {
-    try {
-      await uploadMedia(eventId, file)
-      toast.success('Media uploaded successfully!')
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to upload media'
-      toast.error(message)
-    }
+    await uploadMedia(eventId, file)
+    // Note: Toast notification is shown by MediaUploader component
   }
 
   const handleMediaDelete = async (mediaId: string) => {
-    try {
-      await deleteMedia(eventId, mediaId)
-      toast.success('Media deleted successfully!')
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to delete media'
-      toast.error(message)
-    }
+    await deleteMedia(eventId, mediaId)
+    // Note: Toast notification is shown by MediaUploader component
   }
 
   const handleLinkCreate = async (data: EventLinkCreateRequest) => {

@@ -163,13 +163,28 @@ export function MediaUploader({
         <div className="space-y-2">
           <h4 className="text-sm font-semibold">Uploaded Files ({media.length})</h4>
 
-          {media.map((file) => (
+          {media.filter(Boolean).map((file) => (
             <Card key={file.id}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
-                  {/* File Icon */}
+                  {/* Thumbnail or File Icon */}
                   <div className="flex-shrink-0">
-                    {getFileIcon(file.file_type)}
+                    {file.mime_type?.startsWith('image/') ? (
+                      <img
+                        src={file.file_url}
+                        alt={file.file_name}
+                        className="h-16 w-16 object-cover rounded border"
+                        onError={(e) => {
+                          // Fallback to icon if image fails to load
+                          e.currentTarget.style.display = 'none'
+                          const icon = e.currentTarget.nextElementSibling
+                          if (icon) icon.classList.remove('hidden')
+                        }}
+                      />
+                    ) : null}
+                    <div className={file.mime_type?.startsWith('image/') ? 'hidden' : ''}>
+                      {getFileIcon(file.file_type)}
+                    </div>
                   </div>
 
                   {/* File Info */}

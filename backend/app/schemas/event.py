@@ -261,7 +261,7 @@ class EventMediaResponse(BaseModel):
     file_size: int
     display_order: int
     status: EventMediaStatus
-    uploaded_at: datetime
+    created_at: datetime  # Fixed: model has created_at, not uploaded_at
     uploaded_by: uuid.UUID
 
     class Config:
@@ -327,7 +327,7 @@ class EventDetailResponse(BaseModel):
 
     id: uuid.UUID
     npo_id: uuid.UUID
-    npo_name: str | None
+    npo_name: str | None = None  # Set after validation from npo relationship
     name: str
     slug: str
     tagline: str | None

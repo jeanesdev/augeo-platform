@@ -313,11 +313,20 @@ export const useEventStore = create<EventState>((set, get) => ({
     }))
 
     try {
+      // Determine media type based on file type
+      let media_type: 'image' | 'video' | 'flyer' = 'image'
+      if (file.type.startsWith('video/')) {
+        media_type = 'video'
+      } else if (file.type === 'application/pdf') {
+        media_type = 'flyer'
+      }
+
       // Step 1: Request upload URL
       const uploadData: MediaUploadRequest = {
         file_name: file.name,
         file_type: file.type,
         file_size: file.size,
+        media_type,
       }
       const { upload_url, media_id } = await eventService.media.requestUploadUrl(
         eventId,
@@ -341,7 +350,7 @@ export const useEventStore = create<EventState>((set, get) => ({
         currentEvent: state.currentEvent
           ? {
             ...state.currentEvent,
-            media: [...(state.currentEvent.media || []), media],
+            media: [...(state.currentEvent.media || []).filter(Boolean), media],
           }
           : null,
         uploadProgress: { ...state.uploadProgress, [fileId]: 100 },

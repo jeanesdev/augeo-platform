@@ -68,10 +68,26 @@ async def get_event(
             detail=f"Event with ID {event_id} not found",
         )
 
-    # Manually construct response to include NPO name
-    event_dict = event.__dict__.copy()
-    event_dict["npo_name"] = event.npo.name if event.npo else None
-    return EventDetailResponse(**event_dict)
+    # Convert to dict using Pydantic, then add npo_name and SAS URLs for media
+    response_dict = EventDetailResponse.model_validate(event, from_attributes=True).model_dump()
+    response_dict["npo_name"] = event.npo.name if event.npo else None
+
+    # Add SAS tokens to media URLs for read access
+    if response_dict.get("media"):
+        from app.services.media_service import MediaService
+
+        for media_item in response_dict["media"]:
+            # Extract blob_name from the existing file_url
+            # Format: https://account.blob.core.windows.net/container/blob_name
+            file_url = media_item.get("file_url", "")
+            if file_url:
+                # Extract blob_name (everything after container name)
+                parts = file_url.split("/")
+                if len(parts) >= 5:  # https://account.blob.core.windows.net/container/blob/path
+                    blob_name = "/".join(parts[4:])  # Get everything after container
+                    media_item["file_url"] = MediaService.generate_read_sas_url(blob_name)
+
+    return EventDetailResponse(**response_dict)
 
 
 @router.patch("/{event_id}", response_model=EventDetailResponse)

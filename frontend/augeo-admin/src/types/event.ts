@@ -123,22 +123,23 @@ export interface EventListResponse {
 export interface EventMedia {
   id: string
   event_id: string
+  media_type: string
+  file_url: string
   file_name: string
   file_type: string
+  mime_type: string
   file_size: number
-  blob_storage_url: string
+  display_order: number
   status: EventMediaStatus
-  scan_result: string | null
-  uploaded_at: string
-  scanned_at: string | null
   created_at: string
-  updated_at: string
+  uploaded_by: string
 }
 
 export interface MediaUploadRequest {
   file_name: string
   file_type: string
   file_size: number
+  media_type: 'image' | 'video' | 'flyer'
 }
 
 export interface MediaUploadResponse {

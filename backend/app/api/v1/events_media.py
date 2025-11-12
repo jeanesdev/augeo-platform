@@ -108,18 +108,23 @@ async def confirm_upload(
     # Confirm upload
     media = await MediaService.confirm_upload(db=db, media_id=media_id)
 
+    # Generate SAS URL for read access
+    file_url = media.file_url
+    if media.blob_name:
+        file_url = MediaService.generate_read_sas_url(media.blob_name)
+
     return EventMediaResponse(
         id=media.id,
         event_id=media.event_id,
         media_type=media.media_type.value,
         file_name=media.file_name,
-        file_url=media.file_url,
+        file_url=file_url,
         file_type=media.file_type,
         mime_type=media.mime_type,
         file_size=media.file_size,
         display_order=media.display_order,
         status=media.status,
-        uploaded_at=media.created_at,
+        created_at=media.created_at,  # Fixed: changed from uploaded_at
         uploaded_by=media.uploaded_by,
     )
 

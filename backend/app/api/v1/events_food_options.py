@@ -51,6 +51,7 @@ async def create_food_option(
     db.add(food_option)
     await db.flush()  # Flush to get the ID without committing
     await db.refresh(food_option)
+    await db.commit()  # Commit the transaction
 
     logger.info(
         f"Created food option {food_option.id} for event {event_id} by user {current_user.id}"
@@ -108,6 +109,7 @@ async def update_food_option(
 
     await db.flush()
     await db.refresh(food_option)
+    await db.commit()  # Commit the transaction
 
     logger.info(f"Updated food option {option_id} for event {event_id} by user {current_user.id}")
 
@@ -154,6 +156,6 @@ async def delete_food_option(
 
     # Delete the food option
     await db.delete(food_option)
-    # No need to commit - get_db() handles it automatically
+    await db.commit()  # Commit the transaction
 
     logger.info(f"Deleted food option {option_id} from event {event_id} by user {current_user.id}")

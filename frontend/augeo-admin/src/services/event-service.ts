@@ -115,11 +115,11 @@ export const mediaApi = {
    * Confirm media upload completion
    */
   async confirmUpload(eventId: string, data: MediaConfirmRequest): Promise<EventMedia> {
-    const response = await apiClient.post<{ media: EventMedia }>(
+    const response = await apiClient.post<EventMedia>(
       `/events/${eventId}/media/${data.media_id}/confirm`,
       data
     )
-    return response.data.media
+    return response.data
   },
 
   /**
