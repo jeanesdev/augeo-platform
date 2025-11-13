@@ -12,6 +12,7 @@ from app.models.npo_branding import NPOBranding
 from app.models.npo_member import NPOMember
 from app.models.role import Role
 from app.models.session import Session
+from app.models.sponsor import Sponsor
 from app.models.user import User
 
 __all__ = [
@@ -33,6 +34,7 @@ __all__ = [
     "NPOMember",
     "Role",
     "Session",
+    "Sponsor",
     "User",
     "UserConsent",
 ]

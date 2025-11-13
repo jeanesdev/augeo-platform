@@ -106,6 +106,8 @@ export function SponsorsTab({ eventId }: SponsorsTabProps) {
         toast.success('Sponsor updated successfully')
       } else {
         // Create new sponsor (with logo upload)
+        // eslint-disable-next-line no-console
+        console.log('Creating sponsor with data:', data, 'Logo file:', logoFile?.name, logoFile?.size)
         await createSponsor(eventId, data as SponsorCreateRequest, logoFile)
         toast.success('Sponsor created successfully')
       }
@@ -113,7 +115,11 @@ export function SponsorsTab({ eventId }: SponsorsTabProps) {
       setIsFormOpen(false)
       setEditingSponsor(null)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to save sponsor')
+      // eslint-disable-next-line no-console
+      console.error('Sponsor save error:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save sponsor'
+      toast.error(errorMessage)
+      // Don't close dialog on error so user can retry
     } finally {
       setIsSubmitting(false)
     }
