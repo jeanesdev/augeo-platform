@@ -30,11 +30,11 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 }))
 
 // Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}))
+global.ResizeObserver = class ResizeObserver {
+  observe = vi.fn()
+  unobserve = vi.fn()
+  disconnect = vi.fn()
+}
 
 // Mock scrollIntoView
 Element.prototype.scrollIntoView = vi.fn()

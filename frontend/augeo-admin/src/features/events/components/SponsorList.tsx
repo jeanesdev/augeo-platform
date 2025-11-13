@@ -1,13 +1,31 @@
 /**
  * SponsorList
- * Displays a grid of sponsors grouped by logo size
+ * Displays a grid of sponsors grouped by logo size with drag-and-drop reordering
  */
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Sponsor } from '@/types/sponsor'
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  DragOverlay,
+  type DragStartEvent,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  rectSortingStrategy,
+  SortableContext,
+} from '@dnd-kit/sortable'
 import { AlertCircle, Building2, Plus } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { SortableSponsorCard } from './SortableSponsorCard'
 import { SponsorCard } from './SponsorCard'
 
 interface SponsorListProps {
@@ -17,6 +35,7 @@ interface SponsorListProps {
   onAdd?: () => void
   onEdit?: (sponsor: Sponsor) => void
   onDelete?: (sponsor: Sponsor) => void
+  onReorder?: (sponsorIds: string[]) => Promise<void>
   readOnly?: boolean
 }
 
@@ -27,10 +46,73 @@ export function SponsorList({
   onAdd,
   onEdit,
   onDelete,
+  onReorder,
   readOnly = false,
 }: SponsorListProps) {
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const [localSponsors, setLocalSponsors] = useState<Sponsor[]>(sponsors)
+
+  // Update local sponsors when prop changes
+  useEffect(() => {
+    setLocalSponsors(sponsors)
+  }, [sponsors])
+
+  // Sensors for drag-and-drop (require 5px movement to prevent accidental drags)
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  )
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string)
+  }
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    setActiveId(null)
+
+    if (!over || active.id === over.id) {
+      return
+    }
+
+    // Find indices of dragged and target sponsors
+    const oldIndex = localSponsors.findIndex((s) => s.id === active.id)
+    const newIndex = localSponsors.findIndex((s) => s.id === over.id)
+
+    if (oldIndex === -1 || newIndex === -1) {
+      return
+    }
+
+    // Optimistic update - reorder locally
+    const reordered = arrayMove(localSponsors, oldIndex, newIndex)
+    setLocalSponsors(reordered)
+
+    // Call onReorder with new order
+    if (onReorder) {
+      try {
+        await onReorder(reordered.map((s) => s.id))
+      } catch {
+        // Revert on error - localSponsors will sync back from props
+        setLocalSponsors(sponsors)
+      }
+    }
+  }
+
+  const handleDragCancel = () => {
+    setActiveId(null)
+  }
+
   // Group sponsors by logo size
-  const groupedSponsors = sponsors.reduce(
+  const groupedSponsors = localSponsors.reduce(
     (acc, sponsor) => {
       if (!acc[sponsor.logo_size]) {
         acc[sponsor.logo_size] = []
@@ -50,6 +132,10 @@ export function SponsorList({
   }
 
   const sizeOrder = ['xlarge', 'large', 'medium', 'small', 'xsmall'] as const
+
+  const activeSponsor = activeId
+    ? localSponsors.find((s) => s.id === activeId)
+    : null
 
   if (isLoading) {
     return (
@@ -89,41 +175,72 @@ export function SponsorList({
   }
 
   return (
-    <div className="space-y-8">
-      {/* Add Button */}
-      {!readOnly && onAdd && (
-        <div className="flex justify-end">
-          <Button onClick={onAdd}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Sponsor
-          </Button>
-        </div>
-      )}
-
-      {/* Grouped Sponsors */}
-      {sizeOrder.map((size) => {
-        const sizesponsors = groupedSponsors[size]
-        if (!sizesponsors || sizesponsors.length === 0) return null
-
-        return (
-          <div key={size} className="space-y-4">
-            <h3 className="text-xl font-semibold border-b pb-2">
-              {logoSizeTitles[size]}
-            </h3>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {sizesponsors.map((sponsor) => (
-                <SponsorCard
-                  key={sponsor.id}
-                  sponsor={sponsor}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  readOnly={readOnly}
-                />
-              ))}
-            </div>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
+      <div className="space-y-8">
+        {/* Add Button */}
+        {!readOnly && onAdd && (
+          <div className="flex justify-end">
+            <Button onClick={onAdd}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Sponsor
+            </Button>
           </div>
-        )
-      })}
-    </div>
+        )}
+
+        {/* Grouped Sponsors */}
+        {sizeOrder.map((size) => {
+          const sizeSponsors = groupedSponsors[size]
+          if (!sizeSponsors || sizeSponsors.length === 0) return null
+
+          return (
+            <div key={size} className="space-y-4">
+              <h3 className="text-xl font-semibold border-b pb-2">
+                {logoSizeTitles[size]}
+              </h3>
+              <SortableContext
+                items={sizeSponsors.map((s) => s.id)}
+                strategy={rectSortingStrategy}
+              >
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {sizeSponsors.map((sponsor) =>
+                    readOnly || !onReorder ? (
+                      <SponsorCard
+                        key={sponsor.id}
+                        sponsor={sponsor}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        readOnly={readOnly}
+                      />
+                    ) : (
+                      <SortableSponsorCard
+                        key={sponsor.id}
+                        sponsor={sponsor}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                      />
+                    )
+                  )}
+                </div>
+              </SortableContext>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Drag Overlay */}
+      <DragOverlay>
+        {activeSponsor && (
+          <div className="opacity-50">
+            <SponsorCard sponsor={activeSponsor} readOnly />
+          </div>
+        )}
+      </DragOverlay>
+    </DndContext>
   )
 }

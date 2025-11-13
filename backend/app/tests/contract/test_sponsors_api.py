@@ -1158,3 +1158,190 @@ class TestSponsorWebsiteLinks:
         assert response.status_code == 200
         sponsor = response.json()
         assert sponsor["website_url"] is None
+
+
+# ============================================================================
+# Phase 9: User Story 5 - Sponsor Reordering (Drag-and-Drop)
+# ============================================================================
+
+
+@pytest.mark.asyncio
+class TestSponsorReordering:
+    """
+    Test sponsor reordering functionality (Phase 9 - User Story 5).
+
+    Covers:
+    - Successful sponsor reordering within the same event
+    - Validation that all sponsor IDs belong to the event
+    - Display order updates reflecting new positions
+    - Error handling for invalid sponsor IDs
+    - Error handling for non-existent events
+    """
+
+    async def test_reorder_sponsors_success(
+        self,
+        npo_admin_client,
+        test_event,
+        db_session,
+    ):
+        """Test successful reordering of sponsors within an event."""
+        # Create 3 sponsors with initial display_order
+        sponsors = []
+        for i in range(3):
+            create_payload = {
+                "name": f"Sponsor {i + 1}",
+                "logo_size": "medium",
+                "logo_file_name": f"logo{i + 1}.png",
+                "logo_file_type": "image/png",
+                "logo_file_size": 50000,
+            }
+            create_response = await npo_admin_client.post(
+                f"/api/v1/events/{test_event.id}/sponsors",
+                json=create_payload,
+            )
+            assert create_response.status_code == 201
+            sponsors.append(create_response.json()["sponsor"])
+
+        # Initial order: sponsor0, sponsor1, sponsor2
+        assert sponsors[0]["display_order"] == 0
+        assert sponsors[1]["display_order"] == 1
+        assert sponsors[2]["display_order"] == 2
+
+        # Reorder to: sponsor2, sponsor0, sponsor1
+        new_order = [sponsors[2]["id"], sponsors[0]["id"], sponsors[1]["id"]]
+        reorder_payload = {"sponsor_ids_ordered": new_order}
+
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/reorder",
+            json=reorder_payload,
+        )
+
+        assert response.status_code == 200
+        reordered_sponsors = response.json()["sponsors"]
+
+        # Verify new display_order
+        sponsor_map = {s["id"]: s for s in reordered_sponsors}
+        assert sponsor_map[sponsors[2]["id"]]["display_order"] == 0
+        assert sponsor_map[sponsors[0]["id"]]["display_order"] == 1
+        assert sponsor_map[sponsors[1]["id"]]["display_order"] == 2
+
+    async def test_reorder_sponsors_invalid_sponsor_ids(
+        self,
+        npo_admin_client,
+        test_event,
+    ):
+        """Test reordering fails when sponsor IDs don't belong to the event."""
+        # Create 2 sponsors for this event
+        sponsors = []
+        for i in range(2):
+            create_payload = {
+                "name": f"Sponsor {i + 1}",
+                "logo_size": "medium",
+                "logo_file_name": f"logo{i + 1}.png",
+                "logo_file_type": "image/png",
+                "logo_file_size": 50000,
+            }
+            create_response = await npo_admin_client.post(
+                f"/api/v1/events/{test_event.id}/sponsors",
+                json=create_payload,
+            )
+            assert create_response.status_code == 201
+            sponsors.append(create_response.json()["sponsor"])
+
+        # Try to reorder with invalid sponsor ID
+        import uuid
+
+        invalid_id = str(uuid.uuid4())
+        new_order = [sponsors[0]["id"], invalid_id]
+        reorder_payload = {"sponsor_ids_ordered": new_order}
+
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/reorder",
+            json=reorder_payload,
+        )
+
+        assert response.status_code == 400
+        assert "do not belong to the event" in response.json()["detail"].lower()
+
+    async def test_reorder_sponsors_nonexistent_event(
+        self,
+        npo_admin_client,
+    ):
+        """Test reordering fails when event does not exist."""
+        import uuid
+
+        invalid_event_id = str(uuid.uuid4())
+        reorder_payload = {"sponsor_ids_ordered": [str(uuid.uuid4()), str(uuid.uuid4())]}
+
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{invalid_event_id}/sponsors/reorder",
+            json=reorder_payload,
+        )
+
+        assert response.status_code == 404
+        assert "not found" in response.json()["detail"].lower()
+
+    async def test_reorder_sponsors_empty_list(
+        self,
+        npo_admin_client,
+        test_event,
+    ):
+        """Test reordering with empty sponsor list returns empty result."""
+        reorder_payload = {"sponsor_ids_ordered": []}
+
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/reorder",
+            json=reorder_payload,
+        )
+
+        assert response.status_code == 200
+        assert response.json()["sponsors"] == []
+
+    async def test_reorder_sponsors_preserves_other_fields(
+        self,
+        npo_admin_client,
+        test_event,
+    ):
+        """Test reordering only updates display_order, not other fields."""
+        # Create 2 sponsors with website URLs
+        sponsors = []
+        for i in range(2):
+            create_payload = {
+                "name": f"Sponsor {i + 1}",
+                "logo_size": "large",
+                "logo_file_name": f"logo{i + 1}.png",
+                "logo_file_type": "image/png",
+                "logo_file_size": 75000,
+                "website_url": f"https://sponsor{i + 1}.com",
+            }
+            create_response = await npo_admin_client.post(
+                f"/api/v1/events/{test_event.id}/sponsors",
+                json=create_payload,
+            )
+            assert create_response.status_code == 201
+            sponsors.append(create_response.json()["sponsor"])
+
+        # Reverse the order
+        new_order = [sponsors[1]["id"], sponsors[0]["id"]]
+        reorder_payload = {"sponsor_ids_ordered": new_order}
+
+        response = await npo_admin_client.patch(
+            f"/api/v1/events/{test_event.id}/sponsors/reorder",
+            json=reorder_payload,
+        )
+
+        assert response.status_code == 200
+        reordered_sponsors = response.json()["sponsors"]
+        sponsor_map = {s["id"]: s for s in reordered_sponsors}
+
+        # Verify display_order changed
+        assert sponsor_map[sponsors[1]["id"]]["display_order"] == 0
+        assert sponsor_map[sponsors[0]["id"]]["display_order"] == 1
+
+        # Verify other fields unchanged
+        assert sponsor_map[sponsors[0]["id"]]["name"] == "Sponsor 1"
+        assert sponsor_map[sponsors[0]["id"]]["logo_size"] == "large"
+        assert sponsor_map[sponsors[0]["id"]]["website_url"] == "https://sponsor1.com"
+        assert sponsor_map[sponsors[1]["id"]]["name"] == "Sponsor 2"
+        assert sponsor_map[sponsors[1]["id"]]["logo_size"] == "large"
+        assert sponsor_map[sponsors[1]["id"]]["website_url"] == "https://sponsor2.com"
