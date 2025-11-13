@@ -74,6 +74,37 @@ const US_STATES = [
   { value: 'DC', label: 'District of Columbia' },
 ]
 
+// Countries for dropdown
+const COUNTRIES = [
+  { value: 'United States', label: 'United States' },
+  { value: 'Canada', label: 'Canada' },
+  { value: 'United Kingdom', label: 'United Kingdom' },
+  { value: 'Australia', label: 'Australia' },
+  { value: 'Mexico', label: 'Mexico' },
+  { value: 'Germany', label: 'Germany' },
+  { value: 'France', label: 'France' },
+  { value: 'Spain', label: 'Spain' },
+  { value: 'Italy', label: 'Italy' },
+  { value: 'Netherlands', label: 'Netherlands' },
+  { value: 'Belgium', label: 'Belgium' },
+  { value: 'Switzerland', label: 'Switzerland' },
+  { value: 'Austria', label: 'Austria' },
+  { value: 'Sweden', label: 'Sweden' },
+  { value: 'Norway', label: 'Norway' },
+  { value: 'Denmark', label: 'Denmark' },
+  { value: 'Finland', label: 'Finland' },
+  { value: 'Ireland', label: 'Ireland' },
+  { value: 'New Zealand', label: 'New Zealand' },
+  { value: 'Japan', label: 'Japan' },
+  { value: 'South Korea', label: 'South Korea' },
+  { value: 'Singapore', label: 'Singapore' },
+  { value: 'India', label: 'India' },
+  { value: 'Brazil', label: 'Brazil' },
+  { value: 'Argentina', label: 'Argentina' },
+  { value: 'Chile', label: 'Chile' },
+  { value: 'South Africa', label: 'South Africa' },
+]
+
 // Format phone number as user types (matches sign-up form)
 const formatPhoneNumber = (value: string): string => {
   const phoneNumber = value.replace(/\D/g, '')
@@ -157,7 +188,7 @@ export function SponsorForm({ sponsor, onSubmit, onCancel, isSubmitting = false 
     city: sponsor?.city || '',
     state: sponsor?.state || '',
     postal_code: sponsor?.postal_code || '',
-    country: sponsor?.country || '',
+    country: sponsor?.country || 'United States',
     donation_amount: sponsor?.donation_amount?.toString() || '',
     notes: sponsor?.notes || '',
   })
@@ -608,13 +639,22 @@ export function SponsorForm({ sponsor, onSubmit, onCancel, isSubmitting = false 
 
           <div className="space-y-2">
             <Label htmlFor="country">Country</Label>
-            <Input
-              id="country"
+            <Select
               value={formData.country}
-              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+              onValueChange={(value) => setFormData({ ...formData, country: value })}
               disabled={isSubmitting}
-              placeholder="United States"
-            />
+            >
+              <SelectTrigger id="country">
+                <SelectValue placeholder="United States" />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTRIES.map((country) => (
+                  <SelectItem key={country.value} value={country.value}>
+                    {country.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
