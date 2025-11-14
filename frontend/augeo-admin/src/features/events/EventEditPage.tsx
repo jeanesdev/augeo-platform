@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useEventStore } from '@/stores/event-store'
+import { useSponsorStore } from '@/stores/sponsorStore'
 import type {
   EventLinkCreateRequest,
   EventUpdateRequest,
@@ -20,6 +21,7 @@ import { EventForm } from './components/EventForm'
 import { EventLinkForm } from './components/EventLinkForm'
 import { FoodOptionSelector } from './components/FoodOptionSelector'
 import { MediaUploader } from './components/MediaUploader'
+import { SponsorsTab } from './components/SponsorsTab'
 
 export function EventEditPage() {
   const navigate = useNavigate()
@@ -41,6 +43,7 @@ export function EventEditPage() {
     uploadProgress,
     uploadingFiles,
   } = useEventStore()
+  const { sponsors, fetchSponsors } = useSponsorStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const loadEvent = useCallback(() => {
@@ -55,6 +58,15 @@ export function EventEditPage() {
   useEffect(() => {
     loadEvent()
   }, [loadEvent])
+
+  // Load sponsors for tab count
+  useEffect(() => {
+    if (eventId) {
+      fetchSponsors(eventId).catch(() => {
+        // Silently fail - SponsorsTab will show error if user navigates there
+      })
+    }
+  }, [eventId, fetchSponsors])
 
   // Load NPO branding when event is loaded
   useEffect(() => {
@@ -204,7 +216,7 @@ export function EventEditPage() {
       </div>
 
       <Tabs defaultValue="details" className="space-y-4 md:space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 h-auto">
           <TabsTrigger value="details" className="text-xs sm:text-sm">
             <span className="hidden sm:inline">Event </span>Details
           </TabsTrigger>
@@ -216,6 +228,9 @@ export function EventEditPage() {
           </TabsTrigger>
           <TabsTrigger value="food" className="text-xs sm:text-sm">
             <span className="hidden md:inline">Food </span>Options<span className="hidden sm:inline"> ({currentEvent.food_options?.length || 0})</span>
+          </TabsTrigger>
+          <TabsTrigger value="sponsors" className="text-xs sm:text-sm">
+            Sponsors<span className="hidden sm:inline"> ({sponsors.length})</span>
           </TabsTrigger>
         </TabsList>
 
@@ -321,6 +336,21 @@ export function EventEditPage() {
                 onCreate={handleFoodOptionCreate}
                 onDelete={handleFoodOptionDelete}
               />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Sponsors Tab */}
+        <TabsContent value="sponsors">
+          <Card>
+            <CardHeader>
+              <CardTitle>Event Sponsors</CardTitle>
+              <CardDescription>
+                Manage sponsors and showcase their support for your event
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SponsorsTab eventId={eventId} />
             </CardContent>
           </Card>
         </TabsContent>

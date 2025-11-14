@@ -6,7 +6,7 @@ from httpx import AsyncClient
 
 @pytest.mark.asyncio
 async def test_contact_submit_success_returns_200(client: AsyncClient) -> None:
-    """Test POST /public/contact/submit returns 200 with valid data."""
+    """Test POST /public/contact/submit returns 201 with valid data."""
     payload = {
         "sender_name": "John Doe",
         "sender_email": "john@example.com",
@@ -14,7 +14,7 @@ async def test_contact_submit_success_returns_200(client: AsyncClient) -> None:
         "message": "This is a test message.",
     }
     response = await client.post("/api/v1/public/contact/submit", json=payload)
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert "id" in data
     assert data["sender_name"] == "John Doe"
@@ -34,7 +34,7 @@ async def test_contact_submit_response_structure(client: AsyncClient) -> None:
         "message": "I have a question about your service.",
     }
     response = await client.post("/api/v1/public/contact/submit", json=payload)
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
 
     required_fields = [
@@ -187,7 +187,7 @@ async def test_contact_submit_sanitizes_html(client: AsyncClient) -> None:
         "message": "Message with <script>alert('xss')</script> HTML",
     }
     response = await client.post("/api/v1/public/contact/submit", json=payload)
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
 
     # Check that script tags are stripped
@@ -207,7 +207,7 @@ async def test_contact_submit_trims_whitespace(client: AsyncClient) -> None:
         "message": "Test message",
     }
     response = await client.post("/api/v1/public/contact/submit", json=payload)
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert data["sender_name"] == "Test User"
 
@@ -222,7 +222,7 @@ async def test_contact_submit_with_special_characters(client: AsyncClient) -> No
         "message": "I'd like to donate €100. Is that possible? 🎉",
     }
     response = await client.post("/api/v1/public/contact/submit", json=payload)
-    assert response.status_code == 200
+    assert response.status_code == 201
     data = response.json()
     assert data["sender_name"] == "François O'Neill-Smith"
     assert "€100" in data["subject"]

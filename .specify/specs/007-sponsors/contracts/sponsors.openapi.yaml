@@ -1,0 +1,799 @@
+openapi: 3.1.0
+info:
+  title: Augeo Platform - Event Sponsors API
+  version: 1.0.0
+  description: |
+    API endpoints for managing event sponsors including logo uploads, contact information, and display ordering.
+  contact:
+    name: Augeo Platform Support
+    email: support@augeo.app
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development
+  - url: https://api-dev.augeo.app/api/v1
+    description: Development environment
+  - url: https://api-staging.augeo.app/api/v1
+    description: Staging environment
+  - url: https://api.augeo.app/api/v1
+    description: Production environment
+
+tags:
+  - name: Sponsors
+    description: Event sponsor management operations
+
+paths:
+  /events/{event_id}/sponsors:
+    get:
+      tags:
+        - Sponsors
+      summary: List sponsors for an event
+      description: Retrieve all sponsors for a specific event, ordered by display_order and logo_size
+      operationId: listSponsors
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Event UUID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sponsor'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+
+    post:
+      tags:
+        - Sponsors
+      summary: Create a new sponsor
+      description: |
+        Add a sponsor to an event. This is a two-step process:
+        1. Create sponsor record with metadata
+        2. Upload logo to Azure Blob Storage using provided SAS URL
+        3. Logo thumbnail is generated server-side automatically
+      operationId: createSponsor
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Event UUID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SponsorCreateRequest'
+      responses:
+        '201':
+          description: Sponsor created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SponsorCreateResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions (not event organizer)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: File too large or total sponsor logos exceed limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+
+  /events/{event_id}/sponsors/{sponsor_id}:
+    get:
+      tags:
+        - Sponsors
+      summary: Get sponsor by ID
+      description: Retrieve detailed information about a specific sponsor
+      operationId: getSponsor
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Event UUID
+        - name: sponsor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Sponsor UUID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sponsor'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Sponsor or event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+
+    patch:
+      tags:
+        - Sponsors
+      summary: Update sponsor
+      description: Update sponsor information. Logo can be replaced by providing new logo upload request.
+      operationId: updateSponsor
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Event UUID
+        - name: sponsor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Sponsor UUID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SponsorUpdateRequest'
+      responses:
+        '200':
+          description: Sponsor updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sponsor'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Sponsor or event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+
+    delete:
+      tags:
+        - Sponsors
+      summary: Delete sponsor
+      description: Remove sponsor from event and delete logo files from Azure Blob Storage
+      operationId: deleteSponsor
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Event UUID
+        - name: sponsor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Sponsor UUID
+      responses:
+        '204':
+          description: Sponsor deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Sponsor or event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+
+  /events/{event_id}/sponsors/{sponsor_id}/logo/upload-url:
+    post:
+      tags:
+        - Sponsors
+      summary: Request logo upload URL
+      description: |
+        Generate pre-signed Azure Blob Storage SAS URL for logo upload.
+        This is step 1 of the logo upload process. After getting the URL:
+        1. Upload file to the returned upload_url using PUT request
+        2. Call confirm endpoint to finalize upload
+      operationId: requestLogoUploadUrl
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Event UUID
+        - name: sponsor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Sponsor UUID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoUploadRequest'
+      responses:
+        '200':
+          description: Upload URL generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoUploadResponse'
+        '400':
+          description: Invalid file metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: File size exceeds limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+
+  /events/{event_id}/sponsors/{sponsor_id}/logo/confirm:
+    post:
+      tags:
+        - Sponsors
+      summary: Confirm logo upload
+      description: |
+        Finalize logo upload after successful file upload to Azure Blob Storage.
+        This triggers thumbnail generation and updates sponsor record.
+      operationId: confirmLogoUpload
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Event UUID
+        - name: sponsor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Sponsor UUID
+      responses:
+        '200':
+          description: Logo upload confirmed, thumbnail generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sponsor'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Sponsor or event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+
+  /events/{event_id}/sponsors/reorder:
+    patch:
+      tags:
+        - Sponsors
+      summary: Reorder sponsors
+      description: Update display order of multiple sponsors based on provided order
+      operationId: reorderSponsors
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Event UUID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderRequest'
+      responses:
+        '200':
+          description: Sponsors reordered successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sponsor'
+        '400':
+          description: Invalid sponsor IDs or order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+
+components:
+  schemas:
+    Sponsor:
+      type: object
+      required:
+        - id
+        - event_id
+        - name
+        - logo_url
+        - logo_blob_name
+        - thumbnail_url
+        - thumbnail_blob_name
+        - logo_size
+        - display_order
+        - created_at
+        - updated_at
+        - created_by
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Sponsor UUID
+        event_id:
+          type: string
+          format: uuid
+          description: Event UUID
+        name:
+          type: string
+          maxLength: 200
+          description: Sponsor name
+        logo_url:
+          type: string
+          format: uri
+          description: Azure Blob Storage URL for full-size logo
+        logo_blob_name:
+          type: string
+          description: Blob storage path
+        thumbnail_url:
+          type: string
+          format: uri
+          description: Azure Blob Storage URL for thumbnail (128x128)
+        thumbnail_blob_name:
+          type: string
+          description: Thumbnail blob storage path
+        website_url:
+          type: string
+          format: uri
+          nullable: true
+          description: Sponsor website URL
+        logo_size:
+          type: string
+          enum: [xsmall, small, medium, large, xlarge]
+          default: large
+          description: Display size for logo
+        sponsor_level:
+          type: string
+          maxLength: 100
+          nullable: true
+          description: Sponsor tier (e.g., "Gold", "Platinum")
+        contact_name:
+          type: string
+          maxLength: 200
+          nullable: true
+          description: Primary contact name
+        contact_email:
+          type: string
+          format: email
+          maxLength: 200
+          nullable: true
+          description: Contact email address
+        contact_phone:
+          type: string
+          maxLength: 20
+          nullable: true
+          description: Contact phone number
+        address_line1:
+          type: string
+          maxLength: 200
+          nullable: true
+          description: Street address line 1
+        address_line2:
+          type: string
+          maxLength: 200
+          nullable: true
+          description: Street address line 2
+        city:
+          type: string
+          maxLength: 100
+          nullable: true
+          description: City
+        state:
+          type: string
+          maxLength: 100
+          nullable: true
+          description: State/province
+        postal_code:
+          type: string
+          maxLength: 20
+          nullable: true
+          description: ZIP/postal code
+        country:
+          type: string
+          maxLength: 100
+          nullable: true
+          description: Country
+        donation_amount:
+          type: number
+          format: decimal
+          minimum: 0
+          maximum: 999999999.99
+          nullable: true
+          description: Donation amount in USD
+        notes:
+          type: string
+          nullable: true
+          description: Internal notes about sponsorship
+        display_order:
+          type: integer
+          minimum: 0
+          description: Display order (lower = higher priority)
+        created_at:
+          type: string
+          format: date-time
+          description: Record creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        created_by:
+          type: string
+          format: uuid
+          description: User who created the sponsor
+
+    SponsorCreateRequest:
+      type: object
+      required:
+        - name
+        - logo_file_name
+        - logo_file_type
+        - logo_file_size
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Sponsor name
+        logo_file_name:
+          type: string
+          description: Original filename for logo
+        logo_file_type:
+          type: string
+          description: MIME type (image/png, image/jpeg, etc.)
+        logo_file_size:
+          type: integer
+          minimum: 1
+          maximum: 5242880
+          description: File size in bytes (max 5MB)
+        website_url:
+          type: string
+          format: uri
+          description: Sponsor website URL
+        logo_size:
+          type: string
+          enum: [xsmall, small, medium, large, xlarge]
+          default: large
+          description: Display size for logo
+        sponsor_level:
+          type: string
+          maxLength: 100
+          description: Sponsor tier
+        contact_name:
+          type: string
+          maxLength: 200
+          description: Primary contact name
+        contact_email:
+          type: string
+          format: email
+          maxLength: 200
+          description: Contact email
+        contact_phone:
+          type: string
+          maxLength: 20
+          description: Contact phone
+        address_line1:
+          type: string
+          maxLength: 200
+        address_line2:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 100
+        postal_code:
+          type: string
+          maxLength: 20
+        country:
+          type: string
+          maxLength: 100
+        donation_amount:
+          type: number
+          format: decimal
+          minimum: 0
+          maximum: 999999999.99
+        notes:
+          type: string
+
+    SponsorCreateResponse:
+      type: object
+      required:
+        - sponsor
+        - upload_url
+        - expires_at
+      properties:
+        sponsor:
+          $ref: '#/components/schemas/Sponsor'
+        upload_url:
+          type: string
+          format: uri
+          description: Pre-signed Azure Blob Storage SAS URL for logo upload
+        expires_at:
+          type: string
+          format: date-time
+          description: Upload URL expiration timestamp (1 hour)
+
+    SponsorUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        website_url:
+          type: string
+          format: uri
+          nullable: true
+        logo_size:
+          type: string
+          enum: [xsmall, small, medium, large, xlarge]
+        sponsor_level:
+          type: string
+          maxLength: 100
+          nullable: true
+        contact_name:
+          type: string
+          maxLength: 200
+          nullable: true
+        contact_email:
+          type: string
+          format: email
+          maxLength: 200
+          nullable: true
+        contact_phone:
+          type: string
+          maxLength: 20
+          nullable: true
+        address_line1:
+          type: string
+          maxLength: 200
+          nullable: true
+        address_line2:
+          type: string
+          maxLength: 200
+          nullable: true
+        city:
+          type: string
+          maxLength: 100
+          nullable: true
+        state:
+          type: string
+          maxLength: 100
+          nullable: true
+        postal_code:
+          type: string
+          maxLength: 20
+          nullable: true
+        country:
+          type: string
+          maxLength: 100
+          nullable: true
+        donation_amount:
+          type: number
+          format: decimal
+          minimum: 0
+          maximum: 999999999.99
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+
+    LogoUploadRequest:
+      type: object
+      required:
+        - file_name
+        - file_type
+        - file_size
+      properties:
+        file_name:
+          type: string
+          description: Original filename
+        file_type:
+          type: string
+          description: MIME type
+        file_size:
+          type: integer
+          minimum: 1
+          maximum: 5242880
+          description: File size in bytes
+
+    LogoUploadResponse:
+      type: object
+      required:
+        - upload_url
+        - expires_at
+      properties:
+        upload_url:
+          type: string
+          format: uri
+          description: Pre-signed SAS URL for upload
+        expires_at:
+          type: string
+          format: date-time
+          description: URL expiration (1 hour)
+
+    ReorderRequest:
+      type: object
+      required:
+        - sponsor_ids
+      properties:
+        sponsor_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Array of sponsor UUIDs in desired display order
+          minItems: 1
+
+    Error:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error message
+
+    ValidationError:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+                description: Field location
+              msg:
+                type: string
+                description: Error message
+              type:
+                type: string
+                description: Error type
+
+  responses:
+    Unauthorized:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token obtained from /api/v1/auth/login
