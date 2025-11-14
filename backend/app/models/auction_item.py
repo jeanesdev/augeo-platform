@@ -2,10 +2,11 @@
 
 import enum
 import uuid
+from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from sqlalchemy import CheckConstraint, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -97,6 +98,13 @@ class AuctionItem(Base, UUIDMixin, TimestampMixin):
         nullable=False,
     )
     display_priority: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    # Soft delete
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        default=None,
+    )
 
     # SQLAlchemy relationships
     event: Mapped["Event"] = relationship("Event", back_populates="auction_items")
