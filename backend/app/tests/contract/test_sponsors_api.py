@@ -59,7 +59,7 @@ class TestSponsorCreation:
         db_sponsor = result.scalar_one()
 
         assert db_sponsor.name == "Acme Corporation"
-        assert db_sponsor.logo_size.value == "large"
+        assert db_sponsor.logo_size == "large"
 
     async def test_create_sponsor_with_all_logo_sizes(
         self,
@@ -1209,7 +1209,7 @@ class TestSponsorReordering:
 
         # Reorder to: sponsor2, sponsor0, sponsor1
         new_order = [sponsors[2]["id"], sponsors[0]["id"], sponsors[1]["id"]]
-        reorder_payload = {"sponsor_ids_ordered": new_order}
+        reorder_payload = {"sponsor_ids": new_order}
 
         response = await npo_admin_client.patch(
             f"/api/v1/events/{test_event.id}/sponsors/reorder",
@@ -1253,7 +1253,7 @@ class TestSponsorReordering:
 
         invalid_id = str(uuid.uuid4())
         new_order = [sponsors[0]["id"], invalid_id]
-        reorder_payload = {"sponsor_ids_ordered": new_order}
+        reorder_payload = {"sponsor_ids": new_order}
 
         response = await npo_admin_client.patch(
             f"/api/v1/events/{test_event.id}/sponsors/reorder",
@@ -1271,7 +1271,7 @@ class TestSponsorReordering:
         import uuid
 
         invalid_event_id = str(uuid.uuid4())
-        reorder_payload = {"sponsor_ids_ordered": [str(uuid.uuid4()), str(uuid.uuid4())]}
+        reorder_payload = {"sponsor_ids": [str(uuid.uuid4()), str(uuid.uuid4())]}
 
         response = await npo_admin_client.patch(
             f"/api/v1/events/{invalid_event_id}/sponsors/reorder",
@@ -1286,16 +1286,15 @@ class TestSponsorReordering:
         npo_admin_client,
         test_event,
     ):
-        """Test reordering with empty sponsor list returns empty result."""
-        reorder_payload = {"sponsor_ids_ordered": []}
+        """Test reordering with empty sponsor list fails validation."""
+        reorder_payload = {"sponsor_ids": []}
 
         response = await npo_admin_client.patch(
             f"/api/v1/events/{test_event.id}/sponsors/reorder",
             json=reorder_payload,
         )
 
-        assert response.status_code == 200
-        assert response.json()["sponsors"] == []
+        assert response.status_code == 422  # Validation error: min_length=1
 
     async def test_reorder_sponsors_preserves_other_fields(
         self,
@@ -1323,7 +1322,7 @@ class TestSponsorReordering:
 
         # Reverse the order
         new_order = [sponsors[1]["id"], sponsors[0]["id"]]
-        reorder_payload = {"sponsor_ids_ordered": new_order}
+        reorder_payload = {"sponsor_ids": new_order}
 
         response = await npo_admin_client.patch(
             f"/api/v1/events/{test_event.id}/sponsors/reorder",
