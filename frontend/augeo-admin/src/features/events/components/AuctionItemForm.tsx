@@ -15,16 +15,21 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import auctionItemMediaService from '@/services/auctionItemMediaService';
 import {
   AuctionType,
   type AuctionItem,
   type AuctionItemCreate,
+  type AuctionItemMedia,
   type AuctionItemUpdate,
 } from '@/types/auction-item';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { MediaGallery } from './MediaGallery';
+import { MediaUploadZone } from './MediaUploadZone';
 
 interface AuctionItemFormProps {
   item?: AuctionItem;
+  eventId: string;
   onSubmit: (data: AuctionItemCreate | AuctionItemUpdate) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
@@ -32,6 +37,7 @@ interface AuctionItemFormProps {
 
 export function AuctionItemForm({
   item,
+  eventId,
   onSubmit,
   onCancel,
   isSubmitting = false,
@@ -72,6 +78,73 @@ export function AuctionItemForm({
 
   // Validation errors
   const [urlError, setUrlError] = useState<string | null>(null);
+
+  // Media management
+  const [media, setMedia] = useState<AuctionItemMedia[]>([]);
+  const [isLoadingMedia, setIsLoadingMedia] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Load media when editing an existing item
+  useEffect(() => {
+    if (item?.id) {
+      loadMedia();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item?.id]);
+
+  const loadMedia = async () => {
+    if (!item?.id) return;
+
+    setIsLoadingMedia(true);
+    try {
+      const response = await auctionItemMediaService.listMedia(eventId, item.id);
+      setMedia(response.items);
+    } catch {
+      // Error loading media - silent fail, user can retry
+    } finally {
+      setIsLoadingMedia(false);
+    }
+  };
+
+  const handleMediaUpload = async (file: File, mediaType: 'image' | 'video') => {
+    if (!item?.id) {
+      setUploadError('Please save the item first before uploading media');
+      return;
+    }
+
+    setUploadError(null);
+    try {
+      const newMedia = await auctionItemMediaService.uploadMedia(
+        eventId,
+        item.id,
+        file,
+        mediaType
+      );
+      setMedia((prev) => [...prev, newMedia]);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Upload failed';
+      setUploadError(message);
+      throw error;
+    }
+  };
+
+  const handleMediaReorder = async (mediaIds: string[]) => {
+    if (!item?.id) return;
+
+    const response = await auctionItemMediaService.reorderMedia(
+      eventId,
+      item.id,
+      { media_order: mediaIds }
+    );
+    setMedia(response.items);
+  };
+
+  const handleMediaDelete = async (mediaId: string) => {
+    if (!item?.id) return;
+
+    await auctionItemMediaService.deleteMedia(eventId, item.id, mediaId);
+    setMedia((prev) => prev.filter((m) => m.id !== mediaId));
+  };
 
   const isValidUrl = (url: string): boolean => {
     if (!url) return true; // Empty is valid (optional field)
@@ -375,6 +448,53 @@ export function AuctionItemForm({
           </div>
         </div>
       </div>
+
+      {/* Media Management */}
+      {isEdit && item?.id && (
+        <div className="space-y-4">
+          <h3 className="text-sm font-semibold">Media (Images & Videos)</h3>
+
+          {isLoadingMedia ? (
+            <div className="text-sm text-muted-foreground">Loading media...</div>
+          ) : (
+            <>
+              {/* Upload Zone */}
+              <div className="space-y-2">
+                <MediaUploadZone
+                  onUpload={handleMediaUpload}
+                  disabled={isSubmitting}
+                />
+                {uploadError && (
+                  <p className="text-sm text-red-500">{uploadError}</p>
+                )}
+              </div>
+
+              {/* Media Gallery */}
+              {media.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">
+                    Drag to reorder. First image will be the primary thumbnail.
+                  </p>
+                  <MediaGallery
+                    media={media}
+                    onReorder={handleMediaReorder}
+                    onDelete={handleMediaDelete}
+                    readOnly={isSubmitting}
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {!isEdit && (
+        <div className="rounded-lg border border-dashed border-muted-foreground/25 p-6">
+          <p className="text-sm text-muted-foreground text-center">
+            Save the item first to upload images and videos
+          </p>
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex gap-3 justify-end">
