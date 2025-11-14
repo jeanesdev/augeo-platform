@@ -96,6 +96,7 @@ async def create_auction_item(
 )
 async def list_auction_items(
     event_id: UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
     auction_type: Annotated[AuctionType | None, Query(description="Filter by auction type")] = None,
     status: Annotated[ItemStatus | None, Query(description="Filter by status")] = None,
     search: Annotated[
@@ -104,7 +105,6 @@ async def list_auction_items(
     page: Annotated[int, Query(description="Page number (1-indexed)", ge=1)] = 1,
     limit: Annotated[int, Query(description="Items per page", ge=1, le=100)] = 50,
     current_user: Annotated[User | None, Depends(get_current_user_optional)] = None,
-    db: Annotated[AsyncSession, Depends(get_db)] = Depends(get_db),
 ) -> AuctionItemListResponse:
     """List auction items for an event.
 
@@ -169,8 +169,8 @@ async def list_auction_items(
 async def get_auction_item(
     event_id: UUID,
     item_id: UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User | None, Depends(get_current_user_optional)] = None,
-    db: Annotated[AsyncSession, Depends(get_db)] = Depends(get_db),
 ) -> AuctionItemDetail:
     """Get auction item details.
 
