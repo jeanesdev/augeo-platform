@@ -54,6 +54,10 @@ import { Route as AuthenticatedAdminNpoApplicationsRouteImport } from './routes/
 import { Route as AuthenticatedNposNpoIdIndexRouteImport } from './routes/_authenticated/npos/$npoId.index'
 import { Route as AuthenticatedNposNpoIdEditRouteImport } from './routes/_authenticated/npos/$npoId/edit'
 import { Route as AuthenticatedEventsEventIdEditRouteImport } from './routes/_authenticated/events/$eventId/edit'
+import { Route as AuthenticatedEventsEventIdAuctionItemsIndexRouteImport } from './routes/_authenticated/events/$eventId/auction-items/index'
+import { Route as AuthenticatedEventsEventIdAuctionItemsCreateRouteImport } from './routes/_authenticated/events/$eventId/auction-items/create'
+import { Route as AuthenticatedEventsEventIdAuctionItemsItemIdRouteImport } from './routes/_authenticated/events/$eventId/auction-items/$itemId'
+import { Route as AuthenticatedEventsEventIdAuctionItemsItemIdEditRouteImport } from './routes/_authenticated/events/$eventId/auction-items/$itemId/edit'
 
 const ClerkRouteRoute = ClerkRouteRouteImport.update({
   id: '/clerk',
@@ -294,6 +298,30 @@ const AuthenticatedEventsEventIdEditRoute =
     path: '/events/$eventId/edit',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEventsEventIdAuctionItemsIndexRoute =
+  AuthenticatedEventsEventIdAuctionItemsIndexRouteImport.update({
+    id: '/events/$eventId/auction-items/',
+    path: '/events/$eventId/auction-items/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEventsEventIdAuctionItemsCreateRoute =
+  AuthenticatedEventsEventIdAuctionItemsCreateRouteImport.update({
+    id: '/events/$eventId/auction-items/create',
+    path: '/events/$eventId/auction-items/create',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEventsEventIdAuctionItemsItemIdRoute =
+  AuthenticatedEventsEventIdAuctionItemsItemIdRouteImport.update({
+    id: '/events/$eventId/auction-items/$itemId',
+    path: '/events/$eventId/auction-items/$itemId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEventsEventIdAuctionItemsItemIdEditRoute =
+  AuthenticatedEventsEventIdAuctionItemsItemIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AuthenticatedEventsEventIdAuctionItemsItemIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
@@ -339,6 +367,10 @@ export interface FileRoutesByFullPath {
   '/events/$eventId/edit': typeof AuthenticatedEventsEventIdEditRoute
   '/npos/$npoId/edit': typeof AuthenticatedNposNpoIdEditRoute
   '/npos/$npoId': typeof AuthenticatedNposNpoIdIndexRoute
+  '/events/$eventId/auction-items/$itemId': typeof AuthenticatedEventsEventIdAuctionItemsItemIdRouteWithChildren
+  '/events/$eventId/auction-items/create': typeof AuthenticatedEventsEventIdAuctionItemsCreateRoute
+  '/events/$eventId/auction-items': typeof AuthenticatedEventsEventIdAuctionItemsIndexRoute
+  '/events/$eventId/auction-items/$itemId/edit': typeof AuthenticatedEventsEventIdAuctionItemsItemIdEditRoute
 }
 export interface FileRoutesByTo {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
@@ -382,6 +414,10 @@ export interface FileRoutesByTo {
   '/events/$eventId/edit': typeof AuthenticatedEventsEventIdEditRoute
   '/npos/$npoId/edit': typeof AuthenticatedNposNpoIdEditRoute
   '/npos/$npoId': typeof AuthenticatedNposNpoIdIndexRoute
+  '/events/$eventId/auction-items/$itemId': typeof AuthenticatedEventsEventIdAuctionItemsItemIdRouteWithChildren
+  '/events/$eventId/auction-items/create': typeof AuthenticatedEventsEventIdAuctionItemsCreateRoute
+  '/events/$eventId/auction-items': typeof AuthenticatedEventsEventIdAuctionItemsIndexRoute
+  '/events/$eventId/auction-items/$itemId/edit': typeof AuthenticatedEventsEventIdAuctionItemsItemIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -430,6 +466,10 @@ export interface FileRoutesById {
   '/_authenticated/events/$eventId/edit': typeof AuthenticatedEventsEventIdEditRoute
   '/_authenticated/npos/$npoId/edit': typeof AuthenticatedNposNpoIdEditRoute
   '/_authenticated/npos/$npoId/': typeof AuthenticatedNposNpoIdIndexRoute
+  '/_authenticated/events/$eventId/auction-items/$itemId': typeof AuthenticatedEventsEventIdAuctionItemsItemIdRouteWithChildren
+  '/_authenticated/events/$eventId/auction-items/create': typeof AuthenticatedEventsEventIdAuctionItemsCreateRoute
+  '/_authenticated/events/$eventId/auction-items/': typeof AuthenticatedEventsEventIdAuctionItemsIndexRoute
+  '/_authenticated/events/$eventId/auction-items/$itemId/edit': typeof AuthenticatedEventsEventIdAuctionItemsItemIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -477,6 +517,10 @@ export interface FileRouteTypes {
     | '/events/$eventId/edit'
     | '/npos/$npoId/edit'
     | '/npos/$npoId'
+    | '/events/$eventId/auction-items/$itemId'
+    | '/events/$eventId/auction-items/create'
+    | '/events/$eventId/auction-items'
+    | '/events/$eventId/auction-items/$itemId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/clerk'
@@ -520,6 +564,10 @@ export interface FileRouteTypes {
     | '/events/$eventId/edit'
     | '/npos/$npoId/edit'
     | '/npos/$npoId'
+    | '/events/$eventId/auction-items/$itemId'
+    | '/events/$eventId/auction-items/create'
+    | '/events/$eventId/auction-items'
+    | '/events/$eventId/auction-items/$itemId/edit'
   id:
     | '__root__'
     | '/_authenticated'
@@ -567,6 +615,10 @@ export interface FileRouteTypes {
     | '/_authenticated/events/$eventId/edit'
     | '/_authenticated/npos/$npoId/edit'
     | '/_authenticated/npos/$npoId/'
+    | '/_authenticated/events/$eventId/auction-items/$itemId'
+    | '/_authenticated/events/$eventId/auction-items/create'
+    | '/_authenticated/events/$eventId/auction-items/'
+    | '/_authenticated/events/$eventId/auction-items/$itemId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -907,6 +959,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEventsEventIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/events/$eventId/auction-items/': {
+      id: '/_authenticated/events/$eventId/auction-items/'
+      path: '/events/$eventId/auction-items'
+      fullPath: '/events/$eventId/auction-items'
+      preLoaderRoute: typeof AuthenticatedEventsEventIdAuctionItemsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/events/$eventId/auction-items/create': {
+      id: '/_authenticated/events/$eventId/auction-items/create'
+      path: '/events/$eventId/auction-items/create'
+      fullPath: '/events/$eventId/auction-items/create'
+      preLoaderRoute: typeof AuthenticatedEventsEventIdAuctionItemsCreateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/events/$eventId/auction-items/$itemId': {
+      id: '/_authenticated/events/$eventId/auction-items/$itemId'
+      path: '/events/$eventId/auction-items/$itemId'
+      fullPath: '/events/$eventId/auction-items/$itemId'
+      preLoaderRoute: typeof AuthenticatedEventsEventIdAuctionItemsItemIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/events/$eventId/auction-items/$itemId/edit': {
+      id: '/_authenticated/events/$eventId/auction-items/$itemId/edit'
+      path: '/edit'
+      fullPath: '/events/$eventId/auction-items/$itemId/edit'
+      preLoaderRoute: typeof AuthenticatedEventsEventIdAuctionItemsItemIdEditRouteImport
+      parentRoute: typeof AuthenticatedEventsEventIdAuctionItemsItemIdRoute
+    }
   }
 }
 
@@ -935,6 +1015,21 @@ const AuthenticatedSettingsRouteRouteWithChildren =
     AuthenticatedSettingsRouteRouteChildren,
   )
 
+interface AuthenticatedEventsEventIdAuctionItemsItemIdRouteChildren {
+  AuthenticatedEventsEventIdAuctionItemsItemIdEditRoute: typeof AuthenticatedEventsEventIdAuctionItemsItemIdEditRoute
+}
+
+const AuthenticatedEventsEventIdAuctionItemsItemIdRouteChildren: AuthenticatedEventsEventIdAuctionItemsItemIdRouteChildren =
+  {
+    AuthenticatedEventsEventIdAuctionItemsItemIdEditRoute:
+      AuthenticatedEventsEventIdAuctionItemsItemIdEditRoute,
+  }
+
+const AuthenticatedEventsEventIdAuctionItemsItemIdRouteWithChildren =
+  AuthenticatedEventsEventIdAuctionItemsItemIdRoute._addFileChildren(
+    AuthenticatedEventsEventIdAuctionItemsItemIdRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -952,6 +1047,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEventsEventIdEditRoute: typeof AuthenticatedEventsEventIdEditRoute
   AuthenticatedNposNpoIdEditRoute: typeof AuthenticatedNposNpoIdEditRoute
   AuthenticatedNposNpoIdIndexRoute: typeof AuthenticatedNposNpoIdIndexRoute
+  AuthenticatedEventsEventIdAuctionItemsItemIdRoute: typeof AuthenticatedEventsEventIdAuctionItemsItemIdRouteWithChildren
+  AuthenticatedEventsEventIdAuctionItemsCreateRoute: typeof AuthenticatedEventsEventIdAuctionItemsCreateRoute
+  AuthenticatedEventsEventIdAuctionItemsIndexRoute: typeof AuthenticatedEventsEventIdAuctionItemsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -972,6 +1070,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEventsEventIdEditRoute: AuthenticatedEventsEventIdEditRoute,
   AuthenticatedNposNpoIdEditRoute: AuthenticatedNposNpoIdEditRoute,
   AuthenticatedNposNpoIdIndexRoute: AuthenticatedNposNpoIdIndexRoute,
+  AuthenticatedEventsEventIdAuctionItemsItemIdRoute:
+    AuthenticatedEventsEventIdAuctionItemsItemIdRouteWithChildren,
+  AuthenticatedEventsEventIdAuctionItemsCreateRoute:
+    AuthenticatedEventsEventIdAuctionItemsCreateRoute,
+  AuthenticatedEventsEventIdAuctionItemsIndexRoute:
+    AuthenticatedEventsEventIdAuctionItemsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

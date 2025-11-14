@@ -47,10 +47,10 @@ class AuctionItemUpdate(BaseModel):
     title: str | None = Field(None, min_length=1, max_length=200)
     description: str | None = Field(None, min_length=1, max_length=10000)
     auction_type: AuctionType | None = None
-    starting_bid: Decimal | None = Field(None, ge=0)
-    donor_value: Decimal | None = Field(None, ge=0)
-    cost: Decimal | None = Field(None, ge=0)
-    buy_now_price: Decimal | None = Field(None, ge=0)
+    starting_bid: Decimal | None = Field(None, ge=0, decimal_places=2)
+    donor_value: Decimal | None = Field(None, ge=0, decimal_places=2)
+    cost: Decimal | None = Field(None, ge=0, decimal_places=2)
+    buy_now_price: Decimal | None = Field(None, ge=0, decimal_places=2)
     buy_now_enabled: bool | None = None
     quantity_available: int | None = Field(None, ge=1)
     donated_by: str | None = Field(None, max_length=200)

@@ -2,12 +2,12 @@
 
 import logging
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
 from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from app.models.auction_item import AuctionItem, AuctionType, ItemStatus
 from app.models.event import Event
@@ -52,16 +52,15 @@ class AuctionItemService:
 
             if not exists:
                 # Create sequence starting at 100 (3-digit bid numbers: 100-999)
+                # Note: Sequence creation is transactional and will be committed with the main transaction
                 create_query = text(
                     f"CREATE SEQUENCE {sequence_name} START 100 MINVALUE 100 MAXVALUE 999"
                 )
                 await self.db.execute(create_query)
-                await self.db.commit()
                 logger.info(f"Created bid number sequence {sequence_name} for event {event_id}")
 
         except Exception as e:
             logger.error(f"Failed to create bid number sequence: {e}")
-            await self.db.rollback()
             raise ValueError(f"Failed to ensure bid number sequence: {e}") from e
 
     async def _get_next_bid_number(self, event_id: UUID) -> int:
@@ -203,22 +202,26 @@ class AuctionItemService:
 
         Args:
             item_id: UUID of the auction item
-            include_media: Whether to eagerly load media files
-            include_sponsor: Whether to eagerly load sponsor details
+            include_media: Whether to eagerly load media files (not yet implemented)
+            include_sponsor: Whether to eagerly load sponsor details (not yet implemented)
 
         Returns:
             AuctionItem instance or None if not found
+
+        Note:
+            include_media and include_sponsor are placeholders for future functionality.
+            Currently these parameters are ignored.
         """
         query = select(AuctionItem).where(
             AuctionItem.id == item_id,
             AuctionItem.deleted_at.is_(None),
         )
 
-        # Eager load relationships if requested
-        if include_media:
-            query = query.options(joinedload(AuctionItem.media))
-        if include_sponsor:
-            query = query.options(joinedload(AuctionItem.sponsor))
+        # TODO: Implement eager loading when media/sponsor endpoints are ready
+        # if include_media:
+        #     query = query.options(joinedload(AuctionItem.media))
+        # if include_sponsor:
+        #     query = query.options(joinedload(AuctionItem.sponsor))
 
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
@@ -271,10 +274,12 @@ class AuctionItemService:
 
         # Search by title or bid number
         if search:
+            from sqlalchemy import String
+
             search_term = f"%{search}%"
             query = query.where(
                 (AuctionItem.title.ilike(search_term))
-                | (AuctionItem.bid_number.cast(text("TEXT")).like(search_term))
+                | (AuctionItem.bid_number.cast(String).like(search_term))
             )
 
         # Get total count
@@ -343,8 +348,21 @@ class AuctionItemService:
 
             # Audit logging (T025) - only if changes were made
             if changes:
-                # Convert changes dict to simple key-value pairs for logging
-                simplified_changes = {k: v["new"] for k, v in changes.items()}
+                # Convert changes dict to JSON-serializable format
+                # Decimals → strings, UUIDs → strings, etc.
+                simplified_changes = {}
+                for k, v in changes.items():
+                    new_value = v["new"]
+                    # Convert Decimal to string for JSON serialization
+                    if isinstance(new_value, Decimal):
+                        simplified_changes[k] = str(new_value)
+                    # Convert UUID to string
+                    elif isinstance(new_value, UUID):
+                        simplified_changes[k] = str(new_value)
+                    # Keep other types as-is (str, int, bool, etc.)
+                    else:
+                        simplified_changes[k] = new_value
+
                 await AuditService.log_auction_item_updated(
                     db=self.db,
                     item_id=item_id,
@@ -393,9 +411,11 @@ class AuctionItemService:
             raise ValueError(f"Auction item {item_id} not found")
 
         # Determine delete strategy
+        # Soft delete published/sold/withdrawn items to preserve audit trail
+        # Hard delete draft items unless explicitly prevented
         should_soft_delete = (
             item.status in [ItemStatus.PUBLISHED, ItemStatus.SOLD, ItemStatus.WITHDRAWN]
-            or not force_hard_delete
+            and not force_hard_delete
         )
 
         try:
