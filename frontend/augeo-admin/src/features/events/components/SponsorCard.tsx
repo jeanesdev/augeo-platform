@@ -90,7 +90,7 @@ export function SponsorCard({ sponsor, onEdit, onDelete, readOnly = false }: Spo
                 </Badge>
               )}
               <Badge variant="outline" className="text-xs">
-                Logo: {logoSizeLabels[sponsor.logo_size]}
+                Logo: {logoSizeLabels[sponsor.logo_size] || logoSizeLabels.medium}
               </Badge>
             </div>
 

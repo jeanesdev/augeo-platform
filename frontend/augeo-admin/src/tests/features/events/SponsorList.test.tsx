@@ -52,6 +52,7 @@ const mockSponsors: Sponsor[] = [
     thumbnail_url: 'https://example.com/thumb3.png',
     thumbnail_blob_name: 'sponsors/3/thumb.png',
     logo_size: LogoSize.SMALL,
+    sponsor_level: 'Silver',
     display_order: 2,
     created_at: '2024-01-03T00:00:00Z',
     updated_at: '2024-01-03T00:00:00Z',
@@ -220,7 +221,7 @@ describe('SponsorList', () => {
     })
 
     it('should handle all sponsors of same size', () => {
-      const sameSize = mockSponsors.map((s) => ({ ...s, logo_size: LogoSize.LARGE }))
+      const sameSize = mockSponsors.map((s) => ({ ...s, logo_size: LogoSize.LARGE, sponsor_level: 'Platinum' }))
       render(<SponsorList sponsors={sameSize} />)
 
       expect(screen.getByText('Platinum Sponsors')).toBeInTheDocument()
@@ -236,7 +237,7 @@ describe('SponsorList', () => {
       ]
       render(<SponsorList sponsors={xlarge} />)
 
-      expect(screen.getByText('Title Sponsors')).toBeInTheDocument()
+      expect(screen.getByText('Platinum Sponsors')).toBeInTheDocument()
     })
   })
 })
@@ -256,6 +257,7 @@ describe('SponsorList - Drag and Drop Reordering (Phase 9)', () => {
       thumbnail_url: 'https://example.com/thumb1.png',
       thumbnail_blob_name: 'sponsors/1/thumb.png',
       logo_size: LogoSize.LARGE,
+      sponsor_level: 'Platinum',
       display_order: 0,
       created_at: '2024-01-01T00:00:00Z',
       updated_at: '2024-01-01T00:00:00Z',
@@ -270,6 +272,7 @@ describe('SponsorList - Drag and Drop Reordering (Phase 9)', () => {
       thumbnail_url: 'https://example.com/thumb2.png',
       thumbnail_blob_name: 'sponsors/2/thumb.png',
       logo_size: LogoSize.LARGE,
+      sponsor_level: 'Platinum',
       display_order: 1,
       created_at: '2024-01-02T00:00:00Z',
       updated_at: '2024-01-02T00:00:00Z',
@@ -284,6 +287,7 @@ describe('SponsorList - Drag and Drop Reordering (Phase 9)', () => {
       thumbnail_url: 'https://example.com/thumb3.png',
       thumbnail_blob_name: 'sponsors/3/thumb.png',
       logo_size: LogoSize.LARGE,
+      sponsor_level: 'Platinum',
       display_order: 2,
       created_at: '2024-01-03T00:00:00Z',
       updated_at: '2024-01-03T00:00:00Z',
@@ -368,14 +372,14 @@ describe('SponsorList - Drag and Drop Reordering (Phase 9)', () => {
 
   it('should only allow reordering within same logo size group', () => {
     const mixedSizes: Sponsor[] = [
-      { ...reorderableSponsors[0], logo_size: LogoSize.LARGE },
-      { ...reorderableSponsors[1], logo_size: LogoSize.LARGE },
-      { ...reorderableSponsors[2], logo_size: LogoSize.MEDIUM },
+      { ...reorderableSponsors[0], logo_size: LogoSize.LARGE, sponsor_level: 'Platinum' },
+      { ...reorderableSponsors[1], logo_size: LogoSize.LARGE, sponsor_level: 'Platinum' },
+      { ...reorderableSponsors[2], logo_size: LogoSize.MEDIUM, sponsor_level: 'Gold' },
     ]
     const onReorder = vi.fn()
     render(<SponsorList sponsors={mixedSizes} onReorder={onReorder} />)
 
-    // Each size group should have its own sortable context
+    // Each sponsor_level group should have its own sortable context
     expect(screen.getByText('Platinum Sponsors')).toBeInTheDocument()
     expect(screen.getByText('Gold Sponsors')).toBeInTheDocument()
   })

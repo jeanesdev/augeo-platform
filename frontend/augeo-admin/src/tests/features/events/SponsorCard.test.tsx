@@ -104,8 +104,8 @@ describe('SponsorCard - Sponsor Level Badge Display (T057)', () => {
     const sponsor = { ...mockSponsor, sponsor_level: '' }
     const { container } = render(<SponsorCard sponsor={sponsor} />)
 
-    // Only logo size badge ("Medium") should be present
-    expect(screen.getByText('Medium')).toBeInTheDocument()
+    // Only logo size badge ("Logo: M") should be present
+    expect(screen.getByText('Logo: M')).toBeInTheDocument()
 
     // Verify sponsor_level Badge doesn't render (conditional on sponsor_level truthy check)
     // Component code: {sponsor.sponsor_level && <Badge ...>{sponsor.sponsor_level}</Badge>}
