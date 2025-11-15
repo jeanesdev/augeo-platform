@@ -82,7 +82,6 @@ export function AuctionItemForm({
   // Media management
   const [media, setMedia] = useState<AuctionItemMedia[]>([]);
   const [isLoadingMedia, setIsLoadingMedia] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // Load media when editing an existing item
   useEffect(() => {
@@ -108,24 +107,16 @@ export function AuctionItemForm({
 
   const handleMediaUpload = async (file: File, mediaType: 'image' | 'video') => {
     if (!item?.id) {
-      setUploadError('Please save the item first before uploading media');
-      return;
+      throw new Error('Please save the item first before uploading media');
     }
 
-    setUploadError(null);
-    try {
-      const newMedia = await auctionItemMediaService.uploadMedia(
-        eventId,
-        item.id,
-        file,
-        mediaType
-      );
-      setMedia((prev) => [...prev, newMedia]);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Upload failed';
-      setUploadError(message);
-      throw error;
-    }
+    const newMedia = await auctionItemMediaService.uploadMedia(
+      eventId,
+      item.id,
+      file,
+      mediaType
+    );
+    setMedia((prev) => [...prev, newMedia]);
   };
 
   const handleMediaReorder = async (mediaIds: string[]) => {
@@ -459,15 +450,10 @@ export function AuctionItemForm({
           ) : (
             <>
               {/* Upload Zone */}
-              <div className="space-y-2">
-                <MediaUploadZone
-                  onUpload={handleMediaUpload}
-                  disabled={isSubmitting}
-                />
-                {uploadError && (
-                  <p className="text-sm text-red-500">{uploadError}</p>
-                )}
-              </div>
+              <MediaUploadZone
+                onUpload={handleMediaUpload}
+                disabled={isSubmitting}
+              />
 
               {/* Media Gallery */}
               {media.length > 0 && (
