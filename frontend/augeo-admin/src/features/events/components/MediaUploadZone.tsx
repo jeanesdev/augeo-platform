@@ -32,6 +32,7 @@ export function MediaUploadZone({
 }: MediaUploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -97,6 +98,12 @@ export function MediaUploadZone({
       if (!isValid) {
         setError(errorMsg || 'Invalid file');
         return;
+      }
+
+      // Create preview URL for images
+      if (ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
       }
 
       setSelectedFile(file);
@@ -169,6 +176,10 @@ export function MediaUploadZone({
 
       // Clear state after successful upload
       setTimeout(() => {
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+          setPreviewUrl(null);
+        }
         setSelectedFile(null);
         setUploadProgress(0);
         setIsUploading(false);
@@ -182,6 +193,10 @@ export function MediaUploadZone({
 
   // Clear selected file
   const handleClear = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
     setSelectedFile(null);
     setError(null);
     setUploadProgress(0);
@@ -236,17 +251,14 @@ export function MediaUploadZone({
             disabled={disabled || isUploading}
           />
 
-          <label htmlFor="media-upload">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={disabled || isUploading}
-              onClick={() => document.getElementById('media-upload')?.click()}
-              asChild
-            >
-              <span>Choose File</span>
-            </Button>
-          </label>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={disabled || isUploading}
+            onClick={() => document.getElementById('media-upload')?.click()}
+          >
+            Choose File
+          </Button>
 
           <p className="text-xs text-muted-foreground mt-4">
             Images: JPEG, PNG, WebP (max {maxImageSize / (1024 * 1024)}MB)
@@ -261,16 +273,23 @@ export function MediaUploadZone({
         <Card className="p-4">
           <div className="flex items-center gap-4">
             <div className="flex-shrink-0">
-              {isImage && (
+              {isImage && previewUrl ? (
+                <div className="w-16 h-16 rounded overflow-hidden bg-muted">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : isImage ? (
                 <div className="w-16 h-16 rounded bg-muted flex items-center justify-center">
                   <FileImage className="w-8 h-8 text-muted-foreground" />
                 </div>
-              )}
-              {isVideo && (
+              ) : isVideo ? (
                 <div className="w-16 h-16 rounded bg-muted flex items-center justify-center">
                   <FileVideo className="w-8 h-8 text-muted-foreground" />
                 </div>
-              )}
+              ) : null}
             </div>
 
             <div className="flex-1 min-w-0">

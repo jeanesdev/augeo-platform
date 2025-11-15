@@ -170,25 +170,23 @@ async def get_auction_item(
     event_id: UUID,
     item_id: UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
-    current_user: Annotated[User | None, Depends(get_current_user_optional)] = None,
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> AuctionItemDetail:
     """Get auction item details.
 
     **Permissions**:
-    - Public: Only published items
-    - Authenticated: All items for their events (if authorized)
+    - Authenticated users can view all items (permissions can be extended later)
 
     Args:
         event_id: UUID of the event
         item_id: UUID of the auction item
-        current_user: Optional authenticated user
+        current_user: Authenticated user (required)
         db: Database session
 
     Returns:
         Auction item with media and sponsor details
 
     Raises:
-        HTTPException 403: User lacks permission to view draft
         HTTPException 404: Item not found or doesn't belong to event
     """
     service = AuctionItemService(db)
@@ -206,15 +204,8 @@ async def get_auction_item(
             detail="Auction item not found",
         )
 
-    # Check permissions for draft items
-    if item.status == ItemStatus.DRAFT and not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This item is not yet published",
-        )
-
-    # Note: Additional permission checks (event ownership) could be added here
-    # For now, authenticated users can view all draft items
+    # Authenticated users can view all items
+    # Future: Add NPO-specific permissions here if needed
 
     return AuctionItemDetail.model_validate(item)
 
