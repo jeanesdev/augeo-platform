@@ -15,9 +15,10 @@ import type {
   FoodOptionCreateRequest,
 } from '@/types/event'
 import { useNavigate, useParams } from '@tanstack/react-router'
-import { ArrowLeft, Clock, Gavel } from 'lucide-react'
+import { ArrowLeft, Clock } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { AuctionItemList } from './components/AuctionItemList'
 import { EventForm } from './components/EventForm'
 import { EventLinkForm } from './components/EventLinkForm'
 import { FoodOptionSelector } from './components/FoodOptionSelector'
@@ -379,19 +380,26 @@ export function EventEditPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center justify-center py-12">
-                <Gavel className="w-16 h-16 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Manage Auction Items</h3>
-                <p className="text-muted-foreground text-center mb-6 max-w-md">
-                  Create and manage auction items for your event. View details, add new items, and track bids.
-                </p>
-                <Button
-                  onClick={() => navigate({ to: '/events/$eventId/auction-items', params: { eventId } })}
-                >
-                  <Gavel className="w-4 h-4 mr-2" />
-                  Go to Auction Items
-                </Button>
-              </div>
+              <AuctionItemList
+                items={auctionItems}
+                isLoading={false}
+                onAdd={() => navigate({ to: '/events/$eventId/auction-items/create', params: { eventId } })}
+                onEdit={(item) => navigate({ to: '/events/$eventId/auction-items/$itemId/edit', params: { eventId, itemId: item.id } })}
+                onView={(item) => navigate({ to: '/events/$eventId/auction-items/$itemId', params: { eventId, itemId: item.id } })}
+                onDelete={async (item) => {
+                  if (!confirm(`Are you sure you want to delete "${item.title}"?`)) return;
+                  const { deleteAuctionItem } = useAuctionItemStore.getState();
+                  try {
+                    await deleteAuctionItem(eventId, item.id);
+                    toast.success('Auction item deleted successfully');
+                    // Refresh the list
+                    fetchAuctionItems(eventId);
+                  } catch (err) {
+                    const message = err instanceof Error ? err.message : 'Failed to delete auction item';
+                    toast.error(message);
+                  }
+                }}
+              />
             </CardContent>
           </Card>
         </TabsContent>
