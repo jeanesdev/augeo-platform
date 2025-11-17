@@ -353,13 +353,15 @@ class AuctionItemMediaService:
 
         try:
             # Open original image
-            image = Image.open(BytesIO(file_content))
+            img = Image.open(BytesIO(file_content))
 
             # Convert RGBA to RGB if needed (for JPEG compatibility)
-            if image.mode == "RGBA":
-                background = Image.new("RGB", image.size, (255, 255, 255))
-                background.paste(image, mask=image.split()[3])  # Use alpha channel as mask
+            if img.mode == "RGBA":
+                background = Image.new("RGB", img.size, (255, 255, 255))
+                background.paste(img, mask=img.split()[3])  # Use alpha channel as mask
                 image = background
+            else:
+                image = img
 
             thumbnails = {}
 
