@@ -12,6 +12,19 @@ export const users = Array.from({ length: 500 }, () => {
     first_name,
     last_name,
     phone: faker.phone.number({ style: 'international' }),
+    organization_name: faker.helpers.arrayElement([
+      null,
+      faker.company.name(),
+    ]),
+    address_line1: faker.helpers.arrayElement([null, faker.location.streetAddress()]),
+    address_line2: faker.helpers.arrayElement([
+      null,
+      faker.location.secondaryAddress(),
+    ]),
+    city: faker.helpers.arrayElement([null, faker.location.city()]),
+    state: faker.helpers.arrayElement([null, faker.location.state()]),
+    postal_code: faker.helpers.arrayElement([null, faker.location.zipCode()]),
+    country: faker.helpers.arrayElement([null, faker.location.country()]),
     role: faker.helpers.arrayElement([
       'super_admin',
       'npo_admin',
