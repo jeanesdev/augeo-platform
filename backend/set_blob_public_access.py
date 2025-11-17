@@ -10,6 +10,13 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+# Validate required settings
+if not settings.azure_storage_connection_string:
+    raise ValueError(
+        "Azure storage connection string not configured. "
+        "Set AZURE_STORAGE_CONNECTION_STRING environment variable."
+    )
+
 # Initialize blob service client
 blob_service_client = BlobServiceClient.from_connection_string(
     settings.azure_storage_connection_string

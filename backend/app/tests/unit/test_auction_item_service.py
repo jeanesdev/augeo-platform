@@ -74,6 +74,11 @@ class TestBidNumberAssignment:
             description="Test description",
             auction_type=AuctionType.SILENT,
             starting_bid=Decimal("10.00"),
+            donor_value=Decimal("20.00"),
+            cost=Decimal("0.00"),
+            buy_now_price=None,
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         item = await auction_item_service.create_auction_item(
@@ -97,6 +102,11 @@ class TestBidNumberAssignment:
                 description="Test description",
                 auction_type=AuctionType.SILENT,
                 starting_bid=Decimal("10.00"),
+                donor_value=Decimal("20.00"),
+                cost=Decimal("0.00"),
+                buy_now_price=None,
+                donated_by="Test Donor",
+                item_webpage=None,
             )
 
             item = await auction_item_service.create_auction_item(
@@ -149,6 +159,11 @@ class TestBidNumberAssignment:
             description="Test description",
             auction_type=AuctionType.SILENT,
             starting_bid=Decimal("10.00"),
+            donor_value=Decimal("20.00"),
+            cost=Decimal("0.00"),
+            buy_now_price=None,
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         # Create item in event1
@@ -185,6 +200,11 @@ class TestBidNumberAssignment:
             description="Test description",
             auction_type=AuctionType.SILENT,
             starting_bid=Decimal("10.00"),
+            donor_value=Decimal("20.00"),
+            cost=Decimal("0.00"),
+            buy_now_price=None,
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         with pytest.raises(ValueError, match="maximum"):
@@ -210,6 +230,10 @@ class TestBuyNowPriceValidation:
             starting_bid=Decimal("100.00"),
             buy_now_price=Decimal("50.00"),  # Less than starting_bid
             buy_now_enabled=True,
+            donor_value=Decimal("150.00"),
+            cost=Decimal("0.00"),
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         with pytest.raises(ValueError, match="Buy now price.*must be >= starting bid"):
@@ -230,6 +254,10 @@ class TestBuyNowPriceValidation:
             starting_bid=Decimal("100.00"),
             buy_now_price=Decimal("100.00"),  # Equal
             buy_now_enabled=True,
+            donor_value=Decimal("150.00"),
+            cost=Decimal("0.00"),
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         item = await auction_item_service.create_auction_item(
@@ -251,6 +279,10 @@ class TestBuyNowPriceValidation:
             starting_bid=Decimal("100.00"),
             buy_now_enabled=True,
             buy_now_price=None,  # Missing price
+            donor_value=Decimal("150.00"),
+            cost=Decimal("0.00"),
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         with pytest.raises(
@@ -272,6 +304,11 @@ class TestBuyNowPriceValidation:
             description="Test description",
             auction_type=AuctionType.SILENT,
             starting_bid=Decimal("100.00"),
+            donor_value=Decimal("150.00"),
+            cost=Decimal("0.00"),
+            buy_now_price=None,
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         item = await auction_item_service.create_auction_item(
@@ -281,7 +318,7 @@ class TestBuyNowPriceValidation:
         )
 
         # Try to update with invalid buy_now_price
-        update_data = AuctionItemUpdate(
+        update_data = AuctionItemUpdate(  # type: ignore[call-arg]
             buy_now_price=Decimal("50.00"),  # Less than starting_bid
         )
 
@@ -305,6 +342,11 @@ class TestSoftVsHardDelete:
             description="Test description",
             auction_type=AuctionType.SILENT,
             starting_bid=Decimal("10.00"),
+            donor_value=Decimal("20.00"),
+            cost=Decimal("0.00"),
+            buy_now_price=None,
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         item = await auction_item_service.create_auction_item(
@@ -331,6 +373,11 @@ class TestSoftVsHardDelete:
             description="Test description",
             auction_type=AuctionType.SILENT,
             starting_bid=Decimal("10.00"),
+            donor_value=Decimal("20.00"),
+            cost=Decimal("0.00"),
+            buy_now_price=None,
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         item = await auction_item_service.create_auction_item(
@@ -366,6 +413,11 @@ class TestSoftVsHardDelete:
             description="Test description",
             auction_type=AuctionType.SILENT,
             starting_bid=Decimal("10.00"),
+            donor_value=Decimal("20.00"),
+            cost=Decimal("0.00"),
+            buy_now_price=None,
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         item = await auction_item_service.create_auction_item(
@@ -400,6 +452,11 @@ class TestSoftVsHardDelete:
             description="Test description",
             auction_type=AuctionType.SILENT,
             starting_bid=Decimal("10.00"),
+            donor_value=Decimal("20.00"),
+            cost=Decimal("0.00"),
+            buy_now_price=None,
+            donated_by="Test Donor",
+            item_webpage=None,
         )
 
         item = await auction_item_service.create_auction_item(
