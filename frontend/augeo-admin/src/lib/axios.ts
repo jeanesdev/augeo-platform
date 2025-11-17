@@ -10,7 +10,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 seconds
+  timeout: 30000, // 30 seconds
 })
 
 // Flag to prevent multiple simultaneous refresh requests
@@ -50,11 +50,16 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean
+    }
 
     // Handle 401 Unauthorized - token expired or invalid
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry
+    ) {
       // Don't retry refresh endpoint to avoid infinite loops
       if (originalRequest.url?.includes('/auth/refresh')) {
         // Refresh token itself is invalid, logout user

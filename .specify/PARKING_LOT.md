@@ -5,6 +5,7 @@ Items that are deferred, blocked, or waiting for future consideration.
 ## Deferred Features
 
 ### Feature 004: Cloud Infrastructure - Production Deployment (T162-T164)
+
 - **Status**: Deferred - Minimal deployment operational
 - **Phase**: Phase 9 (Final Validation)
 - **Feature**: 004-cloud-infrastructure-deployment
@@ -26,6 +27,7 @@ Items that are deferred, blocked, or waiting for future consideration.
   - T164 blocked by: T162 (need production environment to test DR procedures)
 
 ### Database Permission Table (T074-T075)
+
 - **Status**: Deferred - Using service-based permissions instead
 - **Phase**: Phase 5 (User Story 3)
 - **Reason**: Simpler and faster for MVP; 5 roles with clear hierarchy don't require database-backed permissions
@@ -37,6 +39,7 @@ Items that are deferred, blocked, or waiting for future consideration.
 - **Estimated Effort**: 5-8 days to implement fully
 
 ### Email Integration Tests (T055)
+
 - **Status**: Deferred - Covered by contract tests
 - **Phase**: Phase 4 (User Story 2)
 - **Reason**: Token extraction from mock emails requires additional test infrastructure
@@ -47,6 +50,7 @@ Items that are deferred, blocked, or waiting for future consideration.
 - **Estimated Effort**: 2-3 days
 
 ### Audit Service Unit Tests (T147)
+
 - **Status**: Deferred - Integration tests provide sufficient coverage
 - **Phase**: Phase 11 (Audit Logging)
 - **Reason**: Integration tests provide 88% coverage of audit logging functionality
@@ -58,6 +62,7 @@ Items that are deferred, blocked, or waiting for future consideration.
 - **Estimated Effort**: 1-2 days
 
 ### Audit Logging Middleware (T151)
+
 - **Status**: Deferred - Endpoint-level capture preferred
 - **Phase**: Phase 11 (Audit Logging)
 - **Reason**: IP address and user agent captured at endpoint level provides more context
@@ -72,6 +77,7 @@ Items that are deferred, blocked, or waiting for future consideration.
 ## Technical Debt
 
 ### Contract Test Failures
+
 - **Status**: 22/28 contract tests need debugging
 - **Files Affected**: Various contract test files in `backend/app/tests/contract/`
 - **Impact**: Medium (unit/integration tests passing)
@@ -79,6 +85,7 @@ Items that are deferred, blocked, or waiting for future consideration.
 - **Estimated Effort**: 2-3 days
 
 ### Mypy Type Annotation Errors
+
 - **Status**: 27 type annotation errors
 - **Command**: `cd backend && poetry run mypy app`
 - **Impact**: Low (code runs correctly)
@@ -86,6 +93,7 @@ Items that are deferred, blocked, or waiting for future consideration.
 - **Estimated Effort**: 1-2 days
 
 ### Email Service Production Implementation
+
 - **Status**: ~~Blocked on infrastructure deployment (Spec 004)~~ **Unblocked - Infrastructure Complete**
 - **Blocking Issue**: ~~Requires Azure Communication Services, verified domain, DNS configuration, and production URLs~~
 - **Current State**:
@@ -116,6 +124,7 @@ Items that are deferred, blocked, or waiting for future consideration.
 - **Related Specs**: ✅ Spec 004 (Cloud Infrastructure & Deployment) - Complete
 
 ### IP Address Capture in Audit Logs
+
 - **Status**: Currently set to None
 - **Service**: `backend/app/services/audit_service.py`
 - **Files**: All audit method calls in endpoints
@@ -131,6 +140,7 @@ Items that are deferred, blocked, or waiting for future consideration.
 ## Blocked Items
 
 ### Real Email Sending (Production)
+
 - **Blocked By**: ~~Missing Spec 004 (Cloud Infrastructure & Deployment)~~ **Now: T162 (Production Deployment)**
 - **Status**: Infrastructure complete, waiting for production deployment
 - **Reason**: Email requires full production environment (App Service, verified domain, DNS propagation)
@@ -144,9 +154,25 @@ Items that are deferred, blocked, or waiting for future consideration.
 - **Priority**: Medium - Not blocking current development, required before production launch
 - **Dependencies**: T162 (Production Deployment), DNS propagation (24-48 hours)
 
+### Feature 006: Landing Page - Performance & Production Tasks (T083-T094)
+
+- **Status**: Deferred - MVP is production-ready without these optimizations
+- **Feature**: 006-landing-page
+- **Tasks**: Performance optimization (T083-T088), Production readiness (T089-T094)
+- **Current State**: Core functionality complete, 148 tests passing (88 testimonial + 60 contact form)
+- **Reason**: Optimizations not critical for initial launch; core observability already in place
+- **Blocking**: None - can be implemented incrementally post-launch
+- **Revisit When**:
+  - User feedback indicates slow page loads
+  - Bundle size becomes problematic (>300KB)
+  - Need enhanced monitoring/alerting
+- **Estimated Effort**: 8-12 days total
+- **Details**: See `.specify/specs/006-landing-page/PARKING_LOT.md`
+
 ## Future Enhancements
 
 ### Row-Level Security (RLS)
+
 - **Mentioned In**: research.md - "Phase 1 requirement (was incorrectly deferred to Phase 2)"
 - **Status**: Not yet implemented
 - **Purpose**: PostgreSQL RLS for data isolation between NPOs
@@ -154,11 +180,75 @@ Items that are deferred, blocked, or waiting for future consideration.
 - **Estimated Effort**: 5-8 days
 
 ### Structured Food Options
+
 - **Mentioned In**: 003-event-creation-ability spec
 - **Status**: Free-text field in MVP, structured options deferred
 - **Purpose**: Better UX for menu/dietary info entry
 - **Priority**: Nice-to-have enhancement
 - **Estimated Effort**: 3-5 days
+
+### Event Management Background Jobs (T086-T091)
+
+- **Status**: Deferred - Core functionality complete without background processing
+- **Phase**: Phase 4 (Additional Features)
+- **Feature**: 003-event-creation-ability
+- **Tasks**:
+  - T086: Add celery to backend/pyproject.toml dependencies
+  - T087: Create backend/app/celery_app.py with Celery configuration
+  - T088: Convert close_expired_events_task to Celery task with @task decorator
+  - T089: Convert scan_uploaded_file_task to Celery task with @task decorator
+  - T090: Configure Celery Beat schedule for periodic event closure (every 15 minutes)
+  - T091: Implement ClamAV integration for virus scanning (install clamav, pyclamd)
+- **Current State**: 84/90 tasks complete (93% - all core features working)
+  - ✅ Auto-close function exists (can be called manually or via cron)
+  - ✅ File uploads working (marked as "scanned" without actual scanning)
+  - ✅ All CRUD operations for events, media, links, food options
+- **Reason**: Production infrastructure not needed for MVP/trusted users
+- **Alternatives**:
+  - **Event Auto-Close**: Azure Logic App, GitHub Actions cron, or manual process
+  - **Virus Scanning**: Azure Defender for Storage (built-in), VirusTotal API, or manual review
+- **Revisit When**:
+  - Multiple untrusted NPOs uploading files (security concern)
+  - Public-facing events require automated workflows
+  - Compliance requirements mandate virus scanning
+  - High-volume operations need background processing
+- **Estimated Effort**: 5-8 days for full Celery setup
+- **Files Affected**:
+  - `backend/app/services/event_service.py` (close_expired_events function at line 390)
+  - `backend/app/services/media_service.py` (virus scan placeholder at line 278-279)
+- **Security Note**: Current state acceptable for internal/trusted users; implement before public launch
+
+## Known Issues
+
+### Feature 006: Rate Limiting Redis Bug
+
+- **Status**: Identified in testing, deferred fix
+- **Impact**: 500 error on 6th+ contact form submission
+- **Root Cause**: Redis data type conflict (middleware uses string counters, service uses sorted sets)
+- **Fix Required**: Refactor to use consistent Redis implementation (recommend sorted sets)
+- **Test**: `test_rate_limiting_blocks_excessive_submissions` currently skipped
+- **Priority**: Medium - Security/stability issue but workaround exists (works for first 5 submissions)
+- **Estimated Effort**: 1-2 days
+
+### Feature 006: HTML Sanitization Not Implemented
+
+- **Status**: Identified in testing, deferred fix
+- **Impact**: Contact form stores unsanitized HTML/script tags
+- **Security Risk**: Medium (XSS if displayed in admin without escaping)
+- **Fix Required**: Add HTML sanitization to ContactSubmissionCreate schema
+- **Recommendation**: Use `bleach` or `markupsafe` library
+- **Test**: `test_contact_submission_html_sanitization` currently skipped
+- **Priority**: Medium - Security issue but data not rendered without escaping
+- **Estimated Effort**: 1 day
+
+### Feature 006: Whitespace Trimming Not Implemented
+
+- **Status**: Identified in testing, deferred fix
+- **Impact**: Leading/trailing whitespace not trimmed from form fields
+- **Fix Required**: Add `.strip()` to Pydantic validators
+- **Test**: `test_whitespace_trimming_in_name_field` currently skipped
+- **Priority**: Low - Cosmetic issue only
+- **Estimated Effort**: 0.5 days
 
 ## Decisions Needed
 
@@ -166,6 +256,6 @@ None currently - all active work has clear direction.
 
 ---
 
-**Last Updated**: 2025-10-28
+**Last Updated**: 2025-11-11
 **Maintained By**: Development Team
 **Review Cadence**: Update after each phase completion

@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Shield } from 'lucide-react'
 import React from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import type { User } from '../api/users-api'
 import { roles } from '../data/data'
@@ -80,8 +80,10 @@ export function RoleAssignmentDialog({
     }
   }, [user, form])
 
-  const selectedRole = form.watch('role')
-  const requiresNpoId = ['npo_admin', 'event_coordinator'].includes(selectedRole)
+  const selectedRole = useWatch({ control: form.control, name: 'role' })
+  const requiresNpoId = ['npo_admin', 'event_coordinator'].includes(
+    selectedRole || ''
+  )
 
   const onSubmit = async (values: RoleAssignmentForm) => {
     if (!user?.id) {

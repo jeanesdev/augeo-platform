@@ -80,6 +80,7 @@ pnpm dev
 ```
 
 Application now running at:
+
 - **App**: http://localhost:5173
 - **Hot Reload**: Enabled
 
@@ -296,9 +297,118 @@ frontend/augeo-admin/
 - `/settings/cookies` - Cookie preferences (authenticated)
 - `/settings/consent` - Consent management (authenticated)
 
+### Event Sponsors Management
+
+**Features**:
+
+- Create, edit, and delete event sponsors
+- Upload sponsor logos with automatic thumbnail generation
+- Drag-and-drop reordering within logo size groups
+- Display sponsors grouped by prominence (xlarge, large, medium, small, xsmall)
+- Clickable sponsor logos/names with external website links
+- Read-only sponsor displays for public event pages
+
+**Components**:
+
+- `features/events/components/SponsorList.tsx` - List view with drag-and-drop reordering
+- `features/events/components/SponsorCard.tsx` - Individual sponsor card with logo, name, website
+- `features/events/components/SortableSponsorCard.tsx` - Draggable wrapper for SponsorCard
+- `features/events/components/SponsorDialog.tsx` - Create/edit sponsor form modal
+
+**Logo Upload**:
+
+- Supported formats: PNG, JPEG, WebP
+- Max file size: 5MB
+- Auto-generated 300x300px thumbnails for list views
+- Stored in Azure Blob Storage with automatic cleanup on delete
+- Progress indicator during upload
+- Client-side validation (file type, size)
+
+**Logo Sizes** (Prominence):
+
+- **xlarge** - Title Sponsors (largest display, top billing)
+- **large** - Platinum Sponsors
+- **medium** - Gold Sponsors
+- **small** - Silver Sponsors
+- **xsmall** - Bronze Sponsors
+
+**Drag-and-Drop Reordering**:
+
+- Powered by [@dnd-kit](https://dndkit.com/)
+- Sortable within same logo size group
+- Mouse and touch device support
+- Visual feedback during drag (opacity, cursor, ghost overlay)
+- Optimistic UI updates with automatic rollback on error
+- Disabled in read-only mode
+
+**Permissions**:
+
+- **View**: Public (anyone can see sponsors on event pages)
+- **Create/Edit/Delete**: NPO Admin, NPO Staff
+- **Reorder**: NPO Admin, NPO Staff
+- Permission checks enforced at API and UI levels
+
+**State Management**:
+
+- `stores/sponsorStore.ts` - Zustand store for sponsor data
+- Actions: `fetchSponsors`, `createSponsor`, `updateSponsor`, `deleteSponsor`, `reorderSponsors`
+- Optimistic updates for better UX
+- Automatic cache invalidation
+
+**Services**:
+
+- `services/sponsorService.ts` - API client for sponsor endpoints
+- Type-safe with TypeScript interfaces
+- Error handling with user-friendly messages
+
+**Usage Example**:
+
+```typescript
+import { useSponsorStore } from '@/stores/sponsorStore'
+
+function EventSponsorsTab({ eventId }: { eventId: string }) {
+  const { sponsors, isLoading, error, fetchSponsors, createSponsor, reorderSponsors } =
+    useSponsorStore()
+
+  useEffect(() => {
+    fetchSponsors(eventId)
+  }, [eventId])
+
+  const handleReorder = async (sponsorIds: string[]) => {
+    await reorderSponsors(eventId, { sponsor_ids_ordered: sponsorIds })
+  }
+
+  return (
+    <SponsorList
+      sponsors={sponsors}
+      isLoading={isLoading}
+      error={error}
+      onAdd={() => {/* Open create dialog */}}
+      onEdit={(sponsor) => {/* Open edit dialog */}}
+      onDelete={(sponsorId) => deleteSponsor(eventId, sponsorId)}
+      onReorder={handleReorder}
+    />
+  )
+}
+```
+
+**Routes**:
+
+- `/events/:eventId/sponsors` - Sponsors management tab (authenticated)
+- Public sponsor display integrated into event detail pages
+
+**Testing**:
+
+- 28 comprehensive tests in `SponsorList.test.tsx`
+- 8 tests for drag-and-drop functionality
+- Component rendering tests (empty state, loading, error, cards)
+- Interaction tests (add, edit, delete buttons)
+- Accessibility tests (keyboard navigation, screen reader support)
+
 ### State Management
 
 **Auth Store** (Zustand):
+
 ```typescript
 {
   user: User | null,
@@ -312,6 +422,7 @@ frontend/augeo-admin/
 ```
 
 **React Query**:
+
 - `useUsers()` - List users with pagination
 - `useCreateUser()` - Create new user
 - `useUpdateUser()` - Update user details
@@ -322,6 +433,7 @@ frontend/augeo-admin/
 ### API Integration
 
 **Axios Configuration** (`lib/axios.ts`):
+
 - Base URL configuration
 - Authorization header injection
 - Automatic token refresh on 401
@@ -329,6 +441,7 @@ frontend/augeo-admin/
 - Request/response interceptors
 
 **API Service Layer** (`lib/api/`):
+
 - `auth-api.ts` - Authentication endpoints
 - `users-api.ts` - User management endpoints
 - Type-safe request/response with Zod schemas
@@ -350,6 +463,7 @@ VITE_DEBUG=true
 ### Tailwind CSS
 
 Custom theme in `tailwind.config.js`:
+
 - Primary color: Augeo brand blue
 - Dark mode support
 - Custom spacing and typography
@@ -358,6 +472,7 @@ Custom theme in `tailwind.config.js`:
 ### Shadcn UI Components
 
 Installed components:
+
 - Button, Input, Label, Textarea
 - Dialog, Sheet, Dropdown Menu
 - Table, Badge, Avatar
@@ -473,5 +588,6 @@ Proprietary
 ## Support
 
 For issues and questions:
+
 - Email: support@augeo.app
 - Backend API: http://localhost:8000/docs

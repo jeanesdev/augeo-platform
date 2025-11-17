@@ -7,6 +7,13 @@ Auto-generated from all feature plans. Last updated: 2025-10-25
 - Authentication: OAuth2 + JWT, bcrypt password hashing, Redis sessions (001-user-authentication-role)
 - Monitoring: Prometheus metrics, structured logging, health checks (001-user-authentication-role)
 - Legal Compliance: GDPR consent tracking, cookie consent management, versioned legal documents (005-legal-documentation)
+- Python 3.11+ (Backend), TypeScript (Frontend) + FastAPI, SQLAlchemy, Pydantic (Backend); React, Vite, Zustand, React Router (Frontend) (006-landing-page)
+- PostgreSQL (contact submissions, testimonials), Redis (rate limiting) (006-landing-page)
+- Python 3.11+ (Backend), TypeScript (Frontend) + FastAPI, SQLAlchemy, Pydantic, Alembic (Backend); React, Vite, Zustand, React Router (Frontend) (003-event-creation-ability)
+- Azure Database for PostgreSQL (event data, audit logs), Azure Blob Storage (media files: logos, images, flyers), Azure Cache for Redis (rate limiting, caching) (003-event-creation-ability)
+- Azure Database for PostgreSQL (sponsor data), Azure Blob Storage (sponsor logos), Azure Cache for Redis (optional caching) (007-sponsors)
+- Python 3.11+ + FastAPI, SQLAlchemy 2.0, Pydantic 2.0, Azure Blob Storage SDK, Pillow (image processing) (008-auction-items)
+- Azure Database for PostgreSQL (auction item data, metadata), Azure Blob Storage (images/videos) (008-auction-items)
 
 ## Project Structure
 ```
@@ -91,20 +98,20 @@ git commit -m "message"
 ```
 
 ## Recent Changes
-- 004-cloud-infrastructure-deployment: Completed Phase 1-4 (Setup, Foundational, Infrastructure, CI/CD)
+- 008-auction-items: Added Python 3.11+ + FastAPI, SQLAlchemy 2.0, Pydantic 2.0, Azure Blob Storage SDK, Pillow (image processing)
+- 007-sponsors: Added Python 3.11+ (Backend), TypeScript (Frontend) + FastAPI, SQLAlchemy, Pydantic, Alembic (Backend); React, Vite, Zustand, React Router (Frontend)
+- 003-event-creation-ability: Added Python 3.11+ (Backend), TypeScript (Frontend) + FastAPI, SQLAlchemy, Pydantic, Alembic (Backend); React, Vite, Zustand, React Router (Frontend)
   - ✅ Azure Bicep templates for 9 Azure resources (App Service, Static Web Apps, PostgreSQL, Redis, Key Vault, etc.)
   - ✅ Environment configurations for dev/staging/production
   - ✅ GitHub Actions workflows: pr-checks, backend-deploy, frontend-deploy, infrastructure-deploy
   - ✅ Deployment scripts: deploy-backend.sh, deploy-frontend.sh, run-migrations.sh, rollback.sh
   - ✅ Blue-green deployment for production with automatic rollback
   - ✅ CI/CD documentation and rollback procedures
-- 004-cloud-infrastructure-deployment: Completed Phase 5-6 (T061-T103)
   - ✅ DNS Zone module with Azure DNS for custom domain augeo.app
   - ✅ Communication Services module for email with SPF/DKIM/DMARC
   - ✅ DNS and email configuration documentation
   - ✅ Secrets management scripts: configure-secrets.sh, update-app-settings.sh
   - ✅ Secret rotation procedures and security checklist documentation
-- 004-cloud-infrastructure-deployment: Completed Phase 7-8 (T104-T153)
   - ✅ Storage module: Blob versioning, soft delete (30-day prod, 7-day dev/staging), change feed (90-day)
   - ✅ Disaster recovery testing: test-disaster-recovery.sh with PostgreSQL PITR, Redis export, RTO/RPO validation
   - ✅ DR runbooks: 4 disaster scenarios (database, Redis, regional outage, accidental deletion)
@@ -115,7 +122,6 @@ git commit -m "message"
   - ✅ Availability tests: Backend /health and frontend homepage (5-min intervals, 3 locations)
   - ✅ Dashboards: System health (10 tiles), infrastructure health (4 sections) with KQL queries
   - ✅ Monitoring guide: 551-line comprehensive guide with alert procedures and troubleshooting
-- 004-cloud-infrastructure-deployment: Completed Phase 9 (T148-T157) - **FEATURE COMPLETE**
   - ✅ Cost Budget: Monthly budgets ($100 dev, $300 staging, $1000 prod) with 80%/90%/100% alerts
   - ✅ Auto-scaling: CPU-based (>70% scale out, <30% scale in), capacity limits (dev 1-2, staging 1-5, prod 2-10)
   - ✅ Resource Tagging: Environment, Project, Owner, CostCenter, ManagedBy tags on all resources
@@ -126,7 +132,6 @@ git commit -m "message"
   - ✅ Quick Reference: 550+ line guide with common operations, deployment, rollback, logs, scaling, troubleshooting
   - ✅ Architecture Updates: Monitoring, cost optimization, safeguards, all 9 phases complete
   - ✅ Root README: Complete project overview with quickstart, architecture, operations
-- 001-user-authentication-role: Completed Phase 12 Polish (T154-T161, T165, T167)
   - ✅ OpenAPI documentation enhanced with contact, license, and tags
   - ✅ Comprehensive health checks: /health, /health/detailed, /health/ready, /health/live
   - ✅ Prometheus metrics: /metrics endpoint with HTTP counters, failure tracking, up/down gauge
@@ -134,8 +139,6 @@ git commit -m "message"
   - ✅ Request ID tracing: X-Request-ID header for distributed tracing
   - ✅ CORS configuration for cross-origin requests
   - ✅ Backend and frontend READMEs updated with complete setup instructions
-- 002-npo-creation: Added Python 3.11+ (Backend), TypeScript (Frontend) + FastAPI, SQLAlchemy, Pydantic, React, Zustand
-- 005-legal-documentation: Completed Phase 0-1 (Research, Design, Contracts)
   - ✅ Legal document versioning with semantic versioning (major.minor)
   - ✅ GDPR compliance: consent tracking, data export, data deletion (7-year audit retention)
   - ✅ Cookie consent management with granular categories (Essential, Analytics, Marketing)

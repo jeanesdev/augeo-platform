@@ -1,26 +1,29 @@
+import { ClerkLogo } from '@/assets/clerk-logo'
+import { Logo } from '@/assets/logo'
 import {
-  Construction,
-  LayoutDashboard,
-  Monitor,
+  Bell,
   Bug,
-  ListTodo,
+  Building2,
+  Calendar,
+  ClipboardList,
+  Construction,
   FileX,
   HelpCircle,
+  LayoutDashboard,
+  ListTodo,
   Lock,
-  Bell,
+  MessagesSquare,
+  Monitor,
   Package,
   Palette,
   ServerOff,
   Settings,
-  Wrench,
+  ShieldCheck,
   UserCog,
   UserX,
   Users,
-  MessagesSquare,
-  ShieldCheck,
+  Wrench,
 } from 'lucide-react'
-import { ClerkLogo } from '@/assets/clerk-logo'
-import { Logo } from '@/assets/logo'
 import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
@@ -65,6 +68,21 @@ export const sidebarData: SidebarData = {
           title: 'Users',
           url: '/users',
           icon: Users,
+        },
+        {
+          title: 'Organizations',
+          url: '/npos',
+          icon: Building2,
+        },
+        {
+          title: 'Events',
+          url: '/events',
+          icon: Calendar,
+        },
+        {
+          title: 'NPO Applications',
+          url: '/admin/npo-applications',
+          icon: ClipboardList,
         },
         {
           title: 'Secured by Clerk',
