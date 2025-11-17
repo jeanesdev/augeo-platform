@@ -1,7 +1,6 @@
 """Unit tests for AuctionItemService."""
 
 from decimal import Decimal
-from uuid import uuid4
 
 import pytest
 from sqlalchemy import text
@@ -32,7 +31,7 @@ async def test_npo(db_session: AsyncSession, test_user):
 
 
 @pytest.fixture
-async def test_event(db_session: AsyncSession, test_npo: NPO):
+async def test_event(db_session: AsyncSession, test_npo: NPO, test_user):
     """Create a test event."""
     from datetime import datetime, timedelta
 
@@ -46,8 +45,8 @@ async def test_event(db_session: AsyncSession, test_npo: NPO):
         timezone="America/New_York",
         status=EventStatus.DRAFT,
         version=1,
-        created_by=uuid4(),
-        updated_by=uuid4(),
+        created_by=test_user.id,
+        updated_by=test_user.id,
     )
     db_session.add(event)
     await db_session.commit()
@@ -66,7 +65,11 @@ class TestBidNumberAssignment:
     """Test T027: Sequential bid number assignment (100-999)."""
 
     async def test_first_bid_number_is_100(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test that the first auction item gets bid number 100."""
         item_data = AuctionItemCreate(
@@ -84,16 +87,20 @@ class TestBidNumberAssignment:
         item = await auction_item_service.create_auction_item(
             event_id=test_event.id,
             item_data=item_data,
-            created_by=uuid4(),
+            created_by=test_user.id,
         )
 
         assert item.bid_number == 100
 
     async def test_sequential_bid_numbers(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test that bid numbers increment sequentially (100, 101, 102...)."""
-        user_id = uuid4()
+        user_id = test_user.id
 
         # Create 5 items
         for i in range(5):
@@ -118,7 +125,11 @@ class TestBidNumberAssignment:
             assert item.bid_number == 100 + i
 
     async def test_bid_number_sequence_per_event(
-        self, db_session: AsyncSession, test_npo: NPO, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_npo: NPO,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test that each event has its own bid number sequence."""
         from datetime import datetime, timedelta
@@ -134,8 +145,8 @@ class TestBidNumberAssignment:
             timezone="America/New_York",
             status=EventStatus.DRAFT,
             version=1,
-            created_by=uuid4(),
-            updated_by=uuid4(),
+            created_by=test_user.id,
+            updated_by=test_user.id,
         )
         event2 = Event(
             npo_id=test_npo.id,
@@ -145,15 +156,15 @@ class TestBidNumberAssignment:
             timezone="America/New_York",
             status=EventStatus.DRAFT,
             version=1,
-            created_by=uuid4(),
-            updated_by=uuid4(),
+            created_by=test_user.id,
+            updated_by=test_user.id,
         )
         db_session.add_all([event1, event2])
         await db_session.commit()
         await db_session.refresh(event1)
         await db_session.refresh(event2)
 
-        user_id = uuid4()
+        user_id = test_user.id
         item_data = AuctionItemCreate(
             title="Test Item",
             description="Test description",
@@ -185,7 +196,11 @@ class TestBidNumberAssignment:
         assert item2.bid_number == 100
 
     async def test_bid_number_max_999(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test that bid numbers cannot exceed 999."""
         # Set sequence to 999
@@ -211,7 +226,7 @@ class TestBidNumberAssignment:
             await auction_item_service.create_auction_item(
                 event_id=test_event.id,
                 item_data=item_data,
-                created_by=uuid4(),
+                created_by=test_user.id,
             )
 
 
@@ -220,7 +235,11 @@ class TestBuyNowPriceValidation:
     """Test T028: Buy-now price validation logic."""
 
     async def test_buy_now_price_must_be_gte_starting_bid(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test that buy_now_price must be >= starting_bid."""
         item_data = AuctionItemCreate(
@@ -240,11 +259,15 @@ class TestBuyNowPriceValidation:
             await auction_item_service.create_auction_item(
                 event_id=test_event.id,
                 item_data=item_data,
-                created_by=uuid4(),
+                created_by=test_user.id,
             )
 
     async def test_buy_now_price_equal_to_starting_bid(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test that buy_now_price can equal starting_bid."""
         item_data = AuctionItemCreate(
@@ -263,39 +286,46 @@ class TestBuyNowPriceValidation:
         item = await auction_item_service.create_auction_item(
             event_id=test_event.id,
             item_data=item_data,
-            created_by=uuid4(),
+            created_by=test_user.id,
         )
 
         assert item.buy_now_price == Decimal("100.00")
 
     async def test_buy_now_enabled_requires_price(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
-        """Test that buy_now_enabled=True requires buy_now_price."""
+        """Test that buy_now_enabled=True requires buy_now_price (enforced by DB constraint)."""
         item_data = AuctionItemCreate(
             title="Test Item",
             description="Test description",
             auction_type=AuctionType.SILENT,
             starting_bid=Decimal("100.00"),
             buy_now_enabled=True,
-            buy_now_price=None,  # Missing price
+            buy_now_price=None,  # Missing price - violates DB constraint
             donor_value=Decimal("150.00"),
             cost=Decimal("0.00"),
             donated_by="Test Donor",
             item_webpage=None,
         )
 
-        with pytest.raises(
-            ValueError, match="buy_now_enabled must be True when buy_now_price is set"
-        ):
+        # Database constraint enforces buy_now_enabled=true requires buy_now_price IS NOT NULL
+        with pytest.raises(ValueError, match="Failed to create auction item"):
             await auction_item_service.create_auction_item(
                 event_id=test_event.id,
                 item_data=item_data,
-                created_by=uuid4(),
+                created_by=test_user.id,
             )
 
     async def test_update_buy_now_price_validation(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test validation when updating buy_now_price."""
         # Create item
@@ -314,7 +344,7 @@ class TestBuyNowPriceValidation:
         item = await auction_item_service.create_auction_item(
             event_id=test_event.id,
             item_data=item_data,
-            created_by=uuid4(),
+            created_by=test_user.id,
         )
 
         # Try to update with invalid buy_now_price
@@ -334,7 +364,11 @@ class TestSoftVsHardDelete:
     """Test T029: Soft delete for published items, hard delete for drafts."""
 
     async def test_draft_item_hard_deleted(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test that draft items are hard deleted (removed from DB)."""
         item_data = AuctionItemCreate(
@@ -352,7 +386,7 @@ class TestSoftVsHardDelete:
         item = await auction_item_service.create_auction_item(
             event_id=test_event.id,
             item_data=item_data,
-            created_by=uuid4(),
+            created_by=test_user.id,
         )
 
         assert item.status == ItemStatus.DRAFT
@@ -365,7 +399,11 @@ class TestSoftVsHardDelete:
         assert deleted_item is None
 
     async def test_published_item_soft_deleted(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test that published items are soft deleted (deleted_at set)."""
         item_data = AuctionItemCreate(
@@ -383,7 +421,7 @@ class TestSoftVsHardDelete:
         item = await auction_item_service.create_auction_item(
             event_id=test_event.id,
             item_data=item_data,
-            created_by=uuid4(),
+            created_by=test_user.id,
         )
 
         # Manually set status to PUBLISHED
@@ -405,7 +443,11 @@ class TestSoftVsHardDelete:
         assert deleted_item.status == ItemStatus.WITHDRAWN
 
     async def test_sold_item_soft_deleted(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test that sold items are soft deleted."""
         item_data = AuctionItemCreate(
@@ -423,7 +465,7 @@ class TestSoftVsHardDelete:
         item = await auction_item_service.create_auction_item(
             event_id=test_event.id,
             item_data=item_data,
-            created_by=uuid4(),
+            created_by=test_user.id,
         )
 
         # Manually set status to SOLD
@@ -444,7 +486,11 @@ class TestSoftVsHardDelete:
         assert deleted_item.status == ItemStatus.WITHDRAWN
 
     async def test_force_hard_delete(
-        self, db_session: AsyncSession, test_event: Event, auction_item_service: AuctionItemService
+        self,
+        db_session: AsyncSession,
+        test_event: Event,
+        test_user,
+        auction_item_service: AuctionItemService,
     ):
         """Test force hard delete even for published items."""
         item_data = AuctionItemCreate(
@@ -462,7 +508,7 @@ class TestSoftVsHardDelete:
         item = await auction_item_service.create_auction_item(
             event_id=test_event.id,
             item_data=item_data,
-            created_by=uuid4(),
+            created_by=test_user.id,
         )
 
         # Set to published

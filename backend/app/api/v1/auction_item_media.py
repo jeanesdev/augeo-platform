@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.core.database import get_db
-from app.middleware.auth import get_current_active_user, get_current_user
+from app.middleware.auth import get_current_user, get_current_user_optional
 from app.models.user import User
 from app.schemas.auction_item_media import (
     MediaListResponse,
@@ -152,20 +152,22 @@ async def confirm_media_upload(
     description="""
     Get all media items for an auction item, ordered by display_order.
 
-    **Permissions:** Authenticated users can view all items
+    **Permissions:**
+    - Public users can view media for published items
+    - Authenticated users can view all items (draft and published)
     """,
 )
 async def list_media(
     event_id: uuid.UUID,
     item_id: uuid.UUID,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User | None = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ) -> MediaListResponse:
     """List all media for an auction item."""
     # Verify auction item exists and belongs to event
     from sqlalchemy import select
 
-    from app.models.auction_item import AuctionItem, AuctionItemMedia
+    from app.models.auction_item import AuctionItem, AuctionItemMedia, ItemStatus
 
     stmt = select(AuctionItem).where(AuctionItem.id == item_id, AuctionItem.event_id == event_id)
     result = await db.execute(stmt)
@@ -177,7 +179,13 @@ async def list_media(
             detail="Auction item not found in this event",
         )
 
-    # Authenticated users can view all items (permissions can be extended later)
+    # Check permissions: public users can only view published items
+    if auction_item.status != ItemStatus.PUBLISHED.value and current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required to view draft items",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     # Fetch media items
     media_stmt = (
