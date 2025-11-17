@@ -19,11 +19,10 @@ async def test_npo(db_session: AsyncSession):
     """Create a test NPO."""
     npo = NPO(
         name="Test NPO",
-        mission="Test mission",
+        mission_statement="Test mission",
         status=NPOStatus.APPROVED,
-        primary_contact_name="John Doe",
-        primary_contact_email="john@test.com",
-        primary_contact_phone="555-1234",
+        phone="555-1234",
+        email="test@testnpo.com",
     )
     db_session.add(npo)
     await db_session.commit()
