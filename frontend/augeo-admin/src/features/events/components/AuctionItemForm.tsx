@@ -44,11 +44,22 @@ export function AuctionItemForm({
 }: AuctionItemFormProps) {
   const isEdit = !!item;
 
+  // Function to calculate bid increment based on starting bid
+  const calculateBidIncrement = (startingBid: number): string => {
+    if (startingBid <= 50) return '5.00';
+    if (startingBid <= 150) return '10.00';
+    if (startingBid <= 500) return '25.00';
+    if (startingBid <= 1000) return '50.00';
+    if (startingBid <= 2500) return '100.00';
+    return '250.00';
+  };
+
   interface FormData {
     title: string;
     description: string;
     auction_type: AuctionType;
     starting_bid: string;
+    bid_increment: string;
     donor_value: string;
     cost: string;
     buy_now_price: string;
@@ -65,6 +76,11 @@ export function AuctionItemForm({
     description: item?.description || '',
     auction_type: item?.auction_type || AuctionType.SILENT,
     starting_bid: item?.starting_bid?.toString() || '',
+    bid_increment:
+      item?.bid_increment?.toString() ||
+      (item?.starting_bid
+        ? calculateBidIncrement(item.starting_bid)
+        : '50.00'),
     donor_value: item?.donor_value?.toString() || '',
     cost: item?.cost?.toString() || '',
     buy_now_price: item?.buy_now_price?.toString() || '',
@@ -80,6 +96,7 @@ export function AuctionItemForm({
   const [urlError, setUrlError] = useState<string | null>(null);
   const [numericErrors, setNumericErrors] = useState<{
     starting_bid?: string;
+    bid_increment?: string;
     donor_value?: string;
     cost?: string;
     buy_now_price?: string;
@@ -174,12 +191,29 @@ export function AuctionItemForm({
 
     if (isNaN(num)) {
       setNumericErrors((prev) => ({ ...prev, [field]: 'Please enter a valid number' }));
+    } else if (field === 'bid_increment' && num <= 0) {
+      // bid_increment must be positive (> 0)
+      setNumericErrors((prev) => ({ ...prev, [field]: 'Bid increment must be greater than zero' }));
     } else if (num < 0) {
       setNumericErrors((prev) => ({ ...prev, [field]: 'Value cannot be negative' }));
     } else if (isInteger && !Number.isInteger(num)) {
       setNumericErrors((prev) => ({ ...prev, [field]: 'Please enter a whole number' }));
     } else {
       setNumericErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  // Special handler for starting_bid changes - auto-calculate bid_increment
+  const handleStartingBidChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, starting_bid: value }));
+
+    // Auto-calculate bid_increment when starting_bid changes
+    if (value) {
+      const num = parseFloat(value);
+      if (!isNaN(num) && num >= 0) {
+        const newIncrement = calculateBidIncrement(num);
+        setFormData((prev) => ({ ...prev, bid_increment: newIncrement }));
+      }
     }
   };
 
@@ -206,6 +240,9 @@ export function AuctionItemForm({
         starting_bid: formData.starting_bid
           ? parseFloat(formData.starting_bid)
           : undefined,
+        bid_increment: formData.bid_increment
+          ? parseFloat(formData.bid_increment)
+          : undefined,
         donor_value: formData.donor_value
           ? parseFloat(formData.donor_value)
           : null,
@@ -229,6 +266,7 @@ export function AuctionItemForm({
         description: formData.description,
         auction_type: formData.auction_type,
         starting_bid: parseFloat(formData.starting_bid),
+        bid_increment: parseFloat(formData.bid_increment),
         donor_value: formData.donor_value
           ? parseFloat(formData.donor_value)
           : null,
@@ -343,9 +381,7 @@ export function AuctionItemForm({
               step="0.01"
               min="0"
               value={formData.starting_bid}
-              onChange={(e) =>
-                setFormData({ ...formData, starting_bid: e.target.value })
-              }
+              onChange={(e) => handleStartingBidChange(e.target.value)}
               onBlur={(e) => handleNumericBlur('starting_bid', e.target.value)}
               required
               disabled={isSubmitting}
@@ -354,6 +390,32 @@ export function AuctionItemForm({
             {numericErrors.starting_bid && (
               <p className="text-xs text-destructive">{numericErrors.starting_bid}</p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="bid_increment">
+              Bid Increment ($) <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="bid_increment"
+              type="number"
+              step="0.01"
+              min="0.01"
+              value={formData.bid_increment}
+              onChange={(e) =>
+                setFormData({ ...formData, bid_increment: e.target.value })
+              }
+              onBlur={(e) => handleNumericBlur('bid_increment', e.target.value)}
+              required
+              disabled={isSubmitting}
+              placeholder="50.00"
+            />
+            {numericErrors.bid_increment && (
+              <p className="text-xs text-destructive">{numericErrors.bid_increment}</p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Auto-calculated based on starting bid (can be adjusted)
+            </p>
           </div>
 
           <div className="space-y-2">

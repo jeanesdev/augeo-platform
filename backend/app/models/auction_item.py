@@ -73,6 +73,12 @@ class AuctionItem(Base, UUIDMixin, TimestampMixin):
 
     # Pricing
     starting_bid: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    bid_increment: Mapped[Decimal] = mapped_column(
+        Numeric(10, 2),
+        nullable=False,
+        default=Decimal("50.00"),
+        server_default="50.00",
+    )
     donor_value: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
     cost: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
     buy_now_price: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
@@ -125,6 +131,7 @@ class AuctionItem(Base, UUIDMixin, TimestampMixin):
             name="ck_auction_items_status",
         ),
         CheckConstraint("starting_bid >= 0", name="ck_auction_items_starting_bid_nonnegative"),
+        CheckConstraint("bid_increment > 0", name="ck_auction_items_bid_increment_positive"),
         CheckConstraint(
             "donor_value IS NULL OR donor_value >= 0",
             name="ck_auction_items_donor_value_nonnegative",

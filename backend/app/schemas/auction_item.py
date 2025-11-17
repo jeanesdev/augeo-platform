@@ -16,6 +16,7 @@ class AuctionItemBase(BaseModel):
     description: str = Field(..., min_length=1, max_length=10000)
     auction_type: AuctionType
     starting_bid: Decimal = Field(..., ge=0, decimal_places=2)
+    bid_increment: Decimal = Field(default=Decimal("50.00"), gt=0, decimal_places=2)
     donor_value: Decimal | None = Field(None, ge=0, decimal_places=2)
     cost: Decimal | None = Field(None, ge=0, decimal_places=2)
     buy_now_price: Decimal | None = Field(None, ge=0, decimal_places=2)
@@ -48,6 +49,7 @@ class AuctionItemUpdate(BaseModel):
     description: str | None = Field(None, min_length=1, max_length=10000)
     auction_type: AuctionType | None = None
     starting_bid: Decimal | None = Field(None, ge=0, decimal_places=2)
+    bid_increment: Decimal | None = Field(None, gt=0, decimal_places=2)
     donor_value: Decimal | None = Field(None, ge=0, decimal_places=2)
     cost: Decimal | None = Field(None, ge=0, decimal_places=2)
     buy_now_price: Decimal | None = Field(None, ge=0, decimal_places=2)

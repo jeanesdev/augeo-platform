@@ -19,6 +19,7 @@ export interface AuctionItemBase {
   description: string;
   auction_type: AuctionType;
   starting_bid: number;
+  bid_increment: number;
   donor_value?: number | null;
   cost?: number | null;
   buy_now_price?: number | null;
@@ -54,6 +55,7 @@ export interface AuctionItemUpdate {
   description?: string;
   auction_type?: AuctionType;
   starting_bid?: number;
+  bid_increment?: number;
   donor_value?: number | null;
   cost?: number | null;
   buy_now_price?: number | null;

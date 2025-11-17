@@ -17,6 +17,37 @@ from app.services.audit_service import AuditService
 logger = logging.getLogger(__name__)
 
 
+def calculate_bid_increment(starting_bid: Decimal) -> Decimal:
+    """Calculate bid increment based on starting bid amount.
+
+    Bid increment ranges:
+    - $0-$50: $5
+    - $50-$150: $10
+    - $150-$500: $25
+    - $500-$1000: $50
+    - $1000-$2500: $100
+    - $2500+: $250
+
+    Args:
+        starting_bid: The starting bid amount
+
+    Returns:
+        Recommended bid increment
+    """
+    if starting_bid <= Decimal("50"):
+        return Decimal("5.00")
+    elif starting_bid <= Decimal("150"):
+        return Decimal("10.00")
+    elif starting_bid <= Decimal("500"):
+        return Decimal("25.00")
+    elif starting_bid <= Decimal("1000"):
+        return Decimal("50.00")
+    elif starting_bid <= Decimal("2500"):
+        return Decimal("100.00")
+    else:
+        return Decimal("250.00")
+
+
 class AuctionItemService:
     """Service for auction item operations."""
 
@@ -145,6 +176,11 @@ class AuctionItemService:
         # Get next bid number (atomic)
         bid_number = await self._get_next_bid_number(event_id)
 
+        # Auto-calculate bid_increment if not provided or set to default
+        bid_increment = item_data.bid_increment
+        if bid_increment == Decimal("50.00"):  # Default value
+            bid_increment = calculate_bid_increment(item_data.starting_bid)
+
         # Create auction item
         auction_item = AuctionItem(
             event_id=event_id,
@@ -153,6 +189,7 @@ class AuctionItemService:
             description=item_data.description,
             auction_type=item_data.auction_type,
             starting_bid=item_data.starting_bid,
+            bid_increment=bid_increment,
             donor_value=item_data.donor_value,
             cost=item_data.cost,
             buy_now_price=item_data.buy_now_price,
@@ -324,6 +361,12 @@ class AuctionItemService:
 
         # Update fields (only if provided)
         update_dict = update_data.model_dump(exclude_unset=True)
+
+        # If starting_bid is being updated and bid_increment is not, auto-calculate
+        if "starting_bid" in update_dict and "bid_increment" not in update_dict:
+            new_starting_bid = update_dict["starting_bid"]
+            auto_increment = calculate_bid_increment(new_starting_bid)
+            update_dict["bid_increment"] = auto_increment
 
         for field, value in update_dict.items():
             if hasattr(item, field):

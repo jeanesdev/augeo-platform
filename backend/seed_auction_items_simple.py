@@ -21,7 +21,7 @@ from app.models.auction_item import AuctionType
 from app.models.event import Event
 from app.models.user import User
 from app.schemas.auction_item import AuctionItemCreate
-from app.services.auction_item_service import AuctionItemService
+from app.services.auction_item_service import AuctionItemService, calculate_bid_increment
 
 
 async def seed_auction_items():
@@ -56,6 +56,7 @@ async def seed_auction_items():
                 description="Enjoy a relaxing 3-night stay at the Grand Mountain Resort. Includes spa treatment for two, gourmet breakfast, and resort credits. Valid for 1 year.",
                 auction_type=AuctionType.LIVE,
                 starting_bid=Decimal("500.00"),
+                bid_increment=calculate_bid_increment(Decimal("500.00")),
                 buy_now_price=Decimal("1200.00"),
                 buy_now_enabled=True,
                 donor_value=Decimal("1500.00"),
@@ -70,6 +71,7 @@ async def seed_auction_items():
                 description="Private wine tasting at Vineyard Estate with sommelier-guided tour. Includes tasting of 8 premium wines and gourmet cheese pairing.",
                 auction_type=AuctionType.LIVE,
                 starting_bid=Decimal("300.00"),
+                bid_increment=calculate_bid_increment(Decimal("300.00")),
                 buy_now_price=Decimal("600.00"),
                 buy_now_enabled=True,
                 donor_value=Decimal("800.00"),
@@ -84,6 +86,7 @@ async def seed_auction_items():
                 description="Beautiful 24x36 canvas painting featuring mountain landscape. Professionally framed and ready to hang. One-of-a-kind piece.",
                 auction_type=AuctionType.LIVE,
                 starting_bid=Decimal("400.00"),
+                bid_increment=calculate_bid_increment(Decimal("400.00")),
                 buy_now_price=Decimal("1000.00"),
                 buy_now_enabled=True,
                 donor_value=Decimal("1200.00"),
@@ -98,6 +101,7 @@ async def seed_auction_items():
                 description="Foursome golf package at Pebble Creek Championship Golf Course. Includes cart, range balls, and lunch at the clubhouse.",
                 auction_type=AuctionType.LIVE,
                 starting_bid=Decimal("200.00"),
+                bid_increment=calculate_bid_increment(Decimal("200.00")),
                 buy_now_price=Decimal("500.00"),
                 buy_now_enabled=True,
                 donor_value=Decimal("600.00"),
@@ -112,6 +116,7 @@ async def seed_auction_items():
                 description="Premium coffee lovers bundle with artisan roasted beans, French press, and gourmet treats. Perfect gift for coffee enthusiasts.",
                 auction_type=AuctionType.SILENT,
                 starting_bid=Decimal("25.00"),
+                bid_increment=calculate_bid_increment(Decimal("25.00")),
                 buy_now_price=Decimal("75.00"),
                 buy_now_enabled=True,
                 donor_value=Decimal("100.00"),
@@ -126,6 +131,7 @@ async def seed_auction_items():
                 description="Full day spa package including massage, facial, manicure, and access to spa facilities. Valid for 6 months.",
                 auction_type=AuctionType.SILENT,
                 starting_bid=Decimal("100.00"),
+                bid_increment=calculate_bid_increment(Decimal("100.00")),
                 buy_now_price=Decimal("200.00"),
                 buy_now_enabled=True,
                 donor_value=Decimal("250.00"),
@@ -140,6 +146,7 @@ async def seed_auction_items():
                 description="2-hour family or portrait photography session with professional photographer. Includes 20 edited digital images.",
                 auction_type=AuctionType.SILENT,
                 starting_bid=Decimal("75.00"),
+                bid_increment=calculate_bid_increment(Decimal("75.00")),
                 buy_now_price=Decimal("250.00"),
                 buy_now_enabled=True,
                 donor_value=Decimal("300.00"),
@@ -154,6 +161,7 @@ async def seed_auction_items():
                 description="Hands-on cooking class featuring Italian cuisine. Learn to make fresh pasta, sauces, and authentic dishes. Includes dinner and wine.",
                 auction_type=AuctionType.SILENT,
                 starting_bid=Decimal("80.00"),
+                bid_increment=calculate_bid_increment(Decimal("80.00")),
                 buy_now_price=Decimal("150.00"),
                 buy_now_enabled=True,
                 donor_value=Decimal("200.00"),
@@ -168,6 +176,7 @@ async def seed_auction_items():
                 description="Authentic designer leather handbag from premium collection. Brand new with tags and authentication certificate.",
                 auction_type=AuctionType.SILENT,
                 starting_bid=Decimal("60.00"),
+                bid_increment=calculate_bid_increment(Decimal("60.00")),
                 buy_now_price=Decimal("300.00"),
                 buy_now_enabled=True,
                 donor_value=Decimal("400.00"),
@@ -182,6 +191,7 @@ async def seed_auction_items():
                 description="Complete art supplies set including professional-grade paints, brushes, canvas, and easel. Perfect for beginners or experienced artists.",
                 auction_type=AuctionType.SILENT,
                 starting_bid=Decimal("30.00"),
+                bid_increment=calculate_bid_increment(Decimal("30.00")),
                 buy_now_price=Decimal("100.00"),
                 buy_now_enabled=True,
                 donor_value=Decimal("150.00"),
