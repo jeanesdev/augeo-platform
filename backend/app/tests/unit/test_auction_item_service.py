@@ -15,7 +15,7 @@ from app.services.auction_item_service import AuctionItemService
 
 
 @pytest.fixture
-async def test_npo(db_session: AsyncSession):
+async def test_npo(db_session: AsyncSession, test_user):
     """Create a test NPO."""
     npo = NPO(
         name="Test NPO",
@@ -23,6 +23,7 @@ async def test_npo(db_session: AsyncSession):
         status=NPOStatus.APPROVED,
         phone="555-1234",
         email="test@testnpo.com",
+        created_by_user_id=test_user.id,
     )
     db_session.add(npo)
     await db_session.commit()
