@@ -11,7 +11,7 @@ import { useRoleBasedNav } from '@/hooks/use-role-based-nav'
 import { sidebarData } from './data/sidebar-data'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
-import { TeamSwitcher } from './team-switcher'
+import { NpoSelector } from './NpoSelector'
 import type { NavGroup as NavGroupType } from './types'
 
 // Map icon string names to lucide-react icon components
@@ -43,11 +43,9 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
       <SidebarHeader>
-        <TeamSwitcher teams={sidebarData.teams} />
+        <NpoSelector />
 
-        {/* Replace <TeamSwitch /> with the following <AppTitle />
-         /* if you want to use the normal app title instead of TeamSwitch dropdown */}
-        {/* <AppTitle /> */}
+        {/* NpoSelector replaces TeamSwitcher for NPO context selection */}
       </SidebarHeader>
       <SidebarContent>
         {filteredNavGroups.map((props) => (
