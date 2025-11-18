@@ -32,7 +32,7 @@ export function AppSidebar() {
     items: navItems.map((item) => ({
       title: item.title,
       url: item.href,
-      badge: item.badge,
+      badge: typeof item.badge === 'number' ? String(item.badge) : item.badge,
       icon: item.icon ? iconMap[item.icon as keyof typeof iconMap] : undefined,
     })),
   }
