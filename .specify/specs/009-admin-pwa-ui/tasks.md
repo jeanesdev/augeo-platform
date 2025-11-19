@@ -93,19 +93,19 @@
 
 ### Implementation for User Story 2
 
-- [ ] T029 [P] [US2] Delete Tasks page directory and routes in frontend/augeo-admin/src/pages/tasks/
-- [ ] T030 [P] [US2] Delete Chats page directory and routes in frontend/augeo-admin/src/pages/chats/
-- [ ] T031 [P] [US2] Delete Apps page directory and routes in frontend/augeo-admin/src/pages/apps/
-- [ ] T032 [P] [US2] Delete theme-toggle component directory in frontend/augeo-admin/src/components/theme-toggle/
-- [ ] T033 [P] [US2] Delete hamburger-menu component directory in frontend/augeo-admin/src/components/hamburger-menu/
-- [ ] T034 [US2] Remove deleted page routes from route definitions in frontend/augeo-admin/src/routes/
-- [ ] T035 [US2] Update Sidebar to remove Tasks, Chats, Apps, Settings, Appearance, Help Center nav items in frontend/augeo-admin/src/components/layout/Sidebar.tsx
-- [ ] T036 [US2] Remove hamburger menu button from AppShell header in frontend/augeo-admin/src/components/layout/AppShell.tsx
-- [ ] T037 [US2] Remove theme selector UI elements from settings/appearance components
-- [ ] T038 [US2] Run linter and type-check to catch broken imports from deletions
-- [ ] T039 [US2] Fix any broken imports or references from deleted components
+- [x] T029 [P] [US2] Delete Tasks page directory and routes in frontend/augeo-admin/src/pages/tasks/ (already removed)
+- [x] T030 [P] [US2] Delete Chats page directory and routes in frontend/augeo-admin/src/pages/chats/ (already removed)
+- [x] T031 [P] [US2] Delete Apps page directory and routes in frontend/augeo-admin/src/pages/apps/ (already removed)
+- [x] T032 [P] [US2] Delete theme-toggle component directory in frontend/augeo-admin/src/components/theme-toggle/ (already removed)
+- [x] T033 [P] [US2] Delete hamburger-menu component directory in frontend/augeo-admin/src/components/hamburger-menu/ (already removed)
+- [x] T034 [US2] Remove deleted page routes from route definitions (no routes found - already clean)
+- [x] T035 [US2] Update Sidebar to remove template nav items (AppSidebar already using useRoleBasedNav)
+- [x] T036 [US2] Remove hamburger menu button from AppShell header (already removed)
+- [x] T037 [US2] Remove theme selector UI elements - deleted settings/appearance/ directory and config-drawer.tsx
+- [x] T038 [US2] Run linter and type-check to catch broken imports from deletions
+- [x] T039 [US2] Fix any broken imports or references from deleted components
 
-**Checkpoint**: Template cleanup complete, all unnecessary features removed, navigation streamlined.
+**Checkpoint**: ✅ COMPLETE - Template cleanup complete, all unnecessary features removed, navigation streamlined.
 
 ---
 
@@ -469,6 +469,15 @@ With 3 developers (after Foundational phase):
 - AppSidebar component using useRoleBasedNav for role-based menu filtering
 - Backend endpoints (NPO, Event, User lists) applying role-based filtering
 - PermissionService.get_npo_filter_for_user() enforcing access control
+
+**User Story 2 - Template Cleanup**: ✅ COMPLETE (T029-T039)
+
+- Removed settings/appearance/ directory with theme selector form
+- Deleted config-drawer.tsx component with theme configuration UI
+- Removed theme controls from command-menu.tsx (Light/Dark/System options)
+- Cleaned up ConfigDrawer imports from 5 feature pages
+- Verified template pages (tasks/, chats/, apps/, theme-toggle/, hamburger-menu/) already removed
+- All linting and type-checking passed with no errors
 
 **User Story 4 - Profile Editing**: ✅ COMPLETE
 
