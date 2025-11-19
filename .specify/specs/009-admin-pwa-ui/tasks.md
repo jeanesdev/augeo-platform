@@ -28,12 +28,12 @@
 
 **Purpose**: Project initialization and environment verification
 
-- [ ] T001 Verify Node.js v22 and pnpm installed for frontend development
-- [ ] T002 Verify Python 3.11+ and Poetry installed for backend development
-- [ ] T003 [P] Install frontend dependencies in frontend/augeo-admin via pnpm install
-- [ ] T004 [P] Install backend dependencies in backend via poetry install
-- [ ] T005 [P] Verify PostgreSQL 15 database running with existing schema (users, roles, npos, events tables)
-- [ ] T006 [P] Verify Redis 7 running on localhost:6379 for session management
+- [x] T001 Verify Node.js v22 and pnpm installed for frontend development
+- [x] T002 Verify Python 3.11+ and Poetry installed for backend development
+- [x] T003 [P] Install frontend dependencies in frontend/augeo-admin via pnpm install
+- [x] T004 [P] Install backend dependencies in backend via poetry install
+- [x] T005 [P] Verify PostgreSQL 15 database running with existing schema (users, roles, npos, events tables)
+- [x] T006 [P] Verify Redis 7 running on localhost:6379 for session management
 - [ ] T007 Create database indexes for search optimization in backend/alembic/versions/
 - [ ] T008 Seed test users with all roles (SuperAdmin, NPO Admin, Event Coordinator, Staff, Donor) for testing
 
@@ -221,8 +221,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T083 [P] Update frontend README with new component structure and removed features in frontend/augeo-admin/README.md
-- [ ] T084 [P] Update backend API documentation for new endpoints in backend/app/main.py (OpenAPI tags)
+- [x] T083 [P] Update frontend README with new component structure and removed features in frontend/augeo-admin/README.md
+- [x] T084 [P] Update backend API documentation for new endpoints in backend/app/main.py (OpenAPI tags)
 - [x] T085 Run frontend linter (pnpm lint) and fix any remaining issues
 - [x] T086 Run frontend type-check (pnpm type-check) and fix TypeScript errors
 - [x] T087 Run backend linter (poetry run ruff check) and fix issues
