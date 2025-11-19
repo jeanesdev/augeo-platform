@@ -76,12 +76,12 @@
 - [x] T022 [US1] Add beforeLoad guard to authenticated route to block Donor role from admin PWA in frontend/augeo-admin/src/routes/_authenticated/route.tsx
 - [x] T023 [US1] Create UnauthorizedPage component for access denial in frontend/augeo-admin/src/pages/errors/UnauthorizedPage.tsx
 - [x] T024 [P] [US1] Create useRoleBasedNav hook to filter navigation items by role in frontend/augeo-admin/src/hooks/use-role-based-nav.ts
-- [ ] T025 [US1] Update Sidebar component to use useRoleBasedNav for dynamic navigation in frontend/augeo-admin/src/components/layout/Sidebar.tsx
-- [ ] T026 [US1] Update backend NPO list endpoint to apply role-based filtering in backend/app/api/v1/npos.py
-- [ ] T027 [US1] Update backend Event list endpoint to apply role-based filtering in backend/app/api/v1/events.py
-- [ ] T028 [US1] Update backend User list endpoint to apply role-based filtering in backend/app/api/v1/users.py
+- [x] T025 [US1] Update Sidebar component to use useRoleBasedNav for dynamic navigation in frontend/augeo-admin/src/components/layout/app-sidebar.tsx
+- [x] T026 [US1] Update backend NPO list endpoint to apply role-based filtering in backend/app/api/v1/npos.py
+- [x] T027 [US1] Update backend Event list endpoint to apply role-based filtering in backend/app/api/v1/events.py
+- [x] T028 [US1] Update backend User list endpoint to apply role-based filtering in backend/app/api/v1/users.py
 
-**Checkpoint**: Role-based dashboards working, Donor role blocked, navigation shows only authorized items per role.
+**Checkpoint**: ✅ COMPLETE - Role-based dashboards working, Donor role blocked, navigation shows only authorized items per role, backend endpoints apply role-based filtering.
 
 ---
 
@@ -460,6 +460,15 @@ With 3 developers (after Foundational phase):
 - Python 3.12.3 and Poetry 1.8.2 verified
 - PostgreSQL 15 and Redis 7 running via Docker
 - All dependencies installed and verified
+
+**User Story 1 - Role-Based Dashboard Access**: ✅ COMPLETE (T017-T028)
+
+- All role-specific dashboards created (SuperAdmin, NPO Admin, Auctioneer, Event)
+- Donor role blocked from admin PWA via beforeLoad guard
+- useRoleBasedNav hook implemented for dynamic navigation
+- AppSidebar component using useRoleBasedNav for role-based menu filtering
+- Backend endpoints (NPO, Event, User lists) applying role-based filtering
+- PermissionService.get_npo_filter_for_user() enforcing access control
 
 **User Story 4 - Profile Editing**: ✅ COMPLETE
 
