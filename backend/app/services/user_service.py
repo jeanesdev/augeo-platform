@@ -347,6 +347,8 @@ class UserService:
             user.postal_code = user_data.postal_code or None
         if user_data.country is not None:
             user.country = user_data.country or None
+        if user_data.social_media_links is not None:
+            user.social_media_links = user_data.social_media_links
         if user_data.password is not None:
             user.password_hash = hash_password(user_data.password)
 

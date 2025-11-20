@@ -45,6 +45,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       state: initialData?.state || '',
       postal_code: initialData?.postal_code || '',
       country: initialData?.country || '',
+      social_media_links: initialData?.social_media_links || undefined,
     },
     mode: 'onBlur', // Validate on blur per T048-T050
   })

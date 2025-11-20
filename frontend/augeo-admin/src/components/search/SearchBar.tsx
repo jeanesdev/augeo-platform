@@ -10,6 +10,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
@@ -72,6 +73,9 @@ export function SearchBar({ open, onOpenChange }: SearchBarProps) {
         <DialogHeader>
           <DialogTitle className='sr-only'>Search</DialogTitle>
         </DialogHeader>
+        <DialogDescription className='sr-only'>
+          Search for users, organizations, events, and auction items
+        </DialogDescription>
 
         <div className='relative'>
           <SearchIcon className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground' />
@@ -81,7 +85,7 @@ export function SearchBar({ open, onOpenChange }: SearchBarProps) {
           )}
           <Input
             type='text'
-            placeholder='Search users, organizations, events...'
+            placeholder='Search users, organizations, events, auction items...'
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className='pl-10 pr-10'

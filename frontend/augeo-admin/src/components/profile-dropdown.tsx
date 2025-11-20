@@ -1,6 +1,4 @@
-import { Link } from '@tanstack/react-router'
-import { useAuthStore } from '@/stores/auth-store'
-import useDialogState from '@/hooks/use-dialog-state'
+import { SignOutDialog } from '@/components/sign-out-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,15 +9,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { SignOutDialog } from '@/components/sign-out-dialog'
+import useDialogState from '@/hooks/use-dialog-state'
+import { useAuthStore } from '@/stores/auth-store'
+import { Link } from '@tanstack/react-router'
 
 export function ProfileDropdown() {
   const [open, setOpen] = useDialogState()
   const user = useAuthStore((state) => state.user)
+  const getProfilePictureUrl = useAuthStore((state) => state.getProfilePictureUrl)
 
   const initials = user
     ? `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase()
     : 'U'
+
+  const profilePictureUrl = getProfilePictureUrl()
 
   return (
     <>
@@ -27,7 +30,7 @@ export function ProfileDropdown() {
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='relative h-8 w-8 rounded-full'>
             <Avatar className='h-8 w-8'>
-              <AvatarImage src='/avatars/01.png' alt={user?.email || 'User'} />
+              <AvatarImage src={profilePictureUrl || undefined} alt={user?.email || 'User'} />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
           </Button>
@@ -48,9 +51,7 @@ export function ProfileDropdown() {
             <Link to='/settings'>Profile</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setOpen(true)}>
-            Sign out
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setOpen(true)}>Sign out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

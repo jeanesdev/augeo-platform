@@ -93,6 +93,8 @@ export const profileUpdateSchema = z.object({
     .optional()
     .or(z.literal(''))
     .transform(val => val === '' ? undefined : val),
+
+  social_media_links: z.record(z.string()).optional(),
 })
 
 export type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>

@@ -7,9 +7,9 @@
  * T080: Clickable result items with navigation
  */
 
-import { Link } from '@tanstack/react-router'
-import { Building2, Calendar, User } from 'lucide-react'
 import type { SearchResponse } from '@/services/search'
+import { Link } from '@tanstack/react-router'
+import { Building2, Calendar, Gavel, User } from 'lucide-react'
 
 interface SearchResultsProps {
   results: SearchResponse | null
@@ -123,6 +123,34 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
                 <p className='font-medium truncate'>{event.name}</p>
                 <p className='text-muted-foreground text-xs truncate'>
                   {event.npo_name} • {event.event_type}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Auction Items Section */}
+      {results.auction_items.length > 0 && (
+        <div className='mb-4'>
+          <h3 className='text-muted-foreground px-2 mb-2 text-xs font-semibold uppercase'>
+            Auction Items ({results.auction_items.length})
+          </h3>
+          {results.auction_items.map((item) => (
+            <Link
+              key={item.id}
+              to='/events/$eventId/auction-items/$itemId'
+              params={{ eventId: item.event_id, itemId: item.id }}
+              className='hover:bg-accent flex items-center gap-3 rounded p-2 transition-colors'
+            >
+              <div className='bg-muted flex h-8 w-8 items-center justify-center rounded'>
+                <Gavel className='h-4 w-4' />
+              </div>
+              <div className='flex-1 min-w-0'>
+                <p className='font-medium truncate'>{item.name}</p>
+                <p className='text-muted-foreground text-xs truncate'>
+                  {item.event_name} • {item.category}
+                  {item.starting_bid && ` • $${item.starting_bid.toLocaleString()}`}
                 </p>
               </div>
             </Link>

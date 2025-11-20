@@ -97,6 +97,7 @@ class UserUpdateRequest(BaseModel):
     postal_code: str | None = Field(None, max_length=20)
     country: str | None = Field(None, max_length=100)
     password: str | None = Field(None, min_length=8, max_length=100)
+    social_media_links: dict[str, str] | None = None
 
     @field_validator("password")
     @classmethod
@@ -129,6 +130,7 @@ class ProfileUpdateRequest(BaseModel):
     state: str | None = Field(None, max_length=100)
     postal_code: str | None = Field(None, max_length=20)
     country: str | None = Field(None, max_length=100)
+    social_media_links: dict[str, str] | None = None
 
     @field_validator("phone")
     @classmethod
@@ -173,6 +175,8 @@ class UserPublicWithRole(BaseModel):
     state: str | None = None
     postal_code: str | None = None
     country: str | None = None
+    profile_picture_url: str | None = None
+    social_media_links: dict[str, str] | None = None
     role: str
     npo_id: uuid.UUID | None = None
     npo_memberships: list[NPOMembershipInfo] = []

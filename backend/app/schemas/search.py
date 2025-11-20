@@ -23,7 +23,7 @@ class SearchRequest(BaseModel):
     """
 
     query: str = Field(min_length=2, max_length=255, description="Search query (min 2 characters)")
-    resource_types: list[Literal["users", "npos", "events"]] | None = Field(
+    resource_types: list[Literal["users", "npos", "events", "auction_items"]] | None = Field(
         None,
         description="Limit search to specific resource types (default: all)",
     )
@@ -89,6 +89,21 @@ class EventSearchResult(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class AuctionItemSearchResult(BaseModel):
+    """Search result for an auction item."""
+
+    id: uuid.UUID
+    name: str
+    event_id: uuid.UUID
+    event_name: str  # Denormalized for display
+    category: str
+    status: str
+    starting_bid: float | None = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class SearchResponse(BaseModel):
     """Response schema for search results.
 
@@ -99,9 +114,17 @@ class SearchResponse(BaseModel):
     users: list[UserSearchResult] = Field(default_factory=list, description="Matching users")
     npos: list[NPOSearchResult] = Field(default_factory=list, description="Matching NPOs")
     events: list[EventSearchResult] = Field(default_factory=list, description="Matching events")
+    auction_items: list[AuctionItemSearchResult] = Field(
+        default_factory=list, description="Matching auction items"
+    )
     total_results: int = Field(description="Total number of results across all types")
 
     @property
     def has_results(self) -> bool:
         """Check if search returned any results."""
-        return len(self.users) > 0 or len(self.npos) > 0 or len(self.events) > 0
+        return (
+            len(self.users) > 0
+            or len(self.npos) > 0
+            or len(self.events) > 0
+            or len(self.auction_items) > 0
+        )

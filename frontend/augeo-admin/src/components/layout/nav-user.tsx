@@ -1,6 +1,4 @@
-import { Link } from '@tanstack/react-router'
-import { ChevronsUpDown, LogOut } from 'lucide-react'
-import useDialogState from '@/hooks/use-dialog-state'
+import { SignOutDialog } from '@/components/sign-out-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -16,7 +14,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { SignOutDialog } from '@/components/sign-out-dialog'
+import useDialogState from '@/hooks/use-dialog-state'
+import { useAuthStore } from '@/stores/auth-store'
+import { Link } from '@tanstack/react-router'
+import { ChevronsUpDown, LogOut } from 'lucide-react'
 
 type NavUserProps = {
   user: {
@@ -29,6 +30,13 @@ type NavUserProps = {
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar()
   const [open, setOpen] = useDialogState()
+  const getProfilePictureUrl = useAuthStore((state) => state.getProfilePictureUrl)
+  const authUser = useAuthStore((state) => state.user)
+
+  const profilePictureUrl = getProfilePictureUrl()
+  const initials = authUser
+    ? `${authUser.first_name?.[0] || ''}${authUser.last_name?.[0] || ''}`.toUpperCase()
+    : 'SN'
 
   return (
     <>
@@ -41,8 +49,8 @@ export function NavUser({ user }: NavUserProps) {
                 className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
               >
                 <Avatar className='h-8 w-8 rounded-lg'>
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className='rounded-lg'>SN</AvatarFallback>
+                  <AvatarImage src={profilePictureUrl || undefined} alt={user.name} />
+                  <AvatarFallback className='rounded-lg'>{initials}</AvatarFallback>
                 </Avatar>
                 <div className='grid flex-1 text-start text-sm leading-tight'>
                   <span className='truncate font-semibold'>{user.name}</span>
@@ -60,8 +68,8 @@ export function NavUser({ user }: NavUserProps) {
               <DropdownMenuLabel className='p-0 font-normal'>
                 <div className='flex items-center gap-2 px-1 py-1.5 text-start text-sm'>
                   <Avatar className='h-8 w-8 rounded-lg'>
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className='rounded-lg'>SN</AvatarFallback>
+                    <AvatarImage src={profilePictureUrl || undefined} alt={user.name} />
+                    <AvatarFallback className='rounded-lg'>{initials}</AvatarFallback>
                   </Avatar>
                   <div className='grid flex-1 text-start text-sm leading-tight'>
                     <span className='truncate font-semibold'>{user.name}</span>

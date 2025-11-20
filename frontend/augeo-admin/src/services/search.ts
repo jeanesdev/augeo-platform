@@ -10,7 +10,7 @@ import apiClient from '@/lib/axios'
 // Search request
 export interface SearchRequest {
   query: string
-  resource_types?: ('users' | 'npos' | 'events')[]
+  resource_types?: ('users' | 'npos' | 'events' | 'auction_items')[]
   npo_id?: string | null
   limit?: number
 }
@@ -49,12 +49,24 @@ export interface EventSearchResult {
   created_at: string
 }
 
+export interface AuctionItemSearchResult {
+  id: string
+  name: string
+  event_id: string
+  event_name: string
+  category: string
+  status: string
+  starting_bid: number | null
+  created_at: string
+}
+
 // Search response
 export interface SearchResponse {
   query: string
   users: UserSearchResult[]
   npos: NPOSearchResult[]
   events: EventSearchResult[]
+  auction_items: AuctionItemSearchResult[]
   total_results: number
 }
 
@@ -64,7 +76,7 @@ export interface SearchResponse {
  * @returns Search results grouped by resource type
  */
 export async function search(request: SearchRequest): Promise<SearchResponse> {
-  const response = await apiClient.post<SearchResponse>('/api/v1/search', request)
+  const response = await apiClient.post<SearchResponse>('/search', request)
   return response.data
 }
 
