@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models.event import EventStatus
-from app.schemas.event import EventDetailResponse, EventListResponse
+from app.schemas.event import EventDetailResponse, EventListResponse, EventSummaryResponse
 from app.services.event_service import EventService
 
 logger = logging.getLogger(__name__)
@@ -35,14 +35,14 @@ async def list_public_events(
         page=page,
         per_page=per_page,
         npo_id=npo_id,
-        status=EventStatus.ACTIVE,
+        status_filter=EventStatus.ACTIVE,
     )
 
     total_pages = (total + per_page - 1) // per_page
 
     return EventListResponse(
-        events=[
-            EventDetailResponse.model_validate(event, from_attributes=True) for event in events
+        items=[
+            EventSummaryResponse.model_validate(event, from_attributes=True) for event in events
         ],
         total=total,
         page=page,

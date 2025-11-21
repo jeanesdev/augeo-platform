@@ -228,6 +228,7 @@ class MealSelectionService:
         Returns:
             Dictionary mapping food option name to count
         """
+
         result = await db.execute(
             select(
                 FoodOption.name,
@@ -239,7 +240,12 @@ class MealSelectionService:
             .group_by(FoodOption.name)
         )
 
-        return {row.name: row.count for row in result.all()}
+        # Type: SQLAlchemy's func.count() returns int at runtime despite mypy inference issues
+        rows = result.all()
+        counts: dict[str, int] = {}
+        for row in rows:
+            counts[row.name] = row.count  # type: ignore[assignment]
+        return counts
 
     @staticmethod
     async def _get_meal_selection(

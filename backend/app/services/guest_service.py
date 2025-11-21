@@ -114,7 +114,7 @@ class GuestService:
         )
         registration = registration_result.scalar_one_or_none()
 
-        if registration.user_id != current_user.id:
+        if not registration or registration.user_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You can only update guests from your own registrations",
@@ -169,7 +169,7 @@ class GuestService:
         )
         registration = registration_result.scalar_one_or_none()
 
-        if registration.user_id != current_user.id:
+        if not registration or registration.user_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You can only remove guests from your own registrations",
