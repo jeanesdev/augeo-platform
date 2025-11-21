@@ -1,243 +1,646 @@
-# React-PWA v3 🚀🎉⚡️
+# Augeo Admin Dashboard
 
-[![Analyses](https://github.com/suren-atoyan/react-pwa/actions/workflows/analyses.yml/badge.svg)](https://github.com/suren-atoyan/react-pwa/actions/workflows/analyses.yml)
-[![E2E Tests](https://github.com/suren-atoyan/react-pwa/actions/workflows/tests:e2e.yml/badge.svg)](https://github.com/suren-atoyan/react-pwa/actions/workflows/tests:e2e.yml)
+Admin web application for nonprofit auction management with authentication, user management, and role-based access control.
 
-<a href="http://react-pwa.surenatoyan.com/" target="_blank" rel="noreferrer">
- <img src="./public/cover.png" title="React-PWA Starter Kit" alt="React-PWA cover image">
-</a>
+## Features
 
-## 🌟 Overview
+- **User Authentication**: Login, registration, logout with JWT tokens
+- **Password Management**: Reset and change password with email verification
+- **Email Verification**: Email verification flow before login
+- **User Management**: List, create, update, delete users with server-side pagination and NPO filtering
+- **NPO Context Selector**: Filter all data by selected NPO (top-left corner)
+- **Role Assignment**: Assign roles to users (Super Admin, NPO Admin, NPO Manager, Event Staff, Donor)
+- **Role-Based Dashboards**: Different dashboard views for each role
+- **Session Management**: Automatic token refresh, session expiration warning
+- **Legal Compliance**: Terms of Service, Privacy Policy, Cookie Consent (GDPR)
+- **Consent Management**: View consent history, export data, withdraw consent, delete account
+- **Search Bar**: Cross-resource search with role-based filtering (Users, NPOs, Events)
+- **Responsive Design**: Mobile-first responsive layout
+- **Accessibility**: Built with accessibility in mind (ARIA, keyboard navigation)
 
-**React-PWA** is an opinionated starter kit for building Progressive Web Applications with React. Designed to streamline development, it combines essential libraries, components, utilities, and developer tools to accelerate your workflow.
+## Technology Stack
 
-## 💡 Motivation
+**UI:** [ShadcnUI](https://ui.shadcn.com) (TailwindCSS + RadixUI)
 
-Building a modern web application requires a robust setup, including routing, UI components, theming, error handling, a structured file system, testing tools, and performance optimizations. **React-PWA** provides a production-ready, minimal, and efficient environment for developers to focus on creating great applications.
+**Build Tool:** [Vite](https://vitejs.dev/) 6.0+
 
-## ✨ Tech Stack & Features
+**Framework:** [React](https://react.dev/) 18+
 
-### Core Technologies
-| Technology | Version | Description |
-|------------|---------|-------------|
-| [Vite](https://vitejs.dev/) | v6 | Fast build tool based on ES modules, Rollup, and esbuild |
-| [React](https://react.dev/) | v19 | Latest version with all modern features |
-| [TypeScript](https://www.typescriptlang.org/) | Latest | Type-safe JavaScript for better development |
-| [MUI](https://mui.com/) | v6 | Comprehensive UI framework with MUI |
+**Routing:** [TanStack Router](https://tanstack.com/router/latest) v1
 
-### Key Features
-- **Routing**: [React Router v7](https://reactrouter.com/) for flexible client-side routing
-- **State Management**: [Jotai](https://jotai.org/) for simple, efficient state handling
-- **Theming**: Customizable dark/light mode with MUI [theme system](https://mui.com/material-ui/customization/theming/)
-- **Notifications**: Alert system with MUI Toolpad integration
-- **PWA Support**: Works offline and installs on any device
-- **Hotkeys**: Built-in keyboard shortcuts for common actions
-- **Error Handling**: Graceful error boundaries with custom fallbacks
-- **Performance**: All green Lighthouse scores with optimized bundle size
+**State Management:** [Zustand](https://github.com/pmndrs/zustand) 5.0+
 
-### Developer Tools
-- **Testing**: Vitest for unit tests, Playwright for e2e tests
-- **CI/CD**: GitHub Actions workflows for quality checks and testing
-- **Code Quality**: ESLint, Prettier, TypeScript integration
-- **Git Hooks**: Husky with lint-staged for pre-commit quality enforcement
-- **Local HTTPS**: Built-in support for local HTTPS development
+**Data Fetching:** [TanStack Query](https://tanstack.com/query/latest) v5
 
-## 🚀 Getting Started
+**HTTP Client:** [Axios](https://axios-http.com/) 1.7+
 
-### Quick Start
+**Type Checking:** [TypeScript](https://www.typescriptlang.org/) 5.6+
+
+**Linting:** [ESLint](https://eslint.org/) 9+
+
+**Icons:** [Lucide Icons](https://lucide.dev/icons/)
+
+## Prerequisites
+
+- **Node.js**: 22+ (managed with NVM)
+- **pnpm**: 9+ for package management
+- **Backend API**: Running on http://localhost:8000
+
+## Quick Start
+
+### 1. Setup Node Environment
 
 ```bash
-# Clone the repository
-git clone https://github.com/suren-atoyan/react-pwa.git
+# Install NVM (if not already installed)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
 
-# Install dependencies
-npm install
+# Install and use Node 22
+nvm install 22
+nvm use 22
+```
 
-# Start development server
-npm run dev
+### 2. Install Dependencies
+
+```bash
+cd frontend/augeo-admin
+pnpm install
+```
+
+### 3. Configure Environment
+
+Create `.env.local` file:
+
+```bash
+# Backend API URL
+VITE_API_URL=http://localhost:8000
+```
+
+### 4. Start Development Server
+
+```bash
+pnpm dev
+```
+
+Application now running at:
+
+- **App**: http://localhost:5173
+- **Hot Reload**: Enabled
+
+## Development Commands
+
+### Running the App
+
+```bash
+# Development mode with hot reload
+pnpm dev
 
 # Build for production
-npm run build
+pnpm build
+
+# Preview production build
+pnpm preview
+
+# Type check
+pnpm type-check
 ```
 
-### Available Scripts
+### Code Quality
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run prettier:check` | Check formatting |
-| `npm run lint:check` | Check linting |
-| `npm run ts:check` | Check TypeScript |
-| `npm run test:unit` | Run unit tests |
-| `npm run test:e2e` | Run e2e tests |
-| `npm run test:e2e:ui` | Run e2e tests in UI mode |
-| `npm run preview` | Preview production build locally |
-| `npm run https-preview` | Preview with HTTPS |
+```bash
+# Lint with ESLint
+pnpm lint
 
-## 📁 Project Structure
+# Auto-fix linting issues
+pnpm lint:fix
+
+# Format with Prettier (via ESLint)
+pnpm format
+```
+
+### Testing
+
+```bash
+# Run unit tests (if configured)
+pnpm test
+
+# Run E2E tests with Playwright
+pnpm test:e2e
+
+# Open Playwright UI
+pnpm playwright show-report
+```
+
+## Project Structure
 
 ```
-react-pwa/
-├── ...
+frontend/augeo-admin/
 ├── src/
-│   ├── components/     # Reusable UI components
-│   ├── config/         # Application configuration
-│   ├── error-handling/ # Error management
-│   ├── hooks/          # Custom hooks
-│   ├── pages/          # Application pages/routes
-│   ├── routes/         # Routing configuration
-│   ├── sections/       # Self-contained application sections
-│   ├── theme/          # Theme configuration
-│   └── utils/          # Utility functions
-└── ...
+│   ├── components/       # Reusable UI components
+│   │   ├── ui/           # Shadcn UI components
+│   │   ├── layout/       # Layout components (header, sidebar, NPO selector)
+│   │   ├── legal/        # Legal components (TOS modal, cookie banner, consent)
+│   │   ├── search/       # Search bar and results components
+│   │   ├── dashboards/   # Role-based dashboard components
+│   │   └── custom/       # Custom shared components
+│   ├── features/         # Feature-based modules
+│   │   ├── auth/         # Authentication (login, register, password reset)
+│   │   ├── users/        # User management with pagination and NPO filtering
+│   │   ├── settings/     # Settings, account, and password change
+│   │   └── events/       # Event management
+│   ├── hooks/            # Custom React hooks
+│   │   ├── use-users.ts  # User management hooks (React Query)
+│   │   ├── use-npo-context.ts  # NPO context hook
+│   │   ├── use-role-based-nav.ts  # Role-based navigation
+│   │   └── use-tos.ts    # Terms of Service hooks
+│   ├── lib/              # Utilities and configurations
+│   │   ├── axios.ts      # Axios configuration with interceptors
+│   │   ├── api/          # API service layer
+│   │   └── utils.ts      # Helper functions
+│   ├── pages/            # Full-page components
+│   │   └── legal/        # Legal pages (TOS, Privacy, Cookies, Consent)
+│   ├── routes/           # TanStack Router routes
+│   │   ├── __root.tsx    # Root route layout
+│   │   ├── _authenticated/ # Protected routes with NPO context
+│   │   └── (auth)/       # Auth routes (login, register)
+│   ├── stores/           # Zustand state management
+│   │   ├── auth-store.ts # Auth state (user, tokens, login/logout)
+│   │   ├── npo-context.ts # NPO context state with localStorage
+│   │   └── tos-store.ts  # TOS consent state
+│   ├── services/         # API service layer
+│   │   └── search.ts     # Search API client
+│   ├── types/            # TypeScript type definitions
+│   │   ├── api.ts        # API request/response types
+│   │   ├── auth.ts       # Auth types
+│   │   └── consent-history.ts # Consent history types
+│   └── main.tsx          # Application entry point
+├── public/               # Static assets
+├── index.html            # HTML template
+├── vite.config.ts        # Vite configuration
+├── tsconfig.json         # TypeScript configuration
+├── eslint.config.js      # ESLint configuration
+└── package.json          # Dependencies and scripts
 ```
 
-### Component Organization
+## Key Features Implementation
 
-Each component follows this structure:
-```
-ComponentName/
-├── index.ts          # Default exports the component
-├── ComponentName.tsx # Pure component implementation
-├── types.ts          # Component-related types (optional)
-├── styled.ts         # Styled components (optional)
-└── utils.ts          # Component-specific utilities (optional)
-```
+### Authentication Flow
 
-## 🔍 Key Features Explained
+1. **Login** (`/sign-in`):
+   - Email/password validation
+   - JWT token storage (localStorage)
+   - Automatic redirect to dashboard
+   - Remember me option
 
-### UI Framework
-MUI ensures consistency, accessibility, and performance while remaining highly customizable to match your brand's design language.
+2. **Registration** (`/sign-up`):
+   - Form validation (email, password strength)
+   - Email verification required
+   - Automatic login after verification
 
-```jsx
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import { styled } from '@mui/material/styles';
+3. **Email Verification** (`/verify-email`):
+   - Token-based verification
+   - Resend verification email
+   - Auto-login on success
 
-// styled components
-const NewButton = styled(Button)(({ theme }) => ({
-  marginRight: theme.spacing(1),
-  color: theme.palette.text.disabled,
-}));
+4. **Password Reset**:
+   - Request reset (`/password-reset`)
+   - Confirm reset (`/password-reset-confirm`)
+   - Token validation
+   - Secure password update
 
-// sx prop
-function MyComponent() {
-  return <Box sx={{ borderRadius: theme.shape.borderRadius }}>...</Box>;
+5. **Session Management**:
+   - Automatic token refresh (401 handling)
+   - Session expiration warning (2 minutes before expiry)
+   - "Stay Logged In" extend session
+   - Auto-logout on expiration
+
+### User Management (Admin)
+
+1. **User List** (`/users`):
+   - Server-side paginated table view
+   - Search and filter by NPO membership
+   - NPO memberships display (shows all active NPO affiliations)
+   - Role badges
+   - Quick actions (edit, delete, change role)
+   - Proper page count based on total results
+
+2. **Create User**:
+   - Invite dialog with form
+   - Role selection
+   - NPO assignment (for NPO roles)
+   - Password generation
+
+3. **Update User**:
+   - Edit user details
+   - Change role
+   - Activate/deactivate account
+
+4. **Password Change** (`/settings/password`):
+   - Change password page with current password verification
+   - Password strength validation
+   - Accessible from Settings menu
+
+### NPO Context Management
+
+1. **NPO Selector** (top-left corner):
+   - Role-based NPO list (SuperAdmin sees all, others see assigned NPOs)
+   - "Augeo Platform" option for SuperAdmin (view all data)
+   - Auto-selection for single-NPO users
+   - Disabled for users with only one NPO (shows name only)
+   - LocalStorage persistence across sessions
+
+2. **Data Filtering**:
+   - All list pages filter by selected NPO context
+   - User list shows only users from selected NPO
+   - Event list shows only events from selected NPO
+   - NPO list shows only selected NPO or all NPOs
+
+### Search Functionality
+
+1. **Cross-Resource Search** (top-right corner):
+   - Search across Users, NPOs, and Events
+   - 300ms debounced input for performance
+   - Minimum 2 characters required
+   - Role-based filtering (NPO Admin sees only own NPO results)
+   - NPO context awareness (respects selected NPO)
+   - Grouped results display
+   - Clickable results navigate to detail pages
+   - "No results found" message
+
+### Role-Based Dashboards
+
+1. **SuperAdmin Dashboard**: Platform-wide statistics and management
+2. **NPO Admin Dashboard**: NPO-specific analytics and tools
+3. **Event Coordinator Dashboard**: Event management and coordination
+4. **Staff Dashboard**: Operational tasks and check-in features
+
+Each dashboard shows role-appropriate data and actions.
+
+### Authorization
+
+- Protected routes with `ProtectedRoute` component
+- Role-based access control
+- Automatic redirect to login for unauthenticated users
+- Permission checks at component level
+
+### Legal Compliance & GDPR
+
+1. **Terms of Service Modal** (`/sign-up`, `/settings/account`):
+   - Mandatory acceptance on registration
+   - Auto-detect outdated consent (409 Conflict)
+   - Modal with scrollable content
+   - Checkbox confirmation required
+
+2. **Privacy Policy** (`/privacy-policy`):
+   - Standalone page with full policy text
+   - Versioned documents
+   - Accessible from footer and settings
+
+3. **Cookie Consent Banner**:
+   - First-visit banner with granular preferences
+   - 3 categories: Essential (always on), Analytics, Marketing
+   - LocalStorage for anonymous sessions
+   - PostgreSQL for authenticated users
+   - Redis cache for performance
+
+4. **Cookie Preferences** (`/settings/cookies`):
+   - Update cookie preferences anytime
+   - Toggle categories on/off
+   - Consent audit trail
+
+5. **Consent History** (`/settings/consent`):
+   - Paginated table (10 items per page)
+   - Status badges (Active, Superseded, Withdrawn)
+   - Document versions with timestamps
+   - Previous/Next navigation
+
+6. **Data Rights Form** (`/settings/consent`):
+   - **Export Data**: GDPR Article 20 (Portability)
+   - **Withdraw Consent**: GDPR Article 7 (with confirmation)
+   - **Delete Account**: 30-day grace period (GDPR Article 17)
+   - Toast notifications for all actions
+
+7. **Legal Footer**:
+   - Present on all pages (auth + authenticated)
+   - Links to Terms, Privacy Policy
+   - Copyright with dynamic year
+
+**Components**:
+- `components/legal/tos-modal.tsx` - Terms acceptance modal
+- `components/legal/cookie-banner.tsx` - First-visit cookie consent
+- `components/legal/consent-history.tsx` - History table
+- `components/legal/data-rights-form.tsx` - Export/Delete/Withdraw
+- `components/legal/legal-footer.tsx` - Footer with legal links
+
+**Pages**:
+- `pages/legal/terms-of-service.tsx` - Full TOS document
+- `pages/legal/privacy-policy.tsx` - Full privacy policy
+- `pages/legal/cookie-policy.tsx` - Cookie preferences
+- `pages/legal/consent-settings.tsx` - Consent history + data rights
+
+**Hooks**:
+- `hooks/use-tos.ts` - TOS loading, acceptance, versioning
+- `hooks/use-cookies.ts` - Cookie consent, preferences
+
+**Stores**:
+- `stores/tos-store.ts` - TOS state (current version, user acceptance)
+
+**Routes**:
+- `/terms-of-service` - Public TOS page
+- `/privacy-policy` - Public privacy page
+- `/settings/cookies` - Cookie preferences (authenticated)
+- `/settings/consent` - Consent management (authenticated)
+
+### Event Sponsors Management
+
+**Features**:
+
+- Create, edit, and delete event sponsors
+- Upload sponsor logos with automatic thumbnail generation
+- Drag-and-drop reordering within logo size groups
+- Display sponsors grouped by prominence (xlarge, large, medium, small, xsmall)
+- Clickable sponsor logos/names with external website links
+- Read-only sponsor displays for public event pages
+
+**Components**:
+
+- `features/events/components/SponsorList.tsx` - List view with drag-and-drop reordering
+- `features/events/components/SponsorCard.tsx` - Individual sponsor card with logo, name, website
+- `features/events/components/SortableSponsorCard.tsx` - Draggable wrapper for SponsorCard
+- `features/events/components/SponsorDialog.tsx` - Create/edit sponsor form modal
+
+**Logo Upload**:
+
+- Supported formats: PNG, JPEG, WebP
+- Max file size: 5MB
+- Auto-generated 300x300px thumbnails for list views
+- Stored in Azure Blob Storage with automatic cleanup on delete
+- Progress indicator during upload
+- Client-side validation (file type, size)
+
+**Logo Sizes** (Prominence):
+
+- **xlarge** - Title Sponsors (largest display, top billing)
+- **large** - Platinum Sponsors
+- **medium** - Gold Sponsors
+- **small** - Silver Sponsors
+- **xsmall** - Bronze Sponsors
+
+**Drag-and-Drop Reordering**:
+
+- Powered by [@dnd-kit](https://dndkit.com/)
+- Sortable within same logo size group
+- Mouse and touch device support
+- Visual feedback during drag (opacity, cursor, ghost overlay)
+- Optimistic UI updates with automatic rollback on error
+- Disabled in read-only mode
+
+**Permissions**:
+
+- **View**: Public (anyone can see sponsors on event pages)
+- **Create/Edit/Delete**: NPO Admin, NPO Staff
+- **Reorder**: NPO Admin, NPO Staff
+- Permission checks enforced at API and UI levels
+
+**State Management**:
+
+- `stores/sponsorStore.ts` - Zustand store for sponsor data
+- Actions: `fetchSponsors`, `createSponsor`, `updateSponsor`, `deleteSponsor`, `reorderSponsors`
+- Optimistic updates for better UX
+- Automatic cache invalidation
+
+**Services**:
+
+- `services/sponsorService.ts` - API client for sponsor endpoints
+- Type-safe with TypeScript interfaces
+- Error handling with user-friendly messages
+
+**Usage Example**:
+
+```typescript
+import { useSponsorStore } from '@/stores/sponsorStore'
+
+function EventSponsorsTab({ eventId }: { eventId: string }) {
+  const { sponsors, isLoading, error, fetchSponsors, createSponsor, reorderSponsors } =
+    useSponsorStore()
+
+  useEffect(() => {
+    fetchSponsors(eventId)
+  }, [eventId])
+
+  const handleReorder = async (sponsorIds: string[]) => {
+    await reorderSponsors(eventId, { sponsor_ids_ordered: sponsorIds })
+  }
+
+  return (
+    <SponsorList
+      sponsors={sponsors}
+      isLoading={isLoading}
+      error={error}
+      onAdd={() => {/* Open create dialog */}}
+      onEdit={(sponsor) => {/* Open edit dialog */}}
+      onDelete={(sponsorId) => deleteSponsor(eventId, sponsorId)}
+      onReorder={handleReorder}
+    />
+  )
 }
 ```
 
-### 🎨 Theming
-The theme system is based on MUI Theme, supporting dark/light modes and customization.
+**Routes**:
 
-```jsx
-import { useThemeMode } from '@/theme';
+- `/events/:eventId/sponsors` - Sponsors management tab (authenticated)
+- Public sponsor display integrated into event detail pages
 
-function MyComponent() {
-  const { themeMode, toggle } = useThemeMode();
+**Testing**:
 
-  return <Button onClick={toggle}>Toggle Theme</Button>;
-}
-```
+- 28 comprehensive tests in `SponsorList.test.tsx`
+- 8 tests for drag-and-drop functionality
+- Component rendering tests (empty state, loading, error, cards)
+- Interaction tests (add, edit, delete buttons)
+- Accessibility tests (keyboard navigation, screen reader support)
 
 ### State Management
-Jotai provides simple atoms-based state management for cross-application state, complementing React's useState and data fetching libraries.
 
-### Notifications
-Utilizes MUI Toolpad’s `useNotification` for handling alerts in an elegant, customizable way:
+**Auth Store** (Zustand):
 
-```jsx
-function MyComponent() {
-  const notifications = useNotifications();
-
-  function showNotification() {
-    notifications.show('Operation successful!', {
-      autoHideDuration: 5000,
-    });
-  }
+```typescript
+{
+  user: User | null,
+  accessToken: string | null,
+  refreshToken: string | null,
+  login: (email, password) => Promise<void>,
+  logout: () => void,
+  setUser: (user: User) => void,
+  clearAuth: () => void
 }
 ```
 
-### 🔑 Hotkeys
-- `Alt+s`: Toggle theme mode
-- `Alt+t`: Toggle sidebar
-- `Alt+/`: Open hotkeys dialog
+**React Query**:
 
-### PWA Features
-- Works offline with service worker caching
-- Installable on mobile and desktop devices
-- Automatic updates (configurable in `vite.config.ts`)
+- `useUsers()` - List users with pagination
+- `useCreateUser()` - Create new user
+- `useUpdateUser()` - Update user details
+- `useUpdateUserRole()` - Change user role
+- `useDeleteUser()` - Delete user
+- `useActivateUser()` - Reactivate user
 
-### 📱 Performance
-- Bundle size: ~65KB for largest chunk
-- Initial load: ~0.6s
-- Cached loads: ~0.01s
+### API Integration
 
-<img src="./public/bundle.png" title="bundle">
-<img src="./public/audit.png" alt="Performance audit" title="Performance audit">
+**Axios Configuration** (`lib/axios.ts`):
 
-### Error Handling
-The `withErrorHandler` HOC catches errors and displays friendly fallback UIs:
+- Base URL configuration
+- Authorization header injection
+- Automatic token refresh on 401
+- Error handling and toast notifications
+- Request/response interceptors
 
-```jsx
-// In your component:
-export default withErrorHandler(MyComponent);
+**API Service Layer** (`lib/api/`):
 
-// Or for the entire app:
-export default withErrorHandler(App);
-```
+- `auth-api.ts` - Authentication endpoints
+- `users-api.ts` - User management endpoints
+- Type-safe request/response with Zod schemas
 
-## 🧪 Testing
+## Environment Variables
 
-### Unit Tests
+Required in `.env.local`:
+
 ```bash
-npm run test:unit
+# Backend API
+VITE_API_URL=http://localhost:8000
+
+# Optional: Enable debug logs
+VITE_DEBUG=true
 ```
 
-### E2E Tests
+## Styling
+
+### Tailwind CSS
+
+Custom theme in `tailwind.config.js`:
+
+- Primary color: Augeo brand blue
+- Dark mode support
+- Custom spacing and typography
+- Component utilities
+
+### Shadcn UI Components
+
+Installed components:
+
+- Button, Input, Label, Textarea
+- Dialog, Sheet, Dropdown Menu
+- Table, Badge, Avatar
+- Card, Separator, Skeleton
+- Toast, Alert, Alert Dialog
+- Command, Popover, Select
+- Sidebar, Pagination
+
+## Troubleshooting
+
+### Port Already in Use
+
 ```bash
-npm run test:e2e
-# or with UI
-npm run test:e2e:ui
+# Find process using port 5173
+lsof -i :5173
+
+# Kill process
+kill -9 <PID>
+
+# Or use different port
+pnpm dev --port 5174
 ```
 
-## 🌐 Environment Variables
+### Backend Connection Errors
 
-Place your environment variables in a `.env` file (prefixed with `VITE_`):
-- Templates available in the `env/` directory
-- Access via `import.meta.env.VITE_VARIABLE_NAME`
+```bash
+# Check if backend is running
+curl http://localhost:8000/health
 
-## ❓ FAQ
+# Check environment variable
+echo $VITE_API_URL
 
-### Why use a UI library?
-A UI library ensures consistency, accessibility, and development efficiency. Without one, teams would need to create and maintain basic components from scratch, leading to inconsistencies and wasted time.
+# Restart backend
+cd ../../backend
+poetry run uvicorn app.main:app --reload
+```
 
-### Why Jotai for state management?
-React applications have different state management needs:
-- **Component-level state**: `useState` for local UI interactions
-- **Data-layer state**: `useQuery` or `Apollo` for remote data
-- **Cross-application state**: Jotai provides a minimal, elegant approach
+### TypeScript Errors
 
-### What's the difference between components, sections, and pages?
-- **Components**: Reusable UI elements (`Button`, `List`, etc.)
-- **Sections**: Self-contained UI parts with their own logic (`Navigation`, `Sidebar`, etc.)
-- **Pages**: Root route components representing application views
+```bash
+# Clear type cache
+rm -rf node_modules/.vite
 
-### Why TypeScript?
-TypeScript reduces runtime errors, improves code maintainability, and enhances developer experience with static typing and better IDE support.
+# Reinstall dependencies
+pnpm install
 
-### Why use Prettier?
-Prettier enforces consistent style across all contributors, reducing discussions in PR reviews and ensuring code quality.
+# Run type check
+pnpm type-check
+```
 
-## 🔗 Demo
+### Build Errors
 
-Check out the [live demo](https://react-pwa.surenatoyan.com/)
+```bash
+# Clear dist folder
+rm -rf dist
 
-<div>
- <img src="./public/demo-dark.png" width="280" alt="Dark theme demo">
- <img src="./public/demo-light.png" width="280" alt="Light theme demo">
-</div>
+# Rebuild
+pnpm build
 
-## 📄 License
+# Check for type errors
+pnpm type-check
+```
 
-[MIT](./LICENSE)
+## Contributing
+
+1. Create feature branch from `001-user-authentication-role` (or current feature branch)
+2. Develop feature with hot reload
+3. Test manually in browser
+4. Run linting: `pnpm lint`
+5. Run type check: `pnpm type-check`
+6. Commit with safe-commit: `./scripts/safe-commit.sh "message"`
+7. Submit PR for review
+
+### Code Style
+
+- Use functional components with hooks
+- Follow React best practices
+- Use TypeScript for type safety
+- Extract reusable logic into custom hooks
+- Keep components small and focused
+- Use Shadcn UI components when available
+
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone <repository-url>
+```
+
+Go to the project directory
+
+```bash
+  cd augeo-platform/frontend/augeo-admin
+```
+
+Install dependencies
+
+```bash
+  pnpm install
+```
+
+Start the server
+
+```bash
+  pnpm run dev
+```
+
+## License
+
+Proprietary
+
+## Support
+
+For issues and questions:
+
+- Email: support@augeo.app
+- Backend API: http://localhost:8000/docs
