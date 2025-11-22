@@ -106,7 +106,7 @@ class AdminGuestService:
                     registrant_meal["food_option_description"] if registrant_meal else None
                 )
 
-            attendees.append(attendee)  # type: ignore[arg-type]
+            attendees.append(attendee)
 
             # Add guests
             for guest in registration.guests:
@@ -141,6 +141,7 @@ class AdminGuestService:
                     )
 
                 from typing import cast
+
                 attendees.append(cast(dict[str, object], guest_attendee))
 
         # Convert to CSV if requested
