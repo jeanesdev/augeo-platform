@@ -65,6 +65,7 @@ class RegistrationGuestResponse(BaseModel):
     phone: str | None
     invited_by_admin: bool
     invitation_sent_at: datetime | None
+    checked_in: bool
     created_at: datetime
     updated_at: datetime
 

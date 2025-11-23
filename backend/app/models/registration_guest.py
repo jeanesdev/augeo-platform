@@ -76,6 +76,12 @@ class RegistrationGuest(Base, UUIDMixin, TimestampMixin):
         nullable=True,
         comment="When admin sent registration link",
     )
+    checked_in: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        comment="Whether the guest has checked in at the event",
+    )
 
     # Relationships
     registration: Mapped["EventRegistration"] = relationship(

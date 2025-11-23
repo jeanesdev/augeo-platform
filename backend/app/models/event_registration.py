@@ -2,8 +2,10 @@
 
 import enum
 import uuid
+from datetime import datetime
 from typing import TYPE_CHECKING
 
+from sqlalchemy import DateTime as SADateTime
 from sqlalchemy import ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -83,6 +85,11 @@ class EventRegistration(Base, UUIDMixin, TimestampMixin):
         nullable=False,
         default=1,
         comment="Number of guests (including registrant)",
+    )
+    check_in_time: Mapped[datetime | None] = mapped_column(
+        SADateTime(timezone=True),
+        nullable=True,
+        comment="When the primary registrant checked in at the event",
     )
 
     # Relationships

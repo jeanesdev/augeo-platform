@@ -61,6 +61,7 @@ class EventRegistrationResponse(BaseModel):
     status: RegistrationStatus
     ticket_type: str | None
     number_of_guests: int
+    check_in_time: datetime | None
     created_at: datetime
     updated_at: datetime
 

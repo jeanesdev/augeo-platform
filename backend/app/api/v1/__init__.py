@@ -9,6 +9,7 @@ from app.api.v1 import (
     auction_items,
     auth,
     branding,
+    checkin,
     consent,
     cookies,
     events,
@@ -44,6 +45,7 @@ api_router.include_router(events_media.router, tags=["events", "media"])
 api_router.include_router(events_food_options.router, tags=["events", "food-options"])
 api_router.include_router(sponsors.router, tags=["events", "sponsors"])
 api_router.include_router(registrations.router, tags=["registrations"])
+api_router.include_router(checkin.router, tags=["checkin"])
 api_router.include_router(auction_items.router, tags=["auction-items"])
 api_router.include_router(auction_item_media.router, tags=["auction-items", "media"])
 api_router.include_router(legal_documents.router, prefix="/legal", tags=["legal"])

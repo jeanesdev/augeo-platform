@@ -12,16 +12,106 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { consentService } from '@/services/consent-service'
 import { useAuthStore } from '@/stores/auth-store'
+import { importLibrary, setOptions } from '@googlemaps/js-api-loader'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
 import { Info, Loader2, UserPlus } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
+
+// US States
+const US_STATES = [
+  { value: 'AL', label: 'Alabama' },
+  { value: 'AK', label: 'Alaska' },
+  { value: 'AZ', label: 'Arizona' },
+  { value: 'AR', label: 'Arkansas' },
+  { value: 'CA', label: 'California' },
+  { value: 'CO', label: 'Colorado' },
+  { value: 'CT', label: 'Connecticut' },
+  { value: 'DE', label: 'Delaware' },
+  { value: 'FL', label: 'Florida' },
+  { value: 'GA', label: 'Georgia' },
+  { value: 'HI', label: 'Hawaii' },
+  { value: 'ID', label: 'Idaho' },
+  { value: 'IL', label: 'Illinois' },
+  { value: 'IN', label: 'Indiana' },
+  { value: 'IA', label: 'Iowa' },
+  { value: 'KS', label: 'Kansas' },
+  { value: 'KY', label: 'Kentucky' },
+  { value: 'LA', label: 'Louisiana' },
+  { value: 'ME', label: 'Maine' },
+  { value: 'MD', label: 'Maryland' },
+  { value: 'MA', label: 'Massachusetts' },
+  { value: 'MI', label: 'Michigan' },
+  { value: 'MN', label: 'Minnesota' },
+  { value: 'MS', label: 'Mississippi' },
+  { value: 'MO', label: 'Missouri' },
+  { value: 'MT', label: 'Montana' },
+  { value: 'NE', label: 'Nebraska' },
+  { value: 'NV', label: 'Nevada' },
+  { value: 'NH', label: 'New Hampshire' },
+  { value: 'NJ', label: 'New Jersey' },
+  { value: 'NM', label: 'New Mexico' },
+  { value: 'NY', label: 'New York' },
+  { value: 'NC', label: 'North Carolina' },
+  { value: 'ND', label: 'North Dakota' },
+  { value: 'OH', label: 'Ohio' },
+  { value: 'OK', label: 'Oklahoma' },
+  { value: 'OR', label: 'Oregon' },
+  { value: 'PA', label: 'Pennsylvania' },
+  { value: 'RI', label: 'Rhode Island' },
+  { value: 'SC', label: 'South Carolina' },
+  { value: 'SD', label: 'South Dakota' },
+  { value: 'TN', label: 'Tennessee' },
+  { value: 'TX', label: 'Texas' },
+  { value: 'UT', label: 'Utah' },
+  { value: 'VT', label: 'Vermont' },
+  { value: 'VA', label: 'Virginia' },
+  { value: 'WA', label: 'Washington' },
+  { value: 'WV', label: 'West Virginia' },
+  { value: 'WI', label: 'Wisconsin' },
+  { value: 'WY', label: 'Wyoming' },
+  { value: 'DC', label: 'District of Columbia' },
+]
+
+// Common Countries
+const COUNTRIES = [
+  { value: 'US', label: 'United States' },
+  { value: 'CA', label: 'Canada' },
+  { value: 'MX', label: 'Mexico' },
+  { value: 'GB', label: 'United Kingdom' },
+  { value: 'AU', label: 'Australia' },
+  { value: 'NZ', label: 'New Zealand' },
+  { value: 'IE', label: 'Ireland' },
+  { value: 'FR', label: 'France' },
+  { value: 'DE', label: 'Germany' },
+  { value: 'IT', label: 'Italy' },
+  { value: 'ES', label: 'Spain' },
+  { value: 'NL', label: 'Netherlands' },
+  { value: 'BE', label: 'Belgium' },
+  { value: 'CH', label: 'Switzerland' },
+  { value: 'SE', label: 'Sweden' },
+  { value: 'NO', label: 'Norway' },
+  { value: 'DK', label: 'Denmark' },
+  { value: 'FI', label: 'Finland' },
+  { value: 'JP', label: 'Japan' },
+  { value: 'CN', label: 'China' },
+  { value: 'IN', label: 'India' },
+  { value: 'BR', label: 'Brazil' },
+  { value: 'AR', label: 'Argentina' },
+]
 
 const formSchema = z
   .object({
@@ -122,6 +212,12 @@ export function SignUpForm({
   const navigate = useNavigate()
   const register = useAuthStore((state) => state.register)
 
+  // Google Places Autocomplete
+  const addressInputRef = useRef<HTMLInputElement>(null)
+  const autocompleteRef = useRef<any>(null) // eslint-disable-line @typescript-eslint/no-explicit-any
+  const isGoogleMapsInitialized = useRef(false)
+  const [isAddressInputReady, setIsAddressInputReady] = useState(false)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -182,6 +278,105 @@ export function SignUpForm({
       }
     }
   }, [form])
+
+  // Initialize Google Places Autocomplete
+  useEffect(() => {
+    const initAutocomplete = async () => {
+      // Check if feature is enabled
+      const isEnabled = import.meta.env.VITE_ENABLE_ADDRESS_AUTOCOMPLETE === 'true'
+      console.log('🗺️ Google Places - Feature enabled:', isEnabled)
+      if (!isEnabled) {
+        console.log('❌ Google Places disabled in .env')
+        return
+      }
+
+      // Wait for input to be ready
+      if (!addressInputRef.current) {
+        console.log('⏳ Waiting for address input to mount...')
+        // Retry after a short delay
+        setTimeout(() => setIsAddressInputReady(!isAddressInputReady), 100)
+        return
+      }
+
+      if (isGoogleMapsInitialized.current) {
+        console.log('✅ Google Places already initialized')
+        return
+      }
+
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+      console.log('🔑 API Key present:', !!apiKey)
+      if (!apiKey) {
+        console.log('❌ No Google Maps API key found')
+        return
+      }
+
+      try {
+        console.log('🚀 Initializing Google Places Autocomplete...')
+
+        // Set options for Google Maps (only once)
+        setOptions({ key: apiKey })
+        isGoogleMapsInitialized.current = true
+
+        // Import places library
+        const { Autocomplete } = (await importLibrary('places')) as any // eslint-disable-line @typescript-eslint/no-explicit-any
+        console.log('✅ Google Places library loaded')
+
+        const autocomplete = new Autocomplete(addressInputRef.current, {
+          types: ['address'],
+          componentRestrictions: { country: 'us' },
+          fields: ['address_components', 'formatted_address', 'geometry', 'name'],
+        })
+        console.log('✅ Autocomplete widget created')
+
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace()
+
+          if (!place.address_components) {
+            return
+          }
+
+          let street = ''
+          let city = ''
+          let state = ''
+          let postalCode = ''
+          let country = ''
+
+          // Parse address components
+          for (const component of place.address_components) {
+            const types = component.types
+
+            if (types.includes('street_number')) {
+              street = component.long_name + ' '
+            } else if (types.includes('route')) {
+              street += component.long_name
+            } else if (types.includes('locality')) {
+              city = component.long_name
+            } else if (types.includes('administrative_area_level_1')) {
+              state = component.short_name
+            } else if (types.includes('postal_code')) {
+              postalCode = component.long_name
+            } else if (types.includes('country')) {
+              country = component.short_name
+            }
+          }
+
+          // Update form values
+          form.setValue('address_line1', street.trim(), { shouldValidate: true, shouldDirty: true })
+          form.setValue('city', city, { shouldValidate: true, shouldDirty: true })
+          form.setValue('state', state, { shouldValidate: true, shouldDirty: true })
+          form.setValue('postal_code', postalCode, { shouldValidate: true, shouldDirty: true })
+          form.setValue('country', country, { shouldValidate: true, shouldDirty: true })
+        })
+
+        autocompleteRef.current = autocomplete
+        console.log('✅ Google Places Autocomplete fully initialized and ready')
+      } catch (error) {
+        console.error('❌ Error loading Google Places:', error)
+      }
+    }
+
+    initAutocomplete()
+  }, [form, isAddressInputReady])
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
@@ -263,6 +458,7 @@ export function SignUpForm({
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn('grid gap-3', className)}
+        autoComplete='on'
         {...props}
       >
         {/* Invitation Context Alert */}
@@ -284,7 +480,11 @@ export function SignUpForm({
               <FormItem>
                 <FormLabel>First Name</FormLabel>
                 <FormControl>
-                  <Input placeholder='John' {...field} />
+                  <Input
+                    placeholder='John'
+                    autoComplete='given-name'
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -297,7 +497,11 @@ export function SignUpForm({
               <FormItem>
                 <FormLabel>Last Name</FormLabel>
                 <FormControl>
-                  <Input placeholder='Doe' {...field} />
+                  <Input
+                    placeholder='Doe'
+                    autoComplete='family-name'
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -313,6 +517,7 @@ export function SignUpForm({
               <FormControl>
                 <Input
                   placeholder='name@example.com'
+                  autoComplete='email'
                   {...field}
                   readOnly={!!invitationContext}
                   className={invitationContext ? 'bg-muted' : ''}
@@ -336,6 +541,7 @@ export function SignUpForm({
               <FormControl>
                 <Input
                   placeholder='(123)456-7890 or +1(123)456-7890'
+                  autoComplete='tel'
                   value={field.value ? formatPhoneNumber(field.value) : ''}
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '')
@@ -361,7 +567,11 @@ export function SignUpForm({
             <FormItem>
               <FormLabel>Organization Name (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder='Acme Corporation' {...field} />
+                <Input
+                  placeholder='Acme Corporation'
+                  autoComplete='organization'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -374,7 +584,15 @@ export function SignUpForm({
             <FormItem>
               <FormLabel>Street Address 1 (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder='123 Main Street' {...field} />
+                <Input
+                  placeholder='123 Main Street'
+                  autoComplete='address-line1'
+                  {...field}
+                  ref={(e) => {
+                    field.ref(e)
+                    addressInputRef.current = e
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -387,7 +605,11 @@ export function SignUpForm({
             <FormItem>
               <FormLabel>Street Address 2 (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder='Apartment, suite, etc.' {...field} />
+                <Input
+                  placeholder='Apartment, suite, etc.'
+                  autoComplete='address-line2'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -401,7 +623,11 @@ export function SignUpForm({
               <FormItem>
                 <FormLabel>City (Optional)</FormLabel>
                 <FormControl>
-                  <Input placeholder='New York' {...field} />
+                  <Input
+                    placeholder='New York'
+                    autoComplete='address-level2'
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -413,9 +639,20 @@ export function SignUpForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>State (Optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder='NY' {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Select state' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {US_STATES.map((state) => (
+                      <SelectItem key={state.value} value={state.value}>
+                        {state.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -429,7 +666,11 @@ export function SignUpForm({
               <FormItem>
                 <FormLabel>Postal Code (Optional)</FormLabel>
                 <FormControl>
-                  <Input placeholder='10001' {...field} />
+                  <Input
+                    placeholder='10001'
+                    autoComplete='postal-code'
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -441,9 +682,20 @@ export function SignUpForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Country (Optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder='United States' {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder='Select country' />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {COUNTRIES.map((country) => (
+                      <SelectItem key={country.value} value={country.value}>
+                        {country.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -485,15 +737,16 @@ export function SignUpForm({
                   checked={field.value}
                   onCheckedChange={field.onChange}
                   disabled={isLoading}
+                  className='mt-0.5'
                 />
               </FormControl>
-              <div className='space-y-1 leading-none'>
-                <FormLabel className='text-sm font-normal'>
-                  I accept the{' '}
+              <div className='flex-1 space-y-1'>
+                <FormLabel className='text-sm font-normal leading-relaxed'>
+                  <span className='block'>I accept the</span>
                   <Button
                     type='button'
                     variant='link'
-                    className='h-auto p-0 text-sm font-normal underline'
+                    className='h-auto p-0 text-sm font-normal underline -ml-1'
                     onClick={() => setShowLegalModal(true)}
                   >
                     Terms of Service and Privacy Policy
