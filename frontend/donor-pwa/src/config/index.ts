@@ -1,8 +1,8 @@
-const title = 'React PWA';
+const title = 'Donor Portal';
 
-const email = 'auther-email@gmail.com';
+const email = 'support@augeo.app';
 
-const repository = 'https://github.com/suren-atoyan/react-pwa';
+const repository = 'https://github.com/jeanesdev/augeo-platform';
 
 const dateFormat = 'MMMM DD, YYYY';
 
@@ -14,7 +14,7 @@ const loader = {
 
 const defaultMetaTags = {
   image: '/cover.png',
-  description: 'Starter kit for modern web applications',
+  description: 'Augeo Donor Portal - Access your event information',
 };
 
 export { loader, dateFormat, repository, email, title, defaultMetaTags };
