@@ -76,6 +76,7 @@ interface AuthState {
   updateUser: (userData: Partial<AuthUser>) => void
   getProfilePictureUrl: () => string | null
   initializeFromStorage: () => void
+  restoreUserFromRefreshToken: () => Promise<boolean>
 }
 
 // 7 days in milliseconds (refresh token expiry)
@@ -241,6 +242,44 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     const refreshToken = getRefreshToken()
     if (refreshToken) {
       set({ refreshToken })
+    }
+  },
+
+  // Restore user from refresh token by calling refresh endpoint
+  restoreUserFromRefreshToken: async (): Promise<boolean> => {
+    const { refreshToken, user } = get()
+
+    // If we already have a user, no need to restore
+    if (user) return true
+
+    // If no refresh token, can't restore
+    if (!refreshToken) return false
+
+    try {
+      set({ isLoading: true })
+
+      // Call refresh endpoint to get new access token and user data
+      const response = await apiClient.post<LoginResponse>('/auth/refresh', {
+        refresh_token: refreshToken,
+      })
+
+      const { access_token, user: userData } = response.data
+
+      // Update store with new access token and user
+      set({
+        accessToken: access_token,
+        user: userData,
+        isAuthenticated: true,
+        isLoading: false,
+      })
+
+      return true
+    } catch (error) {
+      // Refresh token is invalid or expired
+      console.error('Failed to restore user from refresh token:', error)
+      get().reset()
+      set({ isLoading: false })
+      return false
     }
   },
 }))

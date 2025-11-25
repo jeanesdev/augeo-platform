@@ -5,6 +5,16 @@
  * CSV export, and guest invitation features.
  */
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -17,12 +27,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import {
+  deleteGuest,
   downloadAttendeesCSV,
   getEventAttendees,
-  sendGuestInvitation
+  sendGuestInvitation,
 } from '@/lib/api/admin-attendees'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Download, Loader2, Mail } from 'lucide-react'
+import { Download, Loader2, Mail, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -38,6 +49,11 @@ export function AttendeeListTable({
   const [selectedAttendees, setSelectedAttendees] = useState<Set<string>>(
     new Set()
   )
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [guestToDelete, setGuestToDelete] = useState<{
+    id: string
+    name: string
+  } | null>(null)
   const queryClient = useQueryClient()
 
   // Fetch attendees
@@ -64,19 +80,46 @@ export function AttendeeListTable({
     },
   })
 
+  // Delete guest mutation
+  const deleteGuestMutation = useMutation({
+    mutationFn: deleteGuest,
+    onSuccess: () => {
+      toast.success('Guest deleted successfully')
+      queryClient.invalidateQueries({ queryKey: ['event-attendees', eventId] })
+      queryClient.invalidateQueries({ queryKey: ['meal-summary', eventId] })
+      setDeleteDialogOpen(false)
+      setGuestToDelete(null)
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to delete guest: ${error.message}`)
+    },
+  })
+
   // Export CSV handler
   const handleExportCSV = async () => {
     try {
       await downloadAttendeesCSV(eventId, includeMealSelections)
       toast.success('Attendee list exported successfully')
-    } catch (error) {
+    } catch {
       toast.error('Failed to export attendee list')
-      console.error('Export error:', error)
+    }
   }
 
   // Send invitation handler
   const handleSendInvitation = (guestId: string) => {
     sendInvitationMutation.mutate(guestId)
+  }
+
+  // Delete guest handler
+  const handleDeleteClick = (guestId: string, guestName: string) => {
+    setGuestToDelete({ id: guestId, name: guestName })
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = () => {
+    if (guestToDelete) {
+      deleteGuestMutation.mutate(guestToDelete.id)
+    }
   }
 
   // Toggle attendee selection
@@ -222,24 +265,36 @@ export function AttendeeListTable({
                     </Badge>
                   </TableCell>
                   <TableCell className='text-right'>
-                    {attendee.attendee_type === 'guest' && attendee.email && (
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => handleSendInvitation(attendee.id)}
-                        disabled={sendInvitationMutation.isPending}
-                      >
-                        {sendInvitationMutation.isPending &&
-                          sendInvitationMutation.variables === attendee.id ? (
-                          <Loader2 className='h-4 w-4 animate-spin' />
-                        ) : (
-                          <>
-                            <Mail className='mr-2 h-4 w-4' />
-                            Send Invite
-                          </>
-                        )}
-                      </Button>
-                    )}
+                    <div className='flex items-center justify-end gap-2'>
+                      {attendee.attendee_type === 'guest' && attendee.email && (
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => handleSendInvitation(attendee.id)}
+                          disabled={sendInvitationMutation.isPending}
+                        >
+                          {sendInvitationMutation.isPending &&
+                            sendInvitationMutation.variables === attendee.id ? (
+                            <Loader2 className='h-4 w-4 animate-spin' />
+                          ) : (
+                            <>
+                              <Mail className='mr-2 h-4 w-4' />
+                              Send Invite
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      {attendee.attendee_type === 'guest' && (
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => handleDeleteClick(attendee.id, attendee.name)}
+                          disabled={deleteGuestMutation.isPending}
+                        >
+                          <Trash2 className='h-4 w-4 text-destructive' />
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -247,6 +302,38 @@ export function AttendeeListTable({
           </TableBody>
         </Table>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Guest</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{guestToDelete?.name}</strong>?
+              This will also remove their meal selections. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteGuestMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleteGuestMutation.isPending}
+              className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
+            >
+              {deleteGuestMutation.isPending ? (
+                <>
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Guest'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

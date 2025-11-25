@@ -314,6 +314,88 @@ async def get_meal_summary(
 
 
 @router.post(
+    "/events/{event_id}/invite-guest",
+    status_code=status.HTTP_201_CREATED,
+    summary="Invite new guest to event",
+    description="Create a guest invitation for an event (admin creates registration and guest)",
+)
+async def invite_guest_to_event(
+    event_id: UUID,
+    guest_data: dict[str, Any],
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_superadmin),
+) -> dict[str, Any]:
+    """
+    Invite a new guest to an event by creating a registration and sending invitation.
+
+    **SuperAdmin only**
+
+    Creates an admin-initiated registration and guest record, then sends invitation email.
+
+    Args:
+        event_id: Event UUID
+        guest_data: Guest information (name, email, phone)
+        db: Database session
+        current_user: Current SuperAdmin user
+
+    Returns:
+        Guest record with invitation status
+
+    Raises:
+        HTTPException: If event not found or email fails
+    """
+    email_service = get_email_service()
+    guest, email_sent = await AdminGuestService.invite_guest_to_event(
+        db=db,
+        event_id=event_id,
+        guest_data=guest_data,
+        invited_by_user=current_user,
+        email_service=email_service,
+    )
+
+    message = (
+        "Invitation sent successfully" if email_sent else "Guest created but email failed to send"
+    )
+
+    return {
+        "guest_id": str(guest.id),
+        "name": guest.name,
+        "email": guest.email,
+        "email_sent": email_sent,
+        "message": message,
+    }
+
+
+@router.delete(
+    "/guests/{guest_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a guest",
+    description="Delete a guest and their meal selections",
+)
+async def delete_guest(
+    guest_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_superadmin),
+) -> None:
+    """
+    Delete a guest from an event.
+
+    **SuperAdmin only**
+
+    Removes the guest record and cascades to delete their meal selections.
+
+    Args:
+        guest_id: Guest UUID
+        db: Database session
+        current_user: Current SuperAdmin user
+
+    Raises:
+        HTTPException: If guest not found
+    """
+    await AdminGuestService.delete_guest(db=db, guest_id=guest_id)
+
+
+@router.post(
     "/guests/{guest_id}/send-invitation",
     status_code=status.HTTP_200_OK,
     summary="Send guest invitation",

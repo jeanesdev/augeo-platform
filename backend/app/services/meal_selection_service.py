@@ -41,6 +41,13 @@ class MealSelectionService:
         Raises:
             HTTPException: If registration not found, unauthorized, or validation fails
         """
+        # Ensure registration_id is set (should always be set by endpoint)
+        if not meal_data.registration_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Registration ID is required",
+            )
+
         # Verify registration exists and user owns it
         registration_result = await db.execute(
             select(EventRegistration)

@@ -59,9 +59,15 @@ export function UserAuthForm({
       success: (response) => {
         setIsLoading(false)
 
-        // Redirect to the stored location or default to dashboard
-        const targetPath = redirectTo || '/'
-        navigate({ to: targetPath, replace: true })
+        // Redirect to the stored location or default to home
+        if (redirectTo && typeof redirectTo === 'string') {
+          // Force a full page reload to the redirect URL
+          setTimeout(() => {
+            window.location.href = redirectTo
+          }, 100)
+        } else {
+          navigate({ to: '/', replace: true })
+        }
 
         return `Welcome back, ${response.user.first_name || response.user.email}!`
       },

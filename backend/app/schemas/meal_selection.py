@@ -13,7 +13,10 @@ from pydantic import BaseModel, Field
 class MealSelectionCreateRequest(BaseModel):
     """Request schema for creating a meal selection."""
 
-    registration_id: uuid.UUID = Field(..., description="ID of the event registration")
+    registration_id: uuid.UUID | None = Field(
+        default=None,
+        description="ID of the event registration (will be set from URL path)",
+    )
     guest_id: uuid.UUID | None = Field(
         default=None,
         description="ID of the guest (NULL for registrant's meal)",

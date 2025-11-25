@@ -14,14 +14,14 @@ import { Progress } from '@/components/ui/progress'
 import { useEventBranding } from '@/hooks/use-event-branding'
 import { getEventBySlug } from '@/lib/api/events'
 import { addGuest } from '@/lib/api/guests'
-import { createMealSelection } from '@/lib/api/meal-selections'
-import { createRegistration } from '@/lib/api/registrations'
+import { createMealSelection, getRegistrationMealSelections } from '@/lib/api/meal-selections'
+import { createRegistration, getUserRegistrations } from '@/lib/api/registrations'
 import { hasValidRefreshToken } from '@/lib/storage/tokens'
 import { useAuthStore } from '@/stores/auth-store'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useLocation, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/events/$slug/register')({
@@ -51,7 +51,10 @@ interface GuestData extends GuestFormData {
 function EventRegistration() {
   const { slug } = Route.useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const user = useAuthStore((state) => state.user)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const restoreUserFromRefreshToken = useAuthStore((state) => state.restoreUserFromRefreshToken)
   const { applyBranding } = useEventBranding()
 
   const [step, setStep] = useState<RegistrationStep>('guest-count')
@@ -62,22 +65,29 @@ function EventRegistration() {
   const [currentMealIndex, setCurrentMealIndex] = useState(0)
   const [registrationId, setRegistrationId] = useState<string | null>(null)
   const [guestIds, setGuestIds] = useState<string[]>([])
+  const [isRestoring, setIsRestoring] = useState(true)
+  const [isCheckingRegistration, setIsCheckingRegistration] = useState(true)
 
-  // Fetch event data
+  // Fetch event data - must be called unconditionally
   const { data: event, isLoading: isLoadingEvent } = useQuery({
     queryKey: ['event', slug],
     queryFn: () => getEventBySlug(slug),
+    enabled: !isRestoring, // Only fetch after restoring user
   })
 
-  // Apply event branding
-  if (event) {
-    applyBranding({
-      primary_color: event.primary_color,
-      secondary_color: event.secondary_color,
-      logo_url: event.logo_url,
-      banner_url: event.banner_url,
-    })
-  }
+  // Fetch user's existing registrations for this event
+  const { data: userRegistrations } = useQuery({
+    queryKey: ['userRegistrations'],
+    queryFn: () => getUserRegistrations(),
+    enabled: !isRestoring && !!event, // Only fetch after restoring user and event is loaded
+  })
+
+  // Get existing meal selections if user has a registration
+  const { data: existingMealSelections } = useQuery({
+    queryKey: ['mealSelections', registrationId],
+    queryFn: () => getRegistrationMealSelections(registrationId!),
+    enabled: !!registrationId,
+  })
 
   // Create registration mutation
   const createRegistrationMutation = useMutation({
@@ -96,7 +106,16 @@ function EventRegistration() {
       }
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create registration')
+      const detail = error.response?.data?.detail
+      let errorMessage = 'Failed to create registration'
+
+      if (typeof detail === 'string') {
+        errorMessage = detail
+      } else if (detail?.message) {
+        errorMessage = detail.message
+      }
+
+      toast.error(errorMessage)
     },
   })
 
@@ -146,7 +165,7 @@ function EventRegistration() {
       toast.success('Meal selection saved!')
 
       // Move to next meal selection or complete
-      const totalMealSelections = guestCount // registrant + all guests
+      const totalMealSelections = guestCount + 1 // registrant + all guests
       if (currentMealIndex < totalMealSelections - 1) {
         setCurrentMealIndex(currentMealIndex + 1)
       } else {
@@ -158,7 +177,112 @@ function EventRegistration() {
     },
   })
 
-  // Step handlers
+  // Restore user from refresh token on mount
+  useEffect(() => {
+    let mounted = true
+
+    const restore = async () => {
+      try {
+        // If user is already authenticated, no need to restore
+        if (user || isAuthenticated) {
+          if (mounted) {
+            setIsRestoring(false)
+          }
+          return
+        }
+
+        // Try to restore from refresh token
+        const restored = await restoreUserFromRefreshToken()
+        if (!restored && mounted) {
+          // No valid refresh token, redirect to sign-in
+          navigate({
+            to: '/sign-in',
+            search: {
+              redirect: location.pathname + location.search
+            },
+            replace: true
+          })
+          return
+        }
+
+        if (mounted) {
+          setIsRestoring(false)
+        }
+      } catch (error) {
+        console.error('Error during user restoration:', error)
+        if (mounted) {
+          // On error, redirect to sign-in
+          navigate({
+            to: '/sign-in',
+            search: {
+              redirect: location.pathname + location.search
+            },
+            replace: true
+          })
+        }
+      }
+    }
+
+    restore()
+
+    return () => {
+      mounted = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Run only once on mount
+
+  // Apply event branding
+  useEffect(() => {
+    if (event) {
+      applyBranding({
+        primary_color: event.primary_color,
+        secondary_color: event.secondary_color,
+        logo_url: event.logo_url,
+        banner_url: event.banner_url,
+      })
+    }
+  }, [event, applyBranding])
+
+  // Check if user is already registered for this event and skip to meal selections
+  useEffect(() => {
+    if (event && userRegistrations) {
+      setIsCheckingRegistration(false)
+
+      if (!registrationId) {
+        const existingRegistration = userRegistrations.registrations.find(
+          (reg) => reg.event_id === event.id && reg.status !== 'cancelled'
+        )
+
+        if (existingRegistration) {
+          setRegistrationId(existingRegistration.id)
+          setGuestCount(existingRegistration.number_of_guests)
+        }
+      }
+    }
+  }, [event, userRegistrations, registrationId])
+
+  // Check if user has already completed meal selections
+  useEffect(() => {
+    if (registrationId && event && existingMealSelections) {
+      const expectedMealSelections = guestCount + 1 // registrant + guests
+      const actualMealSelections = existingMealSelections.meal_selections.length
+
+      if (actualMealSelections >= expectedMealSelections) {
+        // User has already completed all meal selections
+        setStep('complete')
+        toast.info('You have already completed your registration for this event.')
+      } else if (event.food_options && event.food_options.length > 0) {
+        // User needs to complete meal selections
+        setStep('meal-selections')
+        setCurrentMealIndex(actualMealSelections) // Resume from where they left off
+        toast.info('Please complete your meal selections.')
+      } else {
+        // No meal selections needed
+        setStep('complete')
+        toast.info('You are already registered for this event.')
+      }
+    }
+  }, [registrationId, event, existingMealSelections, guestCount])  // Step handlers
   const handleGuestCountSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -169,6 +293,17 @@ function EventRegistration() {
 
     if (guestCount < 1) {
       toast.error('Guest count must be at least 1')
+      return
+    }
+
+    // Check if already registered (in case the effect hasn't run yet)
+    if (registrationId) {
+      toast.info('You are already registered for this event.')
+      if (event?.food_options && event.food_options.length > 0) {
+        setStep('meal-selections')
+      } else {
+        setStep('complete')
+      }
       return
     }
 
@@ -211,11 +346,25 @@ function EventRegistration() {
     })
   }
 
+  // Show loading while restoring user
+  if (isRestoring) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   // Loading state
-  if (isLoadingEvent) {
+  if (isLoadingEvent || isCheckingRegistration) {
     return (
       <div className="container max-w-2xl mx-auto py-12">
-        <div className="text-center">Loading event...</div>
+        <div className="text-center">
+          {isLoadingEvent ? 'Loading event...' : 'Checking registration status...'}
+        </div>
       </div>
     )
   }
@@ -332,7 +481,7 @@ function EventRegistration() {
           <CardHeader>
             <CardTitle>Meal Selection</CardTitle>
             <CardDescription>
-              Selection {currentMealIndex + 1} of {guestCount}
+              Selection {currentMealIndex + 1} of {guestCount + 1}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -342,7 +491,7 @@ function EventRegistration() {
               onSubmit={handleMealSubmit}
               isLoading={createMealMutation.isPending}
               submitButtonText={
-                currentMealIndex < guestCount - 1 ? 'Next Attendee' : 'Complete Registration'
+                currentMealIndex < guestCount ? 'Next Attendee' : 'Complete Registration'
               }
             />
           </CardContent>
