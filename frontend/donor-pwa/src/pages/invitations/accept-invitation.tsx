@@ -38,10 +38,18 @@ export default function AcceptInvitationPage() {
     if (isAuthenticated && user && details) {
       const userEmail = user.email?.toLowerCase()
       const invitationEmail = details.email?.toLowerCase()
-      return !!(userEmail && invitationEmail && userEmail !== invitationEmail)
+      return Boolean(userEmail && invitationEmail && userEmail !== invitationEmail)
     }
     return false
   }, [isAuthenticated, user, details])
+
+  // Compute the login redirect URL (double-encoded to handle nested query params)
+  const loginRedirectUrl = useMemo(() => {
+    if (!token) return '/sign-in'
+    const encodedToken = encodeURIComponent(token)
+    const redirectPath = `/invitations/accept?token=${encodedToken}`
+    return `/sign-in?redirect=${encodeURIComponent(redirectPath)}`
+  }, [token])
 
   // Accept invitation mutation
   const acceptMutation = useMutation({
@@ -111,7 +119,10 @@ export default function AcceptInvitationPage() {
     // Store token in sessionStorage so it can be used after registration
     sessionStorage.setItem('pending_invitation_token', token)
     // Redirect to registration page with return URL
-    window.location.href = `/sign-up?redirect=/invitations/accept?token=${encodeURIComponent(token)}`
+    // Double encode the redirect path to handle special characters in nested query params
+    const encodedToken = encodeURIComponent(token)
+    const redirectPath = `/invitations/accept?token=${encodedToken}`
+    window.location.href = `/sign-up?redirect=${encodeURIComponent(redirectPath)}`
   }
 
   const handleDecline = () => {
@@ -121,8 +132,11 @@ export default function AcceptInvitationPage() {
 
   const handleSwitchAccount = async () => {
     // Logout and redirect to sign-in with the invitation redirect
+    // Double encode the token to handle special characters in nested query params
+    const encodedToken = encodeURIComponent(token)
+    const redirectPath = `/invitations/accept?token=${encodedToken}`
     await logout()
-    window.location.href = `/sign-in?redirect=/invitations/accept?token=${encodeURIComponent(token)}`
+    window.location.href = `/sign-in?redirect=${encodeURIComponent(redirectPath)}`
   }
 
   // Loading state
@@ -299,7 +313,7 @@ export default function AcceptInvitationPage() {
               <div className="text-center text-sm text-muted-foreground">
                 Already have an account?{' '}
                 <a
-                  href={`/sign-in?redirect=/invitations/accept?token=${encodeURIComponent(token)}`}
+                  href={loginRedirectUrl}
                   className="font-medium text-primary hover:underline"
                 >
                   Log in to accept
