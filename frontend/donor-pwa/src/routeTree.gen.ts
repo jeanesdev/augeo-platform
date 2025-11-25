@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckinIndexRouteImport } from './routes/checkin.index'
 import { Route as InvitationsAcceptRouteImport } from './routes/invitations/accept'
 import { Route as EventsSlugRouteImport } from './routes/events.$slug'
 import { Route as AuthenticatedRegistrationsRouteImport } from './routes/_authenticated/registrations'
@@ -57,6 +58,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckinIndexRoute = CheckinIndexRouteImport.update({
+  id: '/checkin/',
+  path: '/checkin/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InvitationsAcceptRoute = InvitationsAcceptRouteImport.update({
@@ -289,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/registrations': typeof AuthenticatedRegistrationsRoute
   '/events/$slug': typeof EventsSlugRouteWithChildren
   '/invitations/accept': typeof InvitationsAcceptRoute
+  '/checkin': typeof CheckinIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/events/create': typeof AuthenticatedEventsCreateRoute
   '/npos/create': typeof AuthenticatedNposCreateRoute
@@ -328,6 +335,7 @@ export interface FileRoutesByTo {
   '/home': typeof AuthenticatedHomeRoute
   '/registrations': typeof AuthenticatedRegistrationsRoute
   '/invitations/accept': typeof InvitationsAcceptRoute
+  '/checkin': typeof CheckinIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/events/create': typeof AuthenticatedEventsCreateRoute
   '/npos/create': typeof AuthenticatedNposCreateRoute
@@ -371,6 +379,7 @@ export interface FileRoutesById {
   '/_authenticated/registrations': typeof AuthenticatedRegistrationsRoute
   '/events/$slug': typeof EventsSlugRouteWithChildren
   '/invitations/accept': typeof InvitationsAcceptRoute
+  '/checkin/': typeof CheckinIndexRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/events/create': typeof AuthenticatedEventsCreateRoute
   '/_authenticated/npos/create': typeof AuthenticatedNposCreateRoute
@@ -414,6 +423,7 @@ export interface FileRouteTypes {
     | '/registrations'
     | '/events/$slug'
     | '/invitations/accept'
+    | '/checkin'
     | '/errors/$error'
     | '/events/create'
     | '/npos/create'
@@ -453,6 +463,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/registrations'
     | '/invitations/accept'
+    | '/checkin'
     | '/errors/$error'
     | '/events/create'
     | '/npos/create'
@@ -495,6 +506,7 @@ export interface FileRouteTypes {
     | '/_authenticated/registrations'
     | '/events/$slug'
     | '/invitations/accept'
+    | '/checkin/'
     | '/_authenticated/errors/$error'
     | '/_authenticated/events/create'
     | '/_authenticated/npos/create'
@@ -535,6 +547,7 @@ export interface RootRouteChildren {
   errors503Route: typeof errors503Route
   EventsSlugRoute: typeof EventsSlugRouteWithChildren
   InvitationsAcceptRoute: typeof InvitationsAcceptRoute
+  CheckinIndexRoute: typeof CheckinIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -551,6 +564,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkin/': {
+      id: '/checkin/'
+      path: '/checkin'
+      fullPath: '/checkin'
+      preLoaderRoute: typeof CheckinIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invitations/accept': {
@@ -919,6 +939,7 @@ const rootRouteChildren: RootRouteChildren = {
   errors503Route: errors503Route,
   EventsSlugRoute: EventsSlugRouteWithChildren,
   InvitationsAcceptRoute: InvitationsAcceptRoute,
+  CheckinIndexRoute: CheckinIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
