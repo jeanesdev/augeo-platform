@@ -21,11 +21,14 @@ import {
   Box,
 } from '@mui/material';
 
+import { useNotifications } from '@toolpad/core/useNotifications';
+
 import { useEventStore } from '@/stores/event-store';
 import { useAuthStore } from '@/stores/auth-store';
 
 function EventSelector() {
   const navigate = useNavigate();
+  const notifications = useNotifications();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -73,6 +76,10 @@ function EventSelector() {
       }
     } catch (error) {
       console.error('Failed to select event:', error);
+      notifications.show('Failed to load event. Please try again.', {
+        severity: 'error',
+        autoHideDuration: 5000,
+      });
     }
   };
 

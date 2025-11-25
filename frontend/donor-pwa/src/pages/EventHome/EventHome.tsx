@@ -23,6 +23,7 @@ import {
   Stack,
   Divider,
   Chip,
+  useTheme,
 } from '@mui/material';
 
 import { useEventStore } from '@/stores/event-store';
@@ -31,6 +32,7 @@ import { useAuthStore } from '@/stores/auth-store';
 function EventHome() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const { selectedEvent, isLoading, error, fetchEventBySlug, setSelectedEvent } = useEventStore();
   const { isAuthenticated } = useAuthStore();
@@ -121,8 +123,8 @@ function EventHome() {
     .filter(Boolean)
     .join(', ');
 
-  // Event branding colors
-  const primaryColor = selectedEvent.primary_color || '#1976d2';
+  // Event branding colors (fallback to theme primary color)
+  const primaryColor = selectedEvent.primary_color || theme.palette.primary.main;
 
   return (
     <Box sx={{ pb: 4 }}>

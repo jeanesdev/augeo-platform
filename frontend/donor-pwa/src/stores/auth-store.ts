@@ -7,6 +7,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import apiClient from '@/lib/axios';
+import { getErrorMessage } from '@/utils/error';
 
 interface AuthUser {
   id: string;
@@ -131,15 +132,7 @@ export const useAuthStore = create<AuthState>()(
 
           return response.data;
         } catch (error: unknown) {
-          const errorMessage =
-            (
-              error as {
-                response?: { data?: { error?: { message?: string } } };
-                message?: string;
-              }
-            ).response?.data?.error?.message ||
-            (error as { message?: string }).message ||
-            'Login failed';
+          const errorMessage = getErrorMessage(error, 'Login failed');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -154,15 +147,7 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false });
           return response.data;
         } catch (error: unknown) {
-          const errorMessage =
-            (
-              error as {
-                response?: { data?: { error?: { message?: string } } };
-                message?: string;
-              }
-            ).response?.data?.error?.message ||
-            (error as { message?: string }).message ||
-            'Registration failed';
+          const errorMessage = getErrorMessage(error, 'Registration failed');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }

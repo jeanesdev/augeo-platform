@@ -8,6 +8,7 @@ import { persist } from 'zustand/middleware';
 
 import apiClient from '@/lib/axios';
 import type { Event, EventDetail, EventRegistration, EventRegistrationListResponse } from '@/types/event';
+import { getErrorMessage } from '@/utils/error';
 
 interface EventState {
   // Current selected event
@@ -112,15 +113,7 @@ export const useEventStore = create<EventState>()(
 
           return registrations;
         } catch (error: unknown) {
-          const errorMessage =
-            (
-              error as {
-                response?: { data?: { error?: { message?: string } } };
-                message?: string;
-              }
-            ).response?.data?.error?.message ||
-            (error as { message?: string }).message ||
-            'Failed to fetch registered events';
+          const errorMessage = getErrorMessage(error, 'Failed to fetch registered events');
           set({ error: errorMessage, isLoading: false, registeredEventsLoaded: true });
           throw error;
         }
@@ -134,15 +127,7 @@ export const useEventStore = create<EventState>()(
           set({ isLoading: false });
           return response.data;
         } catch (error: unknown) {
-          const errorMessage =
-            (
-              error as {
-                response?: { data?: { error?: { message?: string } } };
-                message?: string;
-              }
-            ).response?.data?.error?.message ||
-            (error as { message?: string }).message ||
-            'Failed to fetch event details';
+          const errorMessage = getErrorMessage(error, 'Failed to fetch event details');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -156,15 +141,7 @@ export const useEventStore = create<EventState>()(
           set({ isLoading: false });
           return response.data;
         } catch (error: unknown) {
-          const errorMessage =
-            (
-              error as {
-                response?: { data?: { error?: { message?: string } } };
-                message?: string;
-              }
-            ).response?.data?.error?.message ||
-            (error as { message?: string }).message ||
-            'Failed to fetch event details';
+          const errorMessage = getErrorMessage(error, 'Failed to fetch event details');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
@@ -181,15 +158,7 @@ export const useEventStore = create<EventState>()(
             isLoading: false,
           });
         } catch (error: unknown) {
-          const errorMessage =
-            (
-              error as {
-                response?: { data?: { error?: { message?: string } } };
-                message?: string;
-              }
-            ).response?.data?.error?.message ||
-            (error as { message?: string }).message ||
-            'Failed to select event';
+          const errorMessage = getErrorMessage(error, 'Failed to select event');
           set({ error: errorMessage, isLoading: false });
           throw error;
         }
