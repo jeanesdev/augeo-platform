@@ -1,29 +1,14 @@
-import GitHubIcon from '@mui/icons-material/GitHub';
 import ThemeIcon from '@mui/icons-material/InvertColors';
 import MenuIcon from '@mui/icons-material/Menu';
-import { AppBar, Button, Divider, IconButton, Stack, Toolbar, Tooltip } from '@mui/material';
+import { AppBar, Divider, IconButton, Stack, Toolbar, Tooltip } from '@mui/material';
 
-import { useNotifications } from '@toolpad/core/useNotifications';
-
-import { repository, title } from '@/config';
-import { useHotKeysDialog } from '@/sections/HotKeys/hooks';
+import EventSelector from '@/components/EventSelector';
 import { useSidebar } from '@/sections/Sidebar/hooks';
 import { useThemeMode } from '@/theme';
-
-import { HotKeysButton } from './styled';
-import { getRandomJoke } from './utils';
 
 function Header() {
   const { themeMode, toggle: toggleThemeMode } = useThemeMode();
   const { open: openSidebar } = useSidebar();
-  const { open: openHotKeysDialog } = useHotKeysDialog();
-  const notifications = useNotifications();
-
-  function showNotification() {
-    notifications.show(getRandomJoke(), {
-      autoHideDuration: 5000,
-    });
-  }
 
   return (
     <AppBar
@@ -45,27 +30,9 @@ function Header() {
             >
               <MenuIcon />
             </IconButton>
-            <Button onClick={showNotification} color="info">
-              {title}
-            </Button>
+            <EventSelector />
           </Stack>
           <Stack direction="row" alignItems="center">
-            <Tooltip title="Hot keys" arrow>
-              <HotKeysButton
-                size="small"
-                variant="outlined"
-                aria-label="open hotkeys dialog"
-                onClick={openHotKeysDialog}
-              >
-                alt + k
-              </HotKeysButton>
-            </Tooltip>
-            <Divider orientation="vertical" flexItem />
-            <Tooltip title="It's open source" arrow>
-              <IconButton color="info" size="large" component="a" href={repository} target="_blank">
-                <GitHubIcon />
-              </IconButton>
-            </Tooltip>
             <Divider orientation="vertical" flexItem />
             <Tooltip title="Switch theme" arrow>
               <IconButton
