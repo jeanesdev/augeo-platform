@@ -94,7 +94,7 @@ export function EventDetails({ event }: EventDetailsProps) {
               color: 'white',
             }}
           >
-            <Link to="/events/$slug/register" params={{ slug: event.slug }}>
+            <Link to="/events/$slug/register" params={{ slug: event.slug }} search={{ guest: undefined }}>
               Register for This Event
             </Link>
           </Button>
