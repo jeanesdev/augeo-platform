@@ -20,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import hash_password
 
 
+@pytest.mark.requires_email
 class TestEmailVerificationIntegration:
     """Integration tests for complete email verification workflows."""
 

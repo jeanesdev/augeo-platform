@@ -27,6 +27,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 # from app.models.session import Session
 
 
+@pytest.mark.requires_email
 class TestAuthenticationFlow:
     """Integration tests for complete authentication flow."""
 
