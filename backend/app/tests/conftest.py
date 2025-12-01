@@ -50,17 +50,21 @@ def test_database_url() -> str:
     Uses separate test database to avoid conflicts with development data.
     Ensures asyncpg driver is used for async SQLAlchemy.
     """
-    # Replace database name with test database
+    # Get database URL from settings
     db_url: str = str(settings.database_url)
-    # Handle both /augeo and /augeo_db database names
-    if "/augeo_db" in db_url:
+
+    # If already using test database, keep it (for CI)
+    if "test" in db_url:
+        pass
+    # Otherwise, replace database name with test database
+    elif "/augeo_db" in db_url:
         db_url = db_url.replace("/augeo_db", "/augeo_test_db")
     elif db_url.endswith("/augeo"):
         db_url = db_url.replace("/augeo", "/augeo_test")
 
     # Ensure we're using postgresql+asyncpg:// not postgresql://
     if db_url.startswith("postgresql://"):
-        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://")
+        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
     return db_url
 
