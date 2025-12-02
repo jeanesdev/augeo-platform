@@ -42,6 +42,7 @@ def mock_request() -> Request:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_email
 async def test_create_submission_success(
     contact_service: ContactService,
     db_session: AsyncSession,
@@ -391,6 +392,7 @@ async def test_create_submission_with_special_characters(
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@pytest.mark.requires_email
 async def test_create_submission_updates_timestamp(
     contact_service: ContactService,
     db_session: AsyncSession,
