@@ -130,7 +130,9 @@ jobs:
           REDIS_URL: redis://localhost:6379/0
           JWT_SECRET_KEY: test-secret-key-for-ci-minimum-32-chars
           ENVIRONMENT: development
-          AZURE_COMMUNICATION_CONNECTION_STRING: endpoint=https://test.communication.azure.com/;accesskey=dGVzdC1rZXktZm9yLWNpLW9ubHktbWluaW11bS0zMi1jaGFyYWN0ZXJz
+          AZURE_COMMUNICATION_CONNECTION_STRING: ${{ secrets.AZURE_COMMUNICATION_CONNECTION_STRING_TEST }}
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING_TEST }}
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME_TEST }}
           EMAIL_FROM_ADDRESS: noreply@test.example.com
           SUPER_ADMIN_EMAIL: admin@test.example.com
           SUPER_ADMIN_PASSWORD: Test123!@#TestPassword
