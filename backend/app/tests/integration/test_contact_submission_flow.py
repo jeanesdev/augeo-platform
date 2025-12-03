@@ -19,7 +19,6 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-@pytest.mark.requires_email
 class TestContactSubmissionIntegration:
     """Integration tests for complete contact submission workflows."""
 

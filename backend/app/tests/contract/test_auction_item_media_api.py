@@ -8,7 +8,7 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-pytestmark = [pytest.mark.asyncio, pytest.mark.requires_azure_storage]
+pytestmark = pytest.mark.asyncio
 
 
 class TestMediaUploadURL:
@@ -19,6 +19,7 @@ class TestMediaUploadURL:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test generating upload URL for an image."""
         # Create an auction item first
@@ -90,6 +91,7 @@ class TestMediaUploadURL:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test generating upload URL for a video."""
         from app.models.auction_item import AuctionItem
@@ -140,6 +142,7 @@ class TestMediaUploadURL:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test validation of invalid file type."""
         from app.models.auction_item import AuctionItem
@@ -193,6 +196,7 @@ class TestMediaUploadURL:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test validation of file size exceeding limit."""
         from app.models.auction_item import AuctionItem
@@ -241,6 +245,7 @@ class TestMediaUploadURL:
         client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test that unauthenticated users cannot generate upload URLs."""
         from app.models.auction_item import AuctionItem
@@ -285,6 +290,7 @@ class TestMediaConfirm:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test confirming image upload with thumbnail generation."""
         from io import BytesIO
@@ -383,6 +389,7 @@ class TestMediaConfirm:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test confirming video upload."""
         from app.models.auction_item import AuctionItem
@@ -437,6 +444,7 @@ class TestMediaConfirm:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test error when blob doesn't exist."""
         from app.models.auction_item import AuctionItem
@@ -497,6 +505,7 @@ class TestMediaList:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test listing media when none exist."""
         from app.models.auction_item import AuctionItem
@@ -534,6 +543,7 @@ class TestMediaList:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test listing media items ordered by display_order."""
         from app.models.auction_item import AuctionItem, AuctionItemMedia
@@ -597,6 +607,7 @@ class TestMediaList:
         client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test that public users can view media for published items."""
         from app.models.auction_item import AuctionItem, AuctionItemMedia
@@ -643,6 +654,7 @@ class TestMediaList:
         client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test that draft item media requires authentication."""
         from app.models.auction_item import AuctionItem
@@ -680,6 +692,7 @@ class TestMediaReorder:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test successful media reordering."""
         from app.models.auction_item import AuctionItem, AuctionItemMedia
@@ -759,6 +772,7 @@ class TestMediaReorder:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test validation when media IDs are missing."""
         from app.models.auction_item import AuctionItem, AuctionItemMedia
@@ -829,6 +843,7 @@ class TestMediaDelete:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test successful media deletion."""
         from app.models.auction_item import AuctionItem, AuctionItemMedia
@@ -887,6 +902,7 @@ class TestMediaDelete:
         npo_admin_client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test deleting non-existent media."""
         from app.models.auction_item import AuctionItem
@@ -920,6 +936,7 @@ class TestMediaDelete:
         client: AsyncClient,
         test_event: Any,
         db_session: AsyncSession,
+        mock_azure_storage: Any,
     ) -> None:
         """Test that unauthenticated users cannot delete media."""
         from app.models.auction_item import AuctionItem, AuctionItemMedia

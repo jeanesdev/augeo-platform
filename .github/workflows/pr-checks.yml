@@ -98,7 +98,7 @@ jobs:
         continue-on-error: true
 
       - name: Run tests
-        run: poetry run pytest --cov=app --cov-report=xml --cov-report=term -m "not requires_email and not requires_azure_storage"
+        run: poetry run pytest --cov=app --cov-report=xml --cov-report=term
         timeout-minutes: 10
 
       - name: Upload coverage
