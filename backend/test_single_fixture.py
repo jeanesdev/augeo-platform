@@ -60,7 +60,7 @@ async def test_async_client_fixture():
     await session.close()
     await transaction.rollback()
     await connection.close()
-    await redis_client.aclose()
+    await redis_client.close()
     await engine.dispose()
 
     print("✅ async_client fixture test passed!")

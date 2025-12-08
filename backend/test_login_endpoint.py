@@ -123,7 +123,7 @@ async def test_login():
     await session.close()
     await transaction.rollback()
     await connection.close()
-    await redis_client.aclose()
+    await redis_client.close()
     await engine.dispose()
 
     print("✅ Login test passed!")
