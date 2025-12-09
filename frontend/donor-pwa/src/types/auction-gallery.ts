@@ -12,6 +12,7 @@ export interface AuctionItemGalleryItem {
   title: string;
   description: string | null;
   auction_type: AuctionType;
+  bid_number: number;
   thumbnail_url: string | null;
   starting_bid: number;
   current_bid: number | null;

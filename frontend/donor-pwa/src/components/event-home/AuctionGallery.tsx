@@ -79,6 +79,7 @@ async function fetchAuctionItems(
         title: string;
         description?: string | null;
         auction_type: string;
+        bid_number: number;
         primary_image_url?: string | null;
         starting_bid: number | string;
       }) => ({
@@ -86,6 +87,7 @@ async function fetchAuctionItems(
         title: item.title,
         description: item.description ?? null,
         auction_type: item.auction_type as 'silent' | 'live',
+        bid_number: item.bid_number,
         thumbnail_url: item.primary_image_url ?? null,
         starting_bid:
           typeof item.starting_bid === 'string'
@@ -110,6 +112,8 @@ export interface AuctionGalleryProps {
   initialFilter?: AuctionFilterType;
   initialSort?: AuctionSortType;
   onItemClick?: (item: AuctionItemGalleryItem) => void;
+  eventStatus?: 'draft' | 'active' | 'closed';
+  eventDateTime?: string;
   className?: string;
 }
 
@@ -129,6 +133,8 @@ export function AuctionGallery({
   initialFilter = 'all',
   initialSort = 'highest_bid',
   onItemClick,
+  eventStatus,
+  eventDateTime,
   className,
 }: AuctionGalleryProps) {
   const [filter, setFilter] = useState<AuctionFilterType>(initialFilter);
@@ -243,9 +249,19 @@ export function AuctionGallery({
               className={cn(
                 'px-3 py-1.5 text-sm font-medium transition-colors rounded-md',
                 filter === option.value
-                  ? 'bg-background shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'shadow-sm'
+                  : 'hover:opacity-80'
               )}
+              style={
+                filter === option.value
+                  ? {
+                    backgroundColor: 'rgb(var(--event-primary, 59, 130, 246))',
+                    color: 'var(--event-text-on-primary, #FFFFFF)',
+                  }
+                  : {
+                    color: 'var(--event-text-muted-on-background, #6B7280)',
+                  }
+              }
             >
               {option.label}
             </button>
@@ -286,7 +302,10 @@ export function AuctionGallery({
             <AuctionItemCard
               key={item.id}
               item={item}
+              onClick={handleBidClick}
               onBidClick={handleBidClick}
+              eventStatus={eventStatus}
+              eventDateTime={eventDateTime}
             />
           ))}
         </div>

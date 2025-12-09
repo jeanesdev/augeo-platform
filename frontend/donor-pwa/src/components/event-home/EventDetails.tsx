@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-import { cn } from '@/lib/utils';
+import { cn, formatPhoneNumber } from '@/lib/utils';
 
 export interface EventDetailsProps {
   /** Event date/time */
@@ -35,6 +35,12 @@ export interface EventDetailsProps {
   venueName?: string | null;
   /** Venue address */
   venueAddress?: string | null;
+  /** Venue city */
+  venueCity?: string | null;
+  /** Venue state */
+  venueState?: string | null;
+  /** Venue zip */
+  venueZip?: string | null;
   /** Attire requirements */
   attire?: string | null;
   /** Contact email */
@@ -110,6 +116,9 @@ export function EventDetails({
   timezone,
   venueName,
   venueAddress,
+  venueCity,
+  venueState,
+  venueZip,
   attire,
   contactEmail,
   contactPhone,
@@ -144,9 +153,29 @@ export function EventDetails({
   // Build full address for maps link
   const mapsLink = useMemo(() => {
     if (!venueAddress) return undefined;
-    const query = encodeURIComponent(venueAddress);
+
+    // Build complete address for Google Maps
+    const addressParts = [venueAddress];
+    if (venueCity) addressParts.push(venueCity);
+    if (venueState) addressParts.push(venueState);
+    if (venueZip) addressParts.push(venueZip);
+
+    const fullAddress = addressParts.join(', ');
+    const query = encodeURIComponent(fullAddress);
     return `https://maps.google.com/?q=${query}`;
-  }, [venueAddress]);
+  }, [venueAddress, venueCity, venueState, venueZip]);
+
+  // Build full address display text
+  const fullAddressText = useMemo(() => {
+    if (!venueAddress) return null;
+
+    const addressParts = [venueAddress];
+    if (venueCity) addressParts.push(venueCity);
+    if (venueState) addressParts.push(venueState);
+    if (venueZip) addressParts.push(venueZip);
+
+    return addressParts.join(', ');
+  }, [venueAddress, venueCity, venueState, venueZip]);
 
   // Check if we have any details to show
   const hasDetails =
@@ -199,7 +228,7 @@ export function EventDetails({
             <DetailRow
               icon={Clock}
               label="Time"
-              value={`${formattedDateTime.time}${timezone ? ` (${timezone})` : ''}`}
+              value={formattedDateTime.time}
             />
           )}
 
@@ -207,11 +236,11 @@ export function EventDetails({
           {venueName && (
             <DetailRow icon={MapPin} label="Venue" value={venueName} />
           )}
-          {venueAddress && (
+          {fullAddressText && (
             <DetailRow
               icon={MapPin}
               label="Address"
-              value={venueAddress}
+              value={fullAddressText}
               href={mapsLink}
             />
           )}
@@ -234,7 +263,7 @@ export function EventDetails({
             <DetailRow
               icon={Phone}
               label="Phone"
-              value={contactPhone}
+              value={formatPhoneNumber(contactPhone)}
               href={`tel:${contactPhone.replace(/\D/g, '')}`}
             />
           )}

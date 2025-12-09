@@ -192,6 +192,46 @@ The donor PWA event homepage has no sidebar navigation, providing maximum screen
 - Q: Auction items pagination strategy? → A: Infinite scroll with lazy loading as user scrolls down
 - Q: Auction item default sort order? → A: Highest current bid first (items with no bids sorted by starting bid)
 
+### Session 2025-12-09 (UI/UX Enhancements)
+
+**Auction Item Business Logic**:
+
+- Q: Should bidding be disabled based on event status? → A: Yes, Place Bid button disabled when event status is not 'active' OR event datetime is in the future
+- Q: Button text for different states? → A: "Place Bid" (active), "Event Not Started" (future), "Bidding Closed" (closed), "Event Not Active" (draft)
+- Q: Apply to both card and modal? → A: Yes, consistent behavior on auction item cards and detail modal
+
+**Image Quality**:
+
+- Q: Why are auction item images low resolution? → A: Backend was serving 200x200 thumbnails; updated to use full-resolution images from Azure Blob Storage
+
+**Auction Item Detail Modal**:
+
+- Q: User interaction with auction items? → A: Entire card clickable to open modal with full details, image gallery, and bid information
+- Q: Close button preference? → A: Keep subtle built-in Dialog close button, remove custom foreground button
+
+**Contact Information Formatting**:
+
+- Q: How should phone numbers display? → A: Format as (XXX) XXX-XXXX for US numbers, handles 10-digit and 11-digit (with leading 1)
+- Q: Address link improvements? → A: Include full address (street, city, state, zip) in both link href and display text for Google Maps
+
+**Time Display**:
+
+- Q: Timezone display format? → A: Show short timezone abbreviation (EST, PST) but not full timezone name (America/New_York)
+
+**Interactive Links**:
+
+- Q: Make event name clickable? → A: Yes, event name (hero section) links to Google Maps with venue address
+- Q: Make venue name clickable? → A: Yes, venue name (quick info section) links to Google Maps with venue address
+- Q: Add to calendar functionality? → A: Yes, date/time clickable to download .ics file with event details (3-hour duration, full venue location)
+
+**Visual Consistency**:
+
+- Q: Auction item theming? → A: All auction components use event theme colors via CSS variables (--event-primary, --event-secondary, --event-card-bg, etc.)
+- Q: Tab selector contrast? → A: Active tab uses event primary color for background with proper text contrast
+- Q: Badge positioning? → A: Live/Silent badge positioned on left side to avoid overlap with modal close button
+- Q: Quantity display? → A: Hidden when quantity equals 1 (only show when multiple available)
+- Q: Bid number display? → A: Show "Item #XX" on cards and in modal for easy reference
+
 ## Assumptions
 
 - Events and NPOs have existing branding infrastructure (colors, images) that can be queried

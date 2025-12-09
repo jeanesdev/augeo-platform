@@ -211,13 +211,11 @@ async def list_auction_items(
         media_result = await db.execute(media_stmt)
         primary_media = media_result.scalar_one_or_none()
 
-        if primary_media and primary_media.thumbnail_path:
-            # Generate SAS URL for thumbnail
-            if primary_media.thumbnail_path.startswith("https://"):
+        if primary_media and primary_media.file_path:
+            # Generate SAS URL for full-resolution image (not thumbnail)
+            if primary_media.file_path.startswith("https://"):
                 blob_path = "/".join(
-                    primary_media.thumbnail_path.split(f"{settings.azure_storage_container_name}/")[
-                        1
-                    ]
+                    primary_media.file_path.split(f"{settings.azure_storage_container_name}/")[1]
                     .split("?")[0]
                     .split("/")
                 )
@@ -226,9 +224,9 @@ async def list_auction_items(
                         blob_path, expiry_hours=24
                     )
                 except ValueError:
-                    item_dict["primary_image_url"] = primary_media.thumbnail_path
+                    item_dict["primary_image_url"] = primary_media.file_path
             else:
-                item_dict["primary_image_url"] = primary_media.thumbnail_path
+                item_dict["primary_image_url"] = primary_media.file_path
         else:
             item_dict["primary_image_url"] = None
 

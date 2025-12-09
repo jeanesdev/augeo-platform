@@ -12,6 +12,9 @@ import { Gavel, Image as ImageIcon } from 'lucide-react';
 export interface AuctionItemCardProps {
   item: AuctionItemGalleryItem;
   onBidClick?: (item: AuctionItemGalleryItem) => void;
+  onClick?: (item: AuctionItemGalleryItem) => void;
+  eventStatus?: 'draft' | 'active' | 'closed';
+  eventDateTime?: string;
   className?: string;
 }
 
@@ -40,24 +43,38 @@ function formatCurrency(amount: number): string {
 export function AuctionItemCard({
   item,
   onBidClick,
+  onClick,
+  eventStatus,
+  eventDateTime,
   className,
 }: AuctionItemCardProps) {
   const displayBid = item.current_bid ?? item.starting_bid;
   const hasCurrentBid = item.current_bid !== null && item.current_bid > 0;
   const bidLabel = hasCurrentBid ? 'Current Bid' : 'Starting Bid';
+  const isEventInFuture = eventDateTime ? new Date(eventDateTime) > new Date() : false;
 
-  const handleBidClick = () => {
+  const handleBidClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click when clicking bid button
     onBidClick?.(item);
+  };
+
+  const handleCardClick = () => {
+    onClick?.(item);
   };
 
   return (
     <div
+      onClick={handleCardClick}
       className={cn(
-        'group flex flex-col overflow-hidden rounded-lg border bg-card shadow-sm transition-shadow hover:shadow-md',
+        'group flex flex-col overflow-hidden rounded-lg border shadow-sm transition-shadow hover:shadow-md',
         // Use event accent color for border on hover
         'hover:border-[var(--event-accent,rgb(147,51,234))]',
+        onClick && 'cursor-pointer',
         className
       )}
+      style={{
+        backgroundColor: 'rgb(var(--event-card-bg, 147, 51, 234))',
+      }}
     >
       {/* Thumbnail */}
       <div className="relative aspect-square w-full overflow-hidden bg-muted">
@@ -89,10 +106,18 @@ export function AuctionItemCard({
 
       {/* Content */}
       <div className="flex flex-1 flex-col p-3">
+        {/* Bid Number */}
+        <div
+          className="text-xs font-medium mb-1"
+          style={{ color: 'var(--event-card-text-muted, #6B7280)' }}
+        >
+          Item #{item.bid_number}
+        </div>
+
         {/* Title */}
         <h3
           className="mb-2 line-clamp-2 text-sm font-medium leading-tight"
-          style={{ color: 'var(--event-text-on-background, #000000)' }}
+          style={{ color: 'var(--event-card-text, #000000)' }}
         >
           {item.title}
         </h3>
@@ -102,14 +127,14 @@ export function AuctionItemCard({
           <div className="flex items-baseline justify-between">
             <span
               className="text-xs"
-              style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
+              style={{ color: 'var(--event-card-text-muted, #6B7280)' }}
             >
               {bidLabel}
             </span>
             {item.bid_count > 0 && (
               <span
                 className="text-xs"
-                style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
+                style={{ color: 'var(--event-card-text-muted, #6B7280)' }}
               >
                 {item.bid_count} bid{item.bid_count !== 1 ? 's' : ''}
               </span>
@@ -117,7 +142,7 @@ export function AuctionItemCard({
           </div>
           <div
             className="text-lg font-bold"
-            style={{ color: 'rgb(var(--event-primary, 59, 130, 246))' }}
+            style={{ color: 'var(--event-card-text, #000000)' }}
           >
             {formatCurrency(displayBid)}
           </div>
@@ -126,6 +151,7 @@ export function AuctionItemCard({
         {/* Bid button */}
         <button
           onClick={handleBidClick}
+          disabled={eventStatus !== 'active' || isEventInFuture}
           className={cn(
             'mt-3 flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
@@ -137,7 +163,13 @@ export function AuctionItemCard({
           }}
         >
           <Gavel className="h-4 w-4" aria-hidden="true" />
-          Place Bid
+          {isEventInFuture
+            ? 'Not Started'
+            : eventStatus === 'active'
+              ? 'Place Bid'
+              : eventStatus === 'closed'
+                ? 'Closed'
+                : 'Not Active'}
         </button>
       </div>
     </div>

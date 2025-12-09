@@ -16,6 +16,7 @@
  */
 
 import { AuctionGallery, CountdownTimer, EventDetails, EventSwitcher } from '@/components/event-home'
+import { AuctionItemDetailModal } from '@/components/event-home/AuctionItemDetailModal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useEventBranding } from '@/hooks/use-event-branding'
 import { getRegisteredEventsWithBranding } from '@/lib/api/registrations'
@@ -24,7 +25,7 @@ import type { RegisteredEventWithBranding } from '@/types/event-branding'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { AlertCircle, Calendar, Loader2, MapPin } from 'lucide-react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 /**
@@ -38,6 +39,7 @@ export function EventHomePage() {
   const { eventId } = useParams({ strict: false }) as { eventId: string }
   const { currentEvent, eventsLoading, eventsError, loadEventById } = useEventStore()
   const { applyBranding, clearBranding } = useEventBranding()
+  const [selectedAuctionItemId, setSelectedAuctionItemId] = useState<string | null>(null)
 
   // Fetch all registered events for event switcher
   const { data: registeredEventsData } = useQuery({
@@ -112,6 +114,73 @@ export function EventHomePage() {
       clearBranding()
     }
   }, [currentEvent, applyBranding, clearBranding])
+
+  // Build Google Maps link for venue
+  const venueMapLink = useMemo(() => {
+    if (!currentEvent?.venue_address) return null
+
+    const addressParts = [currentEvent.venue_address]
+    if (currentEvent.venue_city) addressParts.push(currentEvent.venue_city)
+    if (currentEvent.venue_state) addressParts.push(currentEvent.venue_state)
+    if (currentEvent.venue_zip) addressParts.push(currentEvent.venue_zip)
+
+    const fullAddress = addressParts.join(', ')
+    const query = encodeURIComponent(fullAddress)
+    return `https://maps.google.com/?q=${query}`
+  }, [currentEvent?.venue_address, currentEvent?.venue_city, currentEvent?.venue_state, currentEvent?.venue_zip])
+
+  // Generate Add to Calendar ICS file
+  const generateICSFile = useCallback(() => {
+    if (!currentEvent?.event_datetime) return
+
+    const eventDate = new Date(currentEvent.event_datetime)
+    // Format dates for iCal format (YYYYMMDDTHHMMSSZ)
+    const formatDateForICal = (date: Date) => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+    }
+
+    const startDate = formatDateForICal(eventDate)
+    // Assume 3 hour event duration
+    const endDate = formatDateForICal(new Date(eventDate.getTime() + 3 * 60 * 60 * 1000))
+    const now = formatDateForICal(new Date())
+
+    // Build location
+    const locationParts = []
+    if (currentEvent.venue_name) locationParts.push(currentEvent.venue_name)
+    if (currentEvent.venue_address) locationParts.push(currentEvent.venue_address)
+    if (currentEvent.venue_city) locationParts.push(currentEvent.venue_city)
+    if (currentEvent.venue_state) locationParts.push(currentEvent.venue_state)
+    if (currentEvent.venue_zip) locationParts.push(currentEvent.venue_zip)
+    const location = locationParts.join(', ')
+
+    // Create ICS file content
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Augeo//Event Calendar//EN',
+      'BEGIN:VEVENT',
+      `DTSTART:${startDate}`,
+      `DTEND:${endDate}`,
+      `DTSTAMP:${now}`,
+      `SUMMARY:${currentEvent.name}`,
+      `DESCRIPTION:${(currentEvent.description || '').replace(/\n/g, '\\n')}`,
+      `LOCATION:${location}`,
+      `UID:${currentEvent.id}@augeo.app`,
+      'STATUS:CONFIRMED',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n')
+
+    // Create blob and download
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `${currentEvent.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.ics`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(link.href)
+  }, [currentEvent])
 
   // Loading state
   if (eventsLoading) {
@@ -233,9 +302,22 @@ export function EventHomePage() {
             {currentEvent.npo_name && (
               <p className="text-white/80 text-sm mb-1">{currentEvent.npo_name}</p>
             )}
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
-              {currentEvent.name}
-            </h1>
+            {venueMapLink ? (
+              <a
+                href={venueMapLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block hover:opacity-90 transition-opacity"
+              >
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
+                  {currentEvent.name}
+                </h1>
+              </a>
+            ) : (
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
+                {currentEvent.name}
+              </h1>
+            )}
           </div>
         </div>
       </div>
@@ -255,9 +337,20 @@ export function EventHomePage() {
                 className="h-4 w-4"
                 style={{ color: 'rgb(var(--event-primary, 59, 130, 246))' }}
               />
-              <span>
-                {date} {time && `at ${time}`}
-              </span>
+              {currentEvent.event_datetime ? (
+                <button
+                  onClick={generateICSFile}
+                  className="hover:underline cursor-pointer"
+                  style={{ color: 'rgb(var(--event-primary, 59, 130, 246))' }}
+                  title="Add to calendar"
+                >
+                  {date} {time && `at ${time}`}
+                </button>
+              ) : (
+                <span>
+                  {date} {time && `at ${time}`}
+                </span>
+              )}
             </div>
             {currentEvent.venue_name && (
               <div className="flex items-center gap-2">
@@ -265,7 +358,19 @@ export function EventHomePage() {
                   className="h-4 w-4"
                   style={{ color: 'rgb(var(--event-primary, 59, 130, 246))' }}
                 />
-                <span>{currentEvent.venue_name}</span>
+                {venueMapLink ? (
+                  <a
+                    href={venueMapLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                    style={{ color: 'rgb(var(--event-primary, 59, 130, 246))' }}
+                  >
+                    {currentEvent.venue_name}
+                  </a>
+                ) : (
+                  <span>{currentEvent.venue_name}</span>
+                )}
               </div>
             )}
           </div>
@@ -294,6 +399,9 @@ export function EventHomePage() {
           timezone={currentEvent.timezone}
           venueName={currentEvent.venue_name}
           venueAddress={currentEvent.venue_address}
+          venueCity={currentEvent.venue_city}
+          venueState={currentEvent.venue_state}
+          venueZip={currentEvent.venue_zip}
           attire={currentEvent.attire}
           contactEmail={currentEvent.primary_contact_email}
           contactPhone={currentEvent.primary_contact_phone}
@@ -333,12 +441,26 @@ export function EventHomePage() {
             eventId={eventId}
             initialFilter="all"
             initialSort="highest_bid"
+            eventStatus={currentEvent?.status}
+            eventDateTime={currentEvent?.event_datetime}
             onItemClick={(item) => {
-              // TODO: Navigate to bid page when bidding is implemented
-              toast.info(`View details for "${item.title}"`)
+              setSelectedAuctionItemId(item.id)
             }}
           />
         </section>
+
+        {/* Auction Item Detail Modal */}
+        <AuctionItemDetailModal
+          eventId={eventId}
+          itemId={selectedAuctionItemId}
+          eventStatus={currentEvent?.status}
+          eventDateTime={currentEvent?.event_datetime}
+          onClose={() => setSelectedAuctionItemId(null)}
+          onBid={(item) => {
+            // TODO: Navigate to bid page when bidding is implemented
+            toast.info(`Place bid on "${item.title}"`)
+          }}
+        />
       </div>
     </div>
   )

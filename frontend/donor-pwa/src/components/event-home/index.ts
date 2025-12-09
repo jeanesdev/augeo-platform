@@ -12,6 +12,8 @@ export { AuctionGallery } from './AuctionGallery'
 export type { AuctionGalleryProps } from './AuctionGallery'
 export { AuctionItemCard } from './AuctionItemCard'
 export type { AuctionItemCardProps } from './AuctionItemCard'
+export { AuctionItemDetailModal } from './AuctionItemDetailModal'
+export type { AuctionItemDetailModalProps } from './AuctionItemDetailModal'
 
 // Countdown Timer
 export { CountdownTimer } from './CountdownTimer'
