@@ -46,15 +46,16 @@ function TimeUnit({
           'font-bold tabular-nums transition-all duration-300',
           emphasized ? 'text-4xl sm:text-5xl' : 'text-2xl sm:text-3xl'
         )}
-        style={{ color: 'rgb(var(--event-primary, 59, 130, 246))' }}
+        style={{ color: 'var(--event-card-text, #000000)' }}
       >
         {String(value).padStart(2, '0')}
       </span>
       <span
         className={cn(
-          'text-muted-foreground uppercase tracking-wider transition-all duration-300',
+          'uppercase tracking-wider transition-all duration-300',
           emphasized ? 'text-sm' : 'text-xs'
         )}
+        style={{ color: 'var(--event-card-text-muted, #6B7280)' }}
       >
         {label}
       </span>
@@ -72,7 +73,7 @@ function Separator({ emphasized }: { emphasized?: boolean }) {
         'font-bold transition-all duration-300',
         emphasized ? 'text-4xl sm:text-5xl' : 'text-2xl sm:text-3xl'
       )}
-      style={{ color: 'rgb(var(--event-primary, 59, 130, 246) / 0.5)' }}
+      style={{ color: 'var(--event-card-text-muted, #6B7280)' }}
     >
       :
     </span>
@@ -109,14 +110,16 @@ export function CountdownTimer({
       className={cn(
         'rounded-lg border p-4 sm:p-6 transition-all duration-300',
         isUrgent && 'border-red-500/50 bg-red-500/5 animate-pulse',
-        isEmphasized && !isUrgent && 'border-[var(--event-primary)] scale-[1.02]',
-        !isEmphasized && 'border-border bg-card',
+        isEmphasized && !isUrgent && 'scale-[1.02]',
         className
       )}
       style={{
+        backgroundColor: isUrgent ? undefined : 'rgb(var(--event-card-bg, 147, 51, 234))',
         borderColor: isEmphasized && !isUrgent
           ? 'rgb(var(--event-primary, 59, 130, 246))'
-          : undefined,
+          : isUrgent
+            ? undefined
+            : 'rgb(var(--event-primary, 59, 130, 246) / 0.3)',
       }}
     >
       {/* Header */}
@@ -126,7 +129,7 @@ export function CountdownTimer({
             'transition-all duration-300',
             isEmphasized ? 'h-5 w-5' : 'h-4 w-4'
           )}
-          style={{ color: 'rgb(var(--event-primary, 59, 130, 246))' }}
+          style={{ color: 'var(--event-card-text, #000000)' }}
         />
         <span
           className={cn(
@@ -134,6 +137,9 @@ export function CountdownTimer({
             isEmphasized ? 'text-base' : 'text-sm',
             isUrgent && 'text-red-600'
           )}
+          style={{
+            color: isUrgent ? undefined : 'var(--event-card-text, #000000)',
+          }}
         >
           {isExpired
             ? 'Event has started!'
@@ -169,7 +175,7 @@ export function CountdownTimer({
         <div className="text-center">
           <span
             className="text-xl font-bold"
-            style={{ color: 'rgb(var(--event-primary, 59, 130, 246))' }}
+            style={{ color: 'var(--event-card-text, #000000)' }}
           >
             The event has begun!
           </span>

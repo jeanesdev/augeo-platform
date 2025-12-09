@@ -1,9 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 
+/**
+ * Event Layout Route
+ *
+ * Parent layout bypasses sidebar for immersive event experience.
+ * This route just passes through to child routes.
+ */
 export const Route = createFileRoute('/_authenticated/events/$eventId')({
-  component: RouteComponent,
+  component: EventLayout,
 })
 
-function RouteComponent() {
-  return <div>Hello "/_authenticated/events/$eventId"!</div>
+function EventLayout() {
+  return <Outlet />
 }

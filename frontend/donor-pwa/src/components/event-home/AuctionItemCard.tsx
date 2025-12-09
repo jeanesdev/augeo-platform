@@ -90,23 +90,34 @@ export function AuctionItemCard({
       {/* Content */}
       <div className="flex flex-1 flex-col p-3">
         {/* Title */}
-        <h3 className="mb-2 line-clamp-2 text-sm font-medium leading-tight">
+        <h3
+          className="mb-2 line-clamp-2 text-sm font-medium leading-tight"
+          style={{ color: 'var(--event-text-on-background, #000000)' }}
+        >
           {item.title}
         </h3>
 
         {/* Bid info */}
         <div className="mt-auto space-y-1">
           <div className="flex items-baseline justify-between">
-            <span className="text-xs text-muted-foreground">{bidLabel}</span>
+            <span
+              className="text-xs"
+              style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
+            >
+              {bidLabel}
+            </span>
             {item.bid_count > 0 && (
-              <span className="text-xs text-muted-foreground">
+              <span
+                className="text-xs"
+                style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
+              >
                 {item.bid_count} bid{item.bid_count !== 1 ? 's' : ''}
               </span>
             )}
           </div>
           <div
             className="text-lg font-bold"
-            style={{ color: 'var(--event-primary, #3B82F6)' }}
+            style={{ color: 'rgb(var(--event-primary, 59, 130, 246))' }}
           >
             {formatCurrency(displayBid)}
           </div>
@@ -116,12 +127,13 @@ export function AuctionItemCard({
         <button
           onClick={handleBidClick}
           className={cn(
-            'mt-3 flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white transition-colors',
+            'mt-3 flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             'disabled:pointer-events-none disabled:opacity-50'
           )}
           style={{
-            backgroundColor: 'var(--event-primary, #3B82F6)',
+            backgroundColor: 'rgb(var(--event-primary, 59, 130, 246))',
+            color: 'var(--event-text-on-primary, #FFFFFF)',
           }}
         >
           <Gavel className="h-4 w-4" aria-hidden="true" />

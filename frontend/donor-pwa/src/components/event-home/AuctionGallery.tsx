@@ -252,7 +252,10 @@ export function AuctionGallery({
           ))}
         </div>
 
-        <span className="text-sm text-muted-foreground">
+        <span
+          className="text-sm"
+          style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
+        >
           {totalCount} item{totalCount !== 1 ? 's' : ''}
         </span>
       </div>
@@ -261,8 +264,16 @@ export function AuctionGallery({
       {items.length === 0 && (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
           <Gavel className="h-12 w-12 text-muted-foreground/40" aria-hidden="true" />
-          <h3 className="mt-4 text-lg font-medium">No auction items available yet</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h3
+            className="mt-4 text-lg font-medium"
+            style={{ color: 'var(--event-text-on-background, #000000)' }}
+          >
+            No auction items available yet
+          </h3>
+          <p
+            className="mt-1 text-sm"
+            style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
+          >
             Check back soon for exciting items to bid on!
           </p>
         </div>

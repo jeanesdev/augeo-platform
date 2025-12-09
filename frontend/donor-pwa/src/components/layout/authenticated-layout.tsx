@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import type { EventContextOption } from '@/stores/event-context-store'
 import { useQuery } from '@tanstack/react-query'
-import { Outlet } from '@tanstack/react-router'
+import { Outlet, useMatches } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
 type AuthenticatedLayoutProps = {
@@ -29,6 +29,12 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const { setAvailableEvents } = useEventContext()
   const restoreUserFromRefreshToken = useAuthStore(state => state.restoreUserFromRefreshToken)
   const [isRestoring, setIsRestoring] = useState(true)
+  const matches = useMatches()
+
+  // Check if we're on an event detail page (should use sidebar-free layout)
+  const isEventDetailPage = matches.some(
+    match => match.routeId.includes('/events/$eventId')
+  )
 
   // Restore user from refresh token on mount if needed
   useEffect(() => {
@@ -150,6 +156,18 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
     )
   }
 
+  // For event detail pages, render sidebar-free layout (just the outlet)
+  // The child route (EventHomePage) handles its own full-page layout
+  if (isEventDetailPage) {
+    return (
+      <SearchProvider>
+        <SkipToMain />
+        {children ?? <Outlet />}
+      </SearchProvider>
+    )
+  }
+
+  // Standard layout with sidebar for other authenticated pages
   return (
     <SearchProvider>
       <LayoutProvider>

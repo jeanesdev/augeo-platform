@@ -60,7 +60,7 @@ function DetailRow({
   value,
   href,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   label: string;
   value: string | null | undefined;
   href?: string;
@@ -72,21 +72,28 @@ function DetailRow({
       href={href}
       target={href.startsWith('http') ? '_blank' : undefined}
       rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-      className="underline hover:no-underline text-[rgb(var(--event-primary,59,130,246))]"
+      className="underline hover:no-underline"
+      style={{ color: 'rgb(var(--event-primary,59,130,246))' }}
     >
       {value}
     </a>
   ) : (
-    <span>{value}</span>
+    <span style={{ color: 'var(--event-text-on-background, #000000)' }}>{value}</span>
   );
 
   return (
     <div className="flex items-start gap-3">
-      <div className="text-[rgb(var(--event-primary,59,130,246))]">
-        <Icon className="h-5 w-5 mt-0.5 flex-shrink-0" />
+      <div>
+        <Icon
+          className="h-5 w-5 mt-0.5 flex-shrink-0"
+          style={{ color: 'rgb(var(--event-primary,59,130,246))' }}
+        />
       </div>
       <div>
-        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-0.5">
+        <p
+          className="text-xs uppercase tracking-wide mb-0.5"
+          style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
+        >
           {label}
         </p>
         <p className="text-sm">{content}</p>
@@ -165,13 +172,15 @@ export function EventDetails({
         <button
           className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors rounded-t-lg"
           aria-expanded={isOpen}
+          style={{ color: 'var(--event-text-on-background, #000000)' }}
         >
           <span className="font-semibold">Event Details</span>
           <ChevronDown
             className={cn(
-              'h-5 w-5 text-muted-foreground transition-transform duration-200',
+              'h-5 w-5 transition-transform duration-200',
               isOpen && 'rotate-180'
             )}
+            style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
           />
         </button>
       </Collapsible.Trigger>

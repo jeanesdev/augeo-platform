@@ -105,10 +105,16 @@ export function EventSwitcher({
       <div className="flex items-center gap-3">
         <EventThumbnail event={currentEvent} />
         <div className="flex flex-col">
-          <span className="font-semibold text-sm leading-tight">
+          <span
+            className="font-semibold text-sm leading-tight"
+            style={{ color: 'var(--event-text-on-background, #000000)' }}
+          >
             {currentEvent.name}
           </span>
-          <span className="text-xs text-muted-foreground">
+          <span
+            className="text-xs"
+            style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
+          >
             {currentEvent.npo_name}
           </span>
         </div>
@@ -126,14 +132,23 @@ export function EventSwitcher({
         >
           <EventThumbnail event={currentEvent} />
           <div className="flex flex-col text-left">
-            <span className="font-semibold text-sm leading-tight">
+            <span
+              className="font-semibold text-sm leading-tight"
+              style={{ color: 'var(--event-text-on-background, #000000)' }}
+            >
               {currentEvent.name}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span
+              className="text-xs"
+              style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
+            >
               {currentEvent.npo_name}
             </span>
           </div>
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <ChevronDown
+            className="h-4 w-4"
+            style={{ color: 'var(--event-text-muted-on-background, #6B7280)' }}
+          />
         </button>
       </DropdownMenuTrigger>
 

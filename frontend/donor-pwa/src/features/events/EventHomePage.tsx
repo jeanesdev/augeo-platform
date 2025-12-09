@@ -243,7 +243,10 @@ export function EventHomePage() {
       {/* Event Quick Info */}
       <div
         className="border-b"
-        style={{ borderColor: 'rgb(var(--event-primary, 59, 130, 246) / 0.2)' }}
+        style={{
+          borderColor: 'rgb(var(--event-primary, 59, 130, 246) / 0.2)',
+          color: 'var(--event-text-on-background, #000000)',
+        }}
       >
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-wrap gap-4 text-sm">
@@ -270,7 +273,10 @@ export function EventHomePage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="container mx-auto px-4 py-6">
+      <div
+        className="container mx-auto px-4 py-6"
+        style={{ color: 'var(--event-text-on-background, #000000)' }}
+      >
         {/* Countdown Timer - show only for upcoming events */}
         {currentEvent.event_datetime && !currentEventForSwitcher?.is_past && (
           <div className="mb-6">
