@@ -58,3 +58,33 @@ export function getPageNumbers(currentPage: number, totalPages: number) {
 
   return rangeWithDots
 }
+
+/**
+ * Format a phone number to (XXX) XXX-XXXX format
+ * Handles both 10-digit and 11-digit (with leading 1) phone numbers
+ * @param phone - Phone number string (can include formatting characters)
+ * @returns Formatted phone number string
+ *
+ * Examples:
+ * - "5551234567" -> "(555) 123-4567"
+ * - "15551234567" -> "(555) 123-4567"
+ * - "(555) 123-4567" -> "(555) 123-4567"
+ */
+export function formatPhoneNumber(phone: string): string {
+  // Remove all non-digit characters
+  const digits = phone.replace(/\D/g, '')
+
+  // Handle 11-digit number with leading 1 (US country code)
+  if (digits.length === 11 && digits.startsWith('1')) {
+    const localNumber = digits.slice(1)
+    return `(${localNumber.slice(0, 3)}) ${localNumber.slice(3, 6)}-${localNumber.slice(6, 10)}`
+  }
+
+  // Handle 10-digit number
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`
+  }
+
+  // Return original if not a standard format
+  return phone
+}
