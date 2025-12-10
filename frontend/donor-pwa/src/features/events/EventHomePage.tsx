@@ -20,11 +20,10 @@ import { AuctionItemDetailModal } from '@/components/event-home/AuctionItemDetai
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useEventBranding } from '@/hooks/use-event-branding'
-import { getRegisteredEventsWithBranding } from '@/lib/api/registrations'
+import { useEventContext } from '@/hooks/use-event-context'
 import { useEventContextStore } from '@/stores/event-context-store'
 import { useEventStore } from '@/stores/event-store'
 import type { RegisteredEventWithBranding } from '@/types/event-branding'
-import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { AlertCircle, Calendar, Loader2, MapPin } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -42,14 +41,39 @@ export function EventHomePage() {
   const { currentEvent, eventsLoading, eventsError, loadEventBySlug } = useEventStore()
   const { applyBranding, clearBranding } = useEventBranding()
   const { setSelectedEvent } = useEventContextStore()
+  const { availableEvents } = useEventContext()
   const [selectedAuctionItemId, setSelectedAuctionItemId] = useState<string | null>(null)
 
-  // Fetch all registered events for event switcher
-  const { data: registeredEventsData } = useQuery({
-    queryKey: ['registrations', 'events-with-branding'],
-    queryFn: getRegisteredEventsWithBranding,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  })
+  // Convert available events from event context to RegisteredEventWithBranding format
+  const eventsForSwitcher = useMemo((): RegisteredEventWithBranding[] => {
+    return availableEvents.map((event) => {
+      // Check if event is past
+      const eventDate = event.event_date ? new Date(event.event_date) : null
+      const now = new Date()
+      const is_past = eventDate ? eventDate < now : false
+      const is_upcoming =
+        eventDate && !is_past
+          ? eventDate <= new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+          : false
+
+      return {
+        id: event.id,
+        name: event.name,
+        slug: event.slug,
+        event_datetime: event.event_date || null,
+        timezone: null,
+        is_past,
+        is_upcoming,
+        thumbnail_url: event.logo_url || null,
+        primary_color: '#3B82F6',
+        secondary_color: '#9333EA',
+        background_color: '#FFFFFF',
+        accent_color: '#3B82F6',
+        npo_name: event.npo_name || 'Organization',
+        npo_logo_url: null,
+      }
+    })
+  }, [availableEvents])
 
   // Convert current event to RegisteredEventWithBranding for switcher
   const currentEventForSwitcher = useMemo((): RegisteredEventWithBranding | null => {
@@ -309,12 +333,12 @@ export function EventHomePage() {
         )}
 
         {/* Event Switcher - Top Left */}
-        {currentEventForSwitcher && registeredEventsData?.events && (
+        {currentEventForSwitcher && eventsForSwitcher.length > 0 && (
           <div className="absolute top-4 left-4">
             <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg">
               <EventSwitcher
                 currentEvent={currentEventForSwitcher}
-                events={registeredEventsData.events}
+                events={eventsForSwitcher}
                 onEventSelect={handleEventSelect}
               />
             </div>
