@@ -15,7 +15,7 @@ async def main():
         result = await db.execute(
             select(Event)
             .options(selectinload(Event.media))
-            .where(Event.slug == "chn-christmas-gala-2025-2")
+            .where(Event.slug == "connect-celebrate-gala-2026")
         )
         event = result.scalar_one_or_none()
 
@@ -30,10 +30,10 @@ async def main():
             if event.media:
                 for media in event.media:
                     print(f"  - Type: {media.media_type}")
-                    print(f"    File: {media.file_path}")
+                    print(f"    File Name: {media.file_name}")
                     print(f"    URL: {media.file_url}")
                     print(f"    Display Order: {media.display_order}")
-                    print(f"    Status: {media.scan_status}")
+                    print(f"    Status: {media.status}")
                     print()
             else:
                 print("  No media files uploaded")
