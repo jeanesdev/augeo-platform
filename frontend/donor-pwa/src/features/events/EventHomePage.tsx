@@ -17,6 +17,7 @@
 
 import { AuctionGallery, CountdownTimer, EventDetails, EventSwitcher } from '@/components/event-home'
 import { AuctionItemDetailModal } from '@/components/event-home/AuctionItemDetailModal'
+import { SponsorsCarousel } from '@/components/event-home/SponsorsCarousel'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useEventBranding } from '@/hooks/use-event-branding'
@@ -504,6 +505,11 @@ export function EventHomePage() {
               setSelectedAuctionItemId(item.id)
             }}
           />
+        </section>
+
+        {/* Sponsors Carousel */}
+        <section className="mt-12 mb-8">
+          <SponsorsCarousel eventId={currentEvent?.id || ''} />
         </section>
 
         {/* Auction Item Detail Modal */}
