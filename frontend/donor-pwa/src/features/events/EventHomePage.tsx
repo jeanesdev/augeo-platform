@@ -17,6 +17,7 @@
 
 import { AuctionGallery, CountdownTimer, EventDetails, EventSwitcher } from '@/components/event-home'
 import { AuctionItemDetailModal } from '@/components/event-home/AuctionItemDetailModal'
+import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useEventBranding } from '@/hooks/use-event-branding'
 import { getRegisteredEventsWithBranding } from '@/lib/api/registrations'
@@ -36,8 +37,8 @@ import { toast } from 'sonner'
  */
 export function EventHomePage() {
   const navigate = useNavigate()
-  const { eventId } = useParams({ strict: false }) as { eventId: string }
-  const { currentEvent, eventsLoading, eventsError, loadEventById } = useEventStore()
+  const { eventSlug } = useParams({ strict: false }) as { eventSlug: string }
+  const { currentEvent, eventsLoading, eventsError, loadEventBySlug } = useEventStore()
   const { applyBranding, clearBranding } = useEventBranding()
   const [selectedAuctionItemId, setSelectedAuctionItemId] = useState<string | null>(null)
 
@@ -79,20 +80,20 @@ export function EventHomePage() {
   // Handle event switch from dropdown
   const handleEventSelect = useCallback(
     (event: RegisteredEventWithBranding) => {
-      navigate({ to: '/events/$eventId', params: { eventId: event.id } })
+      navigate({ to: '/events/$eventSlug', params: { eventSlug: event.slug } })
     },
     [navigate]
   )
 
   // Load event data
   const loadEvent = useCallback(() => {
-    if (eventId) {
-      loadEventById(eventId).catch(() => {
+    if (eventSlug) {
+      loadEventBySlug(eventSlug).catch(() => {
         toast.error('Failed to load event')
         navigate({ to: '/home' })
       })
     }
-  }, [eventId, loadEventById, navigate])
+  }, [eventSlug, loadEventBySlug, navigate])
 
   useEffect(() => {
     loadEvent()
@@ -295,6 +296,13 @@ export function EventHomePage() {
           </div>
         )}
 
+        {/* Profile Dropdown - Top Right */}
+        <div className="absolute top-4 right-4">
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-1">
+            <ProfileDropdown />
+          </div>
+        </div>
+
         {/* Event Title Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
           <div className="container mx-auto">
@@ -438,7 +446,7 @@ export function EventHomePage() {
             Auction Items
           </h2>
           <AuctionGallery
-            eventId={eventId}
+            eventId={currentEvent?.id || ''}
             initialFilter="all"
             initialSort="highest_bid"
             eventStatus={currentEvent?.status}
@@ -451,7 +459,7 @@ export function EventHomePage() {
 
         {/* Auction Item Detail Modal */}
         <AuctionItemDetailModal
-          eventId={eventId}
+          eventId={currentEvent?.id || ''}
           itemId={selectedAuctionItemId}
           eventStatus={currentEvent?.status}
           eventDateTime={currentEvent?.event_datetime}
