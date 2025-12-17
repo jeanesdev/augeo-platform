@@ -10,7 +10,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import type { GuestSeatingInfo } from '@/lib/api/admin-seating'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, Hash, Mail, MapPin, Users } from 'lucide-react'
+import { GripVertical, Hash, Mail, MapPin, UserCheck, Users } from 'lucide-react'
 
 interface GuestCardProps {
   guest: GuestSeatingInfo
@@ -85,6 +85,16 @@ export function GuestCard({
               <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
                 <Mail className="h-3 w-3" />
                 <span className="truncate">{guest.email}</span>
+              </div>
+            )}
+
+            {/* Guest of Primary Registrant Indicator */}
+            {guest.is_guest_of_primary && guest.primary_registrant_name && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                <UserCheck className="h-3 w-3 text-blue-500" />
+                <span className="truncate">
+                  Guest of <span className="font-medium">{guest.primary_registrant_name}</span>
+                </span>
               </div>
             )}
 

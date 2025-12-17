@@ -27,12 +27,14 @@ interface AutoAssignButtonProps {
   eventId: string
   unassignedCount: number
   disabled?: boolean
+  onRefresh?: () => void
 }
 
 export function AutoAssignButton({
   eventId,
   unassignedCount,
   disabled = false,
+  onRefresh,
 }: AutoAssignButtonProps) {
   const [open, setOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -42,6 +44,9 @@ export function AutoAssignButton({
     onSuccess: (data) => {
       // Invalidate seating queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ['seating', eventId] })
+
+      // Refresh the Zustand store to update the UI
+      onRefresh?.()
 
       // Show success message with assignment details
       const message = `Assigned ${data.assigned_count} guest${data.assigned_count !== 1 ? 's' : ''} to tables`
@@ -64,8 +69,8 @@ export function AutoAssignButton({
 
       setOpen(false)
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.detail || 'Failed to auto-assign guests'
+    onError: (error: unknown) => {
+      const message = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 'Failed to auto-assign guests'
       toast.error(message)
     },
   })

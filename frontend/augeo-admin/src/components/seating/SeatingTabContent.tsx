@@ -233,6 +233,7 @@ export function SeatingTabContent({
               eventId={eventId}
               unassignedCount={unassignedGuests.length}
               disabled={isLoading}
+              onRefresh={loadGuests}
             />
             <Button
               variant="outline"

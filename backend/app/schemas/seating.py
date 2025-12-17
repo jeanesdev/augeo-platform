@@ -129,6 +129,8 @@ class GuestSeatingInfo(BaseModel):
     table_number: int | None
     registration_id: UUID
     checked_in: bool
+    is_guest_of_primary: bool  # True if this is a guest of the primary registrant
+    primary_registrant_name: str | None  # Name of the primary registrant if this is a guest
 
     model_config = ConfigDict(from_attributes=True)
 

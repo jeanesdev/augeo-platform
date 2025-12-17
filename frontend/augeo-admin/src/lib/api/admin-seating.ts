@@ -51,6 +51,8 @@ export interface GuestSeatingInfo {
   table_number: number | null
   registration_id: string
   checked_in: boolean
+  is_guest_of_primary: boolean
+  primary_registrant_name: string | null
 }
 
 /**
