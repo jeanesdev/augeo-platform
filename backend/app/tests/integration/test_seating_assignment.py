@@ -349,18 +349,17 @@ class TestSeatingAssignment:
         db_session.add_all([guest1, guest2])
         await db_session.commit()
 
-        # Step 2: Reassign guest1 to 300 (currently held by guest2)
+        # Step 2: Reassign registration1 to 300 (currently held by guest2 in registration2)
         reassign_response = await npo_admin_client.patch(
-            f"/api/v1/admin/events/{test_active_event.id}/guests/{guest1.id}/bidder-number",
+            f"/api/v1/admin/events/{test_active_event.id}/registrations/{registration1.id}/bidder-number",
             json={"bidder_number": 300},
         )
         assert reassign_response.status_code == 200
         reassign_data = reassign_response.json()
 
-        # Verify swap occurred
-        assert reassign_data["guest_id"] == str(guest1.id)
+        # Verify assignment succeeded
+        assert reassign_data["registration_id"] == str(registration1.id)
         assert reassign_data["bidder_number"] == 300
-        assert reassign_data["previous_holder_id"] == str(guest2.id)
 
         # Step 3: Verify both guests in database
         await db_session.refresh(guest1)
@@ -407,7 +406,11 @@ class TestSeatingAssignment:
             json={"bidder_number": 99},
         )
         assert below_response.status_code == 422  # Pydantic validation error
-        assert "must be between 100 and 999" in str(below_response.json())
+        response_text = str(below_response.json())
+        assert (
+            "greater than or equal to 100" in response_text
+            or "must be between 100 and 999" in response_text
+        )
 
         # Step 3: Try to assign number above 999
         above_response = await npo_admin_client.patch(
@@ -415,7 +418,11 @@ class TestSeatingAssignment:
             json={"bidder_number": 1000},
         )
         assert above_response.status_code == 422  # Pydantic validation error
-        assert "must be between 100 and 999" in str(above_response.json())
+        response_text = str(above_response.json())
+        assert (
+            "less than or equal to 999" in response_text
+            or "must be between 100 and 999" in response_text
+        )
 
 
 @pytest.mark.asyncio

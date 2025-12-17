@@ -162,17 +162,22 @@ class TestSeatingEndpoints:
         db_session.add(second_registration)
         await db_session.commit()
 
-        # Try to assign same bidder number
+        # Try to assign same bidder number - should succeed with swap
         payload = {"bidder_number": 200}
         response = await npo_admin_client.patch(
             f"/api/v1/admin/events/{test_event.id}/registrations/{second_registration.id}/bidder-number",
             json=payload,
         )
 
-        assert response.status_code == 400
-        detail = response.json()["detail"]
-        detail_str = detail if isinstance(detail, str) else str(detail)
-        assert "already assigned" in detail_str.lower() or "already has" in detail_str.lower()
+        # Should succeed (200) with conflict resolution (swap)
+        assert response.status_code == 200
+        data = response.json()
+        assert data["bidder_number"] == 200
+        assert data["registration_id"] == str(second_registration.id)
+
+        # Verify first guest was reassigned to a different number
+        await db_session.refresh(first_guest)
+        assert first_guest.bidder_number != 200  # Should be reassigned to 100 (next available)
 
     async def test_assign_table_number_success(
         self,
@@ -437,14 +442,13 @@ class TestDonorSeatingEndpoint:
         data = response.json()
 
         # Validate response schema matches SeatingInfoResponse
-        assert "table_number" in data
-        assert data["table_number"] == 5
-        assert "bidder_number" in data
-        assert data["bidder_number"] == 150  # Visible after check-in
+        assert "my_info" in data
+        assert data["my_info"]["table_number"] == 5
+        assert data["my_info"]["bidder_number"] == 150  # Visible after check-in
         assert "tablemates" in data
         assert isinstance(data["tablemates"], list)
-        assert "capacity" in data
-        assert data["capacity"] == 8
+        assert "table_capacity" in data
+        assert data["table_capacity"]["max"] == 8
         assert "has_table_assignment" in data
         assert data["has_table_assignment"] is True
         assert "message" in data
@@ -484,7 +488,7 @@ class TestDonorSeatingEndpoint:
         data = response.json()
 
         # Bidder number should be None before check-in
-        assert data["bidder_number"] is None
+        assert data["my_info"]["bidder_number"] is None
         assert "check in at the event" in data["message"].lower()
 
     async def test_get_donor_seating_info_no_assignment(
@@ -516,7 +520,7 @@ class TestDonorSeatingEndpoint:
         assert response.status_code == 200
         data = response.json()
 
-        assert data["table_number"] is None
+        assert data["my_info"]["table_number"] is None
         assert data["has_table_assignment"] is False
         assert "pending" in data["message"].lower() or "not yet assigned" in data["message"].lower()
         assert data["tablemates"] == []

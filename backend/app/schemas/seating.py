@@ -222,30 +222,33 @@ class MySeatingInfo(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class TableCapacityInfo(BaseModel):
+    """Table capacity information."""
+
+    current: int = Field(..., description="Current number of guests at table")
+    max: int = Field(..., description="Maximum table capacity")
+
+
 class SeatingInfoResponse(BaseModel):
     """Response schema for donor PWA seating information display (T011)."""
 
-    table_number: int | None = Field(
-        None,
-        description="Assigned table number (null if not assigned)",
-    )
-    bidder_number: int | None = Field(
-        None,
-        description="Bidder number (null if not checked in)",
+    my_info: MySeatingInfo = Field(
+        ...,
+        description="Current user's seating information",
     )
     tablemates: list[TablemateInfo] = Field(
         default_factory=list,
         description="List of guests at the same table",
     )
-    capacity: int = Field(
+    table_capacity: TableCapacityInfo = Field(
         ...,
-        description="Maximum table capacity",
+        description="Table capacity information",
     )
     has_table_assignment: bool = Field(
         ...,
         description="Whether table is assigned",
     )
-    message: str = Field(
-        ...,
+    message: str | None = Field(
+        None,
         description="Message to display (e.g., 'Check in at the event to see your bidder number')",
     )

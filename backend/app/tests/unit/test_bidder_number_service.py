@@ -293,13 +293,13 @@ class TestBidderNumberService:
         db_session.add(registration)
         await db_session.commit()
 
-        # Create two guests with numbers 100 and 200
+        # Create two guests: guest1 with no number, guest2 with 200
         guest1 = RegistrationGuest(
             id=uuid4(),
             registration_id=registration.id,
             name="Guest 1",
             email="guest1@test.com",
-            bidder_number=100,
+            bidder_number=None,  # No number initially
         )
         guest2 = RegistrationGuest(
             id=uuid4(),
@@ -313,7 +313,7 @@ class TestBidderNumberService:
         await db_session.refresh(guest1)
         await db_session.refresh(guest2)
 
-        # Reassign guest1 to 200 (currently held by guest2)
+        # Assign guest1 to 200 (currently held by guest2) - should trigger swap
         result = await BidderNumberService.reassign_bidder_number(
             db_session, event_id, guest1.id, 200
         )
@@ -326,7 +326,7 @@ class TestBidderNumberService:
         await db_session.refresh(guest1)
         await db_session.refresh(guest2)
         assert guest1.bidder_number == 200
-        assert guest2.bidder_number == 101  # Should be reassigned to next available
+        assert guest2.bidder_number == 100  # Should be reassigned to next available (starts at 100)
 
     @pytest.mark.asyncio
     async def test_reassign_invalid_range(

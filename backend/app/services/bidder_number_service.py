@@ -214,6 +214,11 @@ class BidderNumberService:
         if conflicting_guest:
             response["previous_holder_id"] = conflicting_guest.id
 
+            # Clear the conflicting guest's number first
+            conflicting_guest.bidder_number = None
+            conflicting_guest.bidder_number_assigned_at = None
+            await db.flush()
+
             # Find next available number for previous holder
             new_number_for_previous = await BidderNumberService.assign_bidder_number(
                 db, event_id, conflicting_guest.id
