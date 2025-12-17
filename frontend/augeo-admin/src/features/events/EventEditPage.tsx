@@ -438,7 +438,7 @@ export function EventEditPage() {
                     await updateEvent(eventId, {
                       seating_layout_image_url: url,
                     })
-                    await refetch()
+                    await loadEventById(eventId)
                   } catch {
                     toast.error('Failed to update layout image')
                   }

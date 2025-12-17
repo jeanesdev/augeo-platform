@@ -22,6 +22,8 @@ describe('TableAssignmentModal', () => {
     table_number: null,
     registration_id: 'reg-123',
     checked_in: false,
+    is_guest_of_primary: false,
+    primary_registrant_name: null,
   }
 
   const mockTableOccupancy = new Map([

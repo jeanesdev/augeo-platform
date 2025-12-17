@@ -3,7 +3,7 @@
  * API service for event seating configuration and management
  */
 
-import api from './api'
+import api from '@/lib/axios'
 
 export interface EventSeatingConfig {
   table_count: number

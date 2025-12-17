@@ -109,6 +109,7 @@ export interface EventUpdateRequest {
   accent_color?: string
   table_count?: number | null
   max_guests_per_table?: number | null
+  seating_layout_image_url?: string | null
   version?: number
 }
 
