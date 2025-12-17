@@ -221,7 +221,6 @@ class BidderNumberService:
             response["previous_holder_new_number"] = new_number_for_previous
 
         # Assign new number to target guest
-        old_number = guest.bidder_number
         guest.bidder_number = new_bidder_number
         if guest.bidder_number_assigned_at is None:
             guest.bidder_number_assigned_at = datetime.now(UTC)
