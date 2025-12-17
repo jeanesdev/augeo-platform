@@ -39,7 +39,7 @@ class TestSeatingAssignment:
         create_response = await npo_admin_client.post("/api/v1/events", json=create_payload)
         assert create_response.status_code == 201
         event_data = create_response.json()
-        event_id = event_data["guest_id"]
+        event_id = event_data["id"]
 
         # Verify no seating configuration initially
         assert event_data.get("table_count") is None
@@ -232,6 +232,7 @@ class TestSeatingAssignment:
         npo_admin_client: AsyncClient,
         test_approved_npo: Any,
         test_active_event: Any,
+        test_donor: Any,
         db_session: AsyncSession,
     ) -> None:
         """Test manual bidder number assignment to a guest."""
@@ -244,8 +245,7 @@ class TestSeatingAssignment:
         registration = EventRegistration(
             id=uuid4(),
             event_id=test_active_event.id,
-            user_id=None,
-            email="test@example.com",
+            user_id=test_donor.id,
             status=RegistrationStatus.CONFIRMED,
         )
         db_session.add(registration)
@@ -282,6 +282,7 @@ class TestSeatingAssignment:
         npo_admin_client: AsyncClient,
         test_approved_npo: Any,
         test_active_event: Any,
+        test_donor: Any,
         db_session: AsyncSession,
     ) -> None:
         """Test automatic swap when assigning a number already in use."""
@@ -294,8 +295,7 @@ class TestSeatingAssignment:
         registration1 = EventRegistration(
             id=uuid4(),
             event_id=test_active_event.id,
-            user_id=None,
-            email="test1@example.com",
+            user_id=test_donor.id,
             status=RegistrationStatus.CONFIRMED,
         )
         db_session.add(registration1)
@@ -303,8 +303,7 @@ class TestSeatingAssignment:
         registration2 = EventRegistration(
             id=uuid4(),
             event_id=test_active_event.id,
-            user_id=None,
-            email="test2@example.com",
+            user_id=test_donor.id,
             status=RegistrationStatus.CONFIRMED,
         )
         db_session.add(registration2)
@@ -351,6 +350,7 @@ class TestSeatingAssignment:
         npo_admin_client: AsyncClient,
         test_approved_npo: Any,
         test_active_event: Any,
+        test_donor: Any,
         db_session: AsyncSession,
     ) -> None:
         """Test validation of bidder number range."""
@@ -363,8 +363,7 @@ class TestSeatingAssignment:
         registration = EventRegistration(
             id=uuid4(),
             event_id=test_active_event.id,
-            user_id=None,
-            email="test@example.com",
+            user_id=test_donor.id,
             status=RegistrationStatus.CONFIRMED,
         )
         db_session.add(registration)

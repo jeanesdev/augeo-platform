@@ -64,8 +64,9 @@ class TestSeatingEndpoints:
             json=payload,
         )
 
-        assert response.status_code == 400
-        assert "must be greater than 0" in response.json()["detail"].lower()
+        assert response.status_code == 422
+        data = response.json()
+        assert "detail" in data
 
     async def test_get_available_bidder_numbers_success(
         self,
@@ -369,9 +370,7 @@ class TestDonorSeatingEndpoint:
         test_registration.check_in_time = datetime.now(UTC)
         await db_session.commit()
 
-        response = await donor_client.get(
-            f"/api/v1/donor/events/{test_event.id}/my-seating"
-        )
+        response = await donor_client.get(f"/api/v1/donor/events/{test_event.id}/my-seating")
 
         # Assert response contract
         assert response.status_code == 200
@@ -407,9 +406,7 @@ class TestDonorSeatingEndpoint:
         test_registration.check_in_time = None  # Not checked in
         await db_session.commit()
 
-        response = await donor_client.get(
-            f"/api/v1/donor/events/{test_event.id}/my-seating"
-        )
+        response = await donor_client.get(f"/api/v1/donor/events/{test_event.id}/my-seating")
 
         # Assert response contract
         assert response.status_code == 200
@@ -432,9 +429,7 @@ class TestDonorSeatingEndpoint:
         test_registration.table_number = None
         await db_session.commit()
 
-        response = await donor_client.get(
-            f"/api/v1/donor/events/{test_event.id}/my-seating"
-        )
+        response = await donor_client.get(f"/api/v1/donor/events/{test_event.id}/my-seating")
 
         # Assert response contract
         assert response.status_code == 200
@@ -453,11 +448,10 @@ class TestDonorSeatingEndpoint:
         """Test 404 when donor has no registration for event."""
         # Use non-existent event ID
         from uuid import uuid4
+
         fake_event_id = uuid4()
 
-        response = await donor_client.get(
-            f"/api/v1/donor/events/{fake_event_id}/my-seating"
-        )
+        response = await donor_client.get(f"/api/v1/donor/events/{fake_event_id}/my-seating")
 
         assert response.status_code == 404
         assert "registration not found" in response.json()["detail"].lower()

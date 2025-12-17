@@ -13,14 +13,27 @@ class TestBidderNumberService:
     """Test suite for BidderNumberService."""
 
     @pytest.mark.asyncio
-    async def test_assign_sequential(self, db_session: AsyncSession, test_active_event):
+    async def test_assign_sequential(self, db_session: AsyncSession, test_active_event, test_donor):
         """Test sequential assignment starting from 100."""
         event_id = test_active_event.id
+
+        # Create EventRegistration first
+        from app.models.event_registration import EventRegistration, RegistrationStatus
+
+        registration = EventRegistration(
+            id=uuid4(),
+            event_id=test_active_event.id,
+            user_id=test_donor.id,
+            status=RegistrationStatus.CONFIRMED,
+        )
+        db_session.add(registration)
+        await db_session.commit()
+
         guests = []
         for i in range(3):
             guest = RegistrationGuest(
                 id=uuid4(),
-                registration_id=uuid4(),
+                registration_id=registration.id,
                 name=f"Guest {i + 1}",
                 email=f"guest{i + 1}@test.com",
             )
@@ -36,15 +49,27 @@ class TestBidderNumberService:
         assert assigned == [100, 101, 102]
 
     @pytest.mark.asyncio
-    async def test_gap_filling(self, db_session: AsyncSession, test_active_event):
+    async def test_gap_filling(self, db_session: AsyncSession, test_active_event, test_donor):
         """Test filling gaps from cancelled registrations."""
         event_id = test_active_event.id
+
+        # Create EventRegistration first
+        from app.models.event_registration import EventRegistration, RegistrationStatus
+
+        registration = EventRegistration(
+            id=uuid4(),
+            event_id=test_active_event.id,
+            user_id=test_donor.id,
+            status=RegistrationStatus.CONFIRMED,
+        )
+        db_session.add(registration)
+        await db_session.commit()
 
         # Create guests with numbers 100, 102, 104 (gaps at 101, 103)
         for number in [100, 102, 104]:
             guest = RegistrationGuest(
                 id=uuid4(),
-                registration_id=uuid4(),
+                registration_id=registration.id,
                 name=f"Guest {number}",
                 email=f"g{number}@test.com",
                 bidder_number=number,
@@ -55,7 +80,7 @@ class TestBidderNumberService:
         # New guest should get 101 (first gap)
         new_guest1 = RegistrationGuest(
             id=uuid4(),
-            registration_id=uuid4(),
+            registration_id=registration.id,
             name="New 1",
             email="new1@test.com",
         )
@@ -67,7 +92,7 @@ class TestBidderNumberService:
         # Next guest should get 103 (next gap)
         new_guest2 = RegistrationGuest(
             id=uuid4(),
-            registration_id=uuid4(),
+            registration_id=registration.id,
             name="New 2",
             email="new2@test.com",
         )
@@ -77,15 +102,29 @@ class TestBidderNumberService:
         assert num2 == 103
 
     @pytest.mark.asyncio
-    async def test_get_available_numbers(self, db_session: AsyncSession, test_active_event):
+    async def test_get_available_numbers(
+        self, db_session: AsyncSession, test_active_event, test_donor
+    ):
         """Test getting list of available bidder numbers."""
         event_id = test_active_event.id
+
+        # Create EventRegistration first
+        from app.models.event_registration import EventRegistration, RegistrationStatus
+
+        registration = EventRegistration(
+            id=uuid4(),
+            event_id=test_active_event.id,
+            user_id=test_donor.id,
+            status=RegistrationStatus.CONFIRMED,
+        )
+        db_session.add(registration)
+        await db_session.commit()
 
         # Create guests with 100, 102, 104
         for number in [100, 102, 104]:
             guest = RegistrationGuest(
                 id=uuid4(),
-                registration_id=uuid4(),
+                registration_id=registration.id,
                 name=f"Guest {number}",
                 bidder_number=number,
             )
@@ -99,11 +138,24 @@ class TestBidderNumberService:
         assert available == [101, 103, 105, 106, 107]
 
     @pytest.mark.asyncio
-    async def test_handle_cancellation(self, db_session: AsyncSession, test_active_event):
+    async def test_handle_cancellation(
+        self, db_session: AsyncSession, test_active_event, test_donor
+    ):
         """Test releasing bidder number on cancellation."""
+        from app.models.event_registration import EventRegistration, RegistrationStatus
+
+        registration = EventRegistration(
+            id=uuid4(),
+            event_id=test_active_event.id,
+            user_id=test_donor.id,
+            status=RegistrationStatus.CONFIRMED,
+        )
+        db_session.add(registration)
+        await db_session.commit()
+
         guest = RegistrationGuest(
             id=uuid4(),
-            registration_id=uuid4(),
+            registration_id=registration.id,
             name="Test",
             email="test@test.com",
             bidder_number=100,
@@ -119,14 +171,25 @@ class TestBidderNumberService:
         assert guest.bidder_number is None
 
     @pytest.mark.asyncio
-    async def test_get_bidder_count(self, db_session: AsyncSession, test_active_event):
+    async def test_get_bidder_count(self, db_session: AsyncSession, test_active_event, test_donor):
         """Test counting assigned bidder numbers."""
         event_id = test_active_event.id
+
+        from app.models.event_registration import EventRegistration, RegistrationStatus
+
+        registration = EventRegistration(
+            id=uuid4(),
+            event_id=test_active_event.id,
+            user_id=test_donor.id,
+            status=RegistrationStatus.CONFIRMED,
+        )
+        db_session.add(registration)
+        await db_session.commit()
 
         for i in range(5):
             guest = RegistrationGuest(
                 id=uuid4(),
-                registration_id=uuid4(),
+                registration_id=registration.id,
                 name=f"Guest {i}",
                 bidder_number=100 + i,
             )
@@ -137,13 +200,26 @@ class TestBidderNumberService:
         assert count == 5
 
     @pytest.mark.asyncio
-    async def test_validate_uniqueness(self, db_session: AsyncSession, test_active_event):
+    async def test_validate_uniqueness(
+        self, db_session: AsyncSession, test_active_event, test_donor
+    ):
         """Test validating bidder number uniqueness."""
         event_id = test_active_event.id
 
+        from app.models.event_registration import EventRegistration, RegistrationStatus
+
+        registration = EventRegistration(
+            id=uuid4(),
+            event_id=test_active_event.id,
+            user_id=test_donor.id,
+            status=RegistrationStatus.CONFIRMED,
+        )
+        db_session.add(registration)
+        await db_session.commit()
+
         guest = RegistrationGuest(
             id=uuid4(),
-            registration_id=uuid4(),
+            registration_id=registration.id,
             name="Test",
             bidder_number=100,
         )
@@ -161,14 +237,27 @@ class TestBidderNumberService:
         assert is_unique is True
 
     @pytest.mark.asyncio
-    async def test_reassign_available_number(self, db_session: AsyncSession, test_active_event):
+    async def test_reassign_available_number(
+        self, db_session: AsyncSession, test_active_event, test_donor
+    ):
         """Test reassigning to an available bidder number."""
         event_id = test_active_event.id
+
+        from app.models.event_registration import EventRegistration, RegistrationStatus
+
+        registration = EventRegistration(
+            id=uuid4(),
+            event_id=test_active_event.id,
+            user_id=test_donor.id,
+            status=RegistrationStatus.CONFIRMED,
+        )
+        db_session.add(registration)
+        await db_session.commit()
 
         # Create guest with number 100
         guest = RegistrationGuest(
             id=uuid4(),
-            registration_id=uuid4(),
+            registration_id=registration.id,
             name="Guest",
             email="guest@test.com",
             bidder_number=100,
@@ -190,21 +279,34 @@ class TestBidderNumberService:
         assert guest.bidder_number == 200
 
     @pytest.mark.asyncio
-    async def test_reassign_with_conflict_swap(self, db_session: AsyncSession, test_active_event):
+    async def test_reassign_with_conflict_swap(
+        self, db_session: AsyncSession, test_active_event, test_donor
+    ):
         """Test reassigning to a number already in use (automatic swap)."""
         event_id = test_active_event.id
+
+        from app.models.event_registration import EventRegistration, RegistrationStatus
+
+        registration = EventRegistration(
+            id=uuid4(),
+            event_id=test_active_event.id,
+            user_id=test_donor.id,
+            status=RegistrationStatus.CONFIRMED,
+        )
+        db_session.add(registration)
+        await db_session.commit()
 
         # Create two guests with numbers 100 and 200
         guest1 = RegistrationGuest(
             id=uuid4(),
-            registration_id=uuid4(),
+            registration_id=registration.id,
             name="Guest 1",
             email="guest1@test.com",
             bidder_number=100,
         )
         guest2 = RegistrationGuest(
             id=uuid4(),
-            registration_id=uuid4(),
+            registration_id=registration.id,
             name="Guest 2",
             email="guest2@test.com",
             bidder_number=200,
@@ -228,13 +330,26 @@ class TestBidderNumberService:
         assert guest2.bidder_number == 101  # Should be reassigned to next available
 
     @pytest.mark.asyncio
-    async def test_reassign_invalid_range(self, db_session: AsyncSession, test_active_event):
+    async def test_reassign_invalid_range(
+        self, db_session: AsyncSession, test_active_event, test_donor
+    ):
         """Test reassigning with out-of-range bidder number."""
         event_id = test_active_event.id
 
+        from app.models.event_registration import EventRegistration, RegistrationStatus
+
+        registration = EventRegistration(
+            id=uuid4(),
+            event_id=test_active_event.id,
+            user_id=test_donor.id,
+            status=RegistrationStatus.CONFIRMED,
+        )
+        db_session.add(registration)
+        await db_session.commit()
+
         guest = RegistrationGuest(
             id=uuid4(),
-            registration_id=uuid4(),
+            registration_id=registration.id,
             name="Guest",
             email="guest@test.com",
             bidder_number=100,
