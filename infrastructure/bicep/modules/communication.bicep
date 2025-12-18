@@ -4,7 +4,7 @@
 @description('Environment name')
 param environment string
 
-@description('Custom domain for email (e.g., augeo.app)')
+@description('Custom domain for email (e.g., fundrbolt.app)')
 param emailDomain string
 
 @description('Resource tags')
@@ -12,7 +12,7 @@ param tags object = {}
 
 // Communication Services Resource
 resource communicationService 'Microsoft.Communication/communicationServices@2023-04-01' = {
-  name: 'augeo-${environment}-acs'
+  name: 'fundrbolt-${environment}-acs'
   location: 'global' // ACS is a global service
   tags: tags
   properties: {
@@ -22,7 +22,7 @@ resource communicationService 'Microsoft.Communication/communicationServices@202
 
 // Email Services Resource
 resource emailService 'Microsoft.Communication/emailServices@2023-04-01' = {
-  name: 'augeo-${environment}-email'
+  name: 'fundrbolt-${environment}-email'
   location: 'global'
   tags: tags
   properties: {

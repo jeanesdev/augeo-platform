@@ -13,12 +13,12 @@ param environment string
 param location string = 'eastus'
 
 @description('Application name prefix')
-param appName string = 'augeo'
+param appName string = 'fundrbolt'
 
 @description('Tags for all resources')
 param tags object = {
   Environment: environment
-  Project: 'augeo-platform'
+  Project: 'fundrbolt-platform'
   ManagedBy: 'Bicep'
 }
 
@@ -43,7 +43,7 @@ var storageAccountName = replace('${appName}${environment}storage', '-', '')
 param postgresAdminPassword string
 
 // Optional parameters for custom domain (Phase 5)
-@description('Custom domain name (e.g., augeo.app) - only used in production')
+@description('Custom domain name (e.g., fundrbolt.app) - only used in production')
 param customDomain string = ''
 
 @description('Enable custom domain and email services')

@@ -84,7 +84,7 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01' =
 // Create default database
 resource postgresDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2022-12-01' = {
   parent: postgresServer
-  name: 'augeo'
+  name: 'fundrbolt'
 }
 
 // Firewall rule to allow Azure services

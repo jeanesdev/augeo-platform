@@ -25,7 +25,7 @@ jobs:
       # Test environment variables
       ENVIRONMENT: test
       DEBUG: true
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/augeo_test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fundrbolt_test
       REDIS_URL: redis://localhost:6379/0
       JWT_SECRET_KEY: test-secret-key-for-ci-only-not-production-safe
       JWT_ALGORITHM: HS256
@@ -34,11 +34,11 @@ jobs:
       AZURE_COMMUNICATION_CONNECTION_STRING: ${{ secrets.AZURE_COMMUNICATION_CONNECTION_STRING_TEST }}
       AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING_TEST }}
       AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME_TEST }}
-      EMAIL_FROM_ADDRESS: test@augeo.app
-      EMAIL_FROM_NAME: Augeo Test
+      EMAIL_FROM_ADDRESS: test@fundrbolt.app
+      EMAIL_FROM_NAME: Fundrbolt Test
       FRONTEND_ADMIN_URL: http://localhost:5173
       FRONTEND_DONOR_URL: http://localhost:5174
-      SUPER_ADMIN_EMAIL: admin@augeo.app
+      SUPER_ADMIN_EMAIL: admin@fundrbolt.app
       SUPER_ADMIN_PASSWORD: TestPassword123!
       SUPER_ADMIN_FIRST_NAME: Test
       SUPER_ADMIN_LAST_NAME: Admin
@@ -51,7 +51,7 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: augeo_test
+          POSTGRES_DB: fundrbolt_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -117,7 +117,7 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: ./frontend/augeo-admin
+        working-directory: ./frontend/fundrbolt-admin
 
     steps:
       - name: Checkout code

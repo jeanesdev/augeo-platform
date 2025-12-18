@@ -19,7 +19,7 @@ param tags object = {
 }
 
 @description('Naming prefix for resources')
-param resourcePrefix string = 'augeo'
+param resourcePrefix string = 'fundrbolt'
 
 // Output common values
 output environment string = environment
