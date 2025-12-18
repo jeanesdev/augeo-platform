@@ -2,7 +2,7 @@
 
 # Default target
 help:
-	@echo "Augeo Platform - Available Commands"
+	@echo "Fundrbolt Platform - Available Commands"
 	@echo ""
 	@echo "Development:"
 	@echo "  make install          - Install all dependencies (backend + frontend)"

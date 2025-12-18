@@ -4,9 +4,9 @@
 
 This PR implements a comprehensive seating assignment and bidder number management system for nonprofit fundraising events, enabling NPOs to efficiently manage guest seating, assign bidder numbers for auctions, and provide donors with seating information.
 
-**Branch**: `012-seating-assignment` → `main`  
-**Feature Spec**: `.specify/specs/012-seating-assignment/`  
-**Tasks**: 93 total (84 completed, 9 optional/deferred)  
+**Branch**: `012-seating-assignment` → `main`
+**Feature Spec**: `.specify/specs/012-seating-assignment/`
+**Tasks**: 93 total (84 completed, 9 optional/deferred)
 **Duration**: 3 weeks
 
 ## What's New
