@@ -53,8 +53,8 @@ case $ENVIRONMENT in
         CORS_ORIGINS="https://fundrbolt-staging-admin.azurestaticapps.net"
         ;;
     production)
-        FRONTEND_URL="https://admin.fundrbolt.app"
-        CORS_ORIGINS="https://admin.fundrbolt.app,https://fundrbolt.app"
+        FRONTEND_URL="https://admin.fundrbolt.com"
+        CORS_ORIGINS="https://admin.fundrbolt.com,https://fundrbolt.com"
         ;;
 esac
 
@@ -76,7 +76,7 @@ az webapp config appsettings set \
         SESSION_TIMEOUT="900" \
         ACCESS_TOKEN_EXPIRE_MINUTES="15" \
         REFRESH_TOKEN_EXPIRE_DAYS="7" \
-        EMAIL_FROM="noreply@fundrbolt.app" \
+        EMAIL_FROM="noreply@fundrbolt.com" \
         PYTHON_VERSION="3.11" \
         WEBSITES_PORT="8000" \
         WEBSITES_ENABLE_APP_SERVICE_STORAGE="false" \

@@ -730,7 +730,7 @@ This is an automated message. Please do not reply to this email.
         """
         Send notification to admins when a new NPO application is submitted.
 
-        Sent to: npo_applications@fundrbolt.app
+        Sent to: npo_applications@fundrbolt.com
         Content: Alert that new application needs review
 
         Args:
@@ -741,7 +741,7 @@ This is an automated message. Please do not reply to this email.
         Returns:
             True if email sent successfully, False otherwise
         """
-        admin_email = "npo_applications@fundrbolt.app"
+        admin_email = "npo_applications@fundrbolt.com"
         subject = f"New NPO Application: {npo_name}"
         applicant_info = f" by {applicant_name}" if applicant_name else ""
 

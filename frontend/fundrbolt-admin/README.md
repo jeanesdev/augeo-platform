@@ -1,4 +1,4 @@
-# Augeo Admin Dashboard
+# Fundrbolt Admin Dashboard
 
 Admin web application for nonprofit auction management with authentication, user management, and role-based access control.
 
@@ -62,7 +62,7 @@ nvm use 22
 ### 2. Install Dependencies
 
 ```bash
-cd frontend/augeo-admin
+cd frontend/fundrbolt-admin
 pnpm install
 ```
 
@@ -133,7 +133,7 @@ pnpm playwright show-report
 ## Project Structure
 
 ```
-frontend/augeo-admin/
+frontend/fundrbolt-admin/
 ├── src/
 │   ├── components/       # Reusable UI components
 │   │   ├── ui/           # Shadcn UI components
@@ -243,7 +243,7 @@ frontend/augeo-admin/
 
 1. **NPO Selector** (top-left corner):
    - Role-based NPO list (SuperAdmin sees all, others see assigned NPOs)
-   - "Augeo Platform" option for SuperAdmin (view all data)
+   - "Fundrbolt Platform" option for SuperAdmin (view all data)
    - Auto-selection for single-NPO users
    - Disabled for users with only one NPO (shows name only)
    - LocalStorage persistence across sessions
@@ -601,7 +601,7 @@ VITE_DEBUG=true
 
 Custom theme in `tailwind.config.js`:
 
-- Primary color: Augeo brand blue
+- Primary color: Fundrbolt brand blue
 - Dark mode support
 - Custom spacing and typography
 - Component utilities
@@ -703,7 +703,7 @@ Clone the project
 Go to the project directory
 
 ```bash
-  cd augeo-platform/frontend/augeo-admin
+  cd fundrbolt-platform/frontend/fundrbolt-admin
 ```
 
 Install dependencies
@@ -726,5 +726,5 @@ Proprietary
 
 For issues and questions:
 
-- Email: support@augeo.app
+- Email: support@fundrbolt.com
 - Backend API: http://localhost:8000/docs

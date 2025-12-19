@@ -488,7 +488,7 @@ def seed_testimonials():
     db = SessionLocal()
 
     # Get or create admin user
-    admin = db.query(User).filter(User.email == "admin@fundrbolt.app").first()
+    admin = db.query(User).filter(User.email == "admin@fundrbolt.com").first()
     if not admin:
         print("Admin user not found. Run seed_test_users.py first.")
         return

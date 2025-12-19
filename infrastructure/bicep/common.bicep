@@ -1,4 +1,4 @@
-// Common parameter definitions and types for Augeo Platform infrastructure
+// Common parameter definitions and types for Fundrbolt Platform infrastructure
 
 @description('Environment name (dev, staging, production)')
 @allowed([
@@ -14,7 +14,7 @@ param location string = resourceGroup().location
 @description('Common tags to apply to all resources')
 param tags object = {
   Environment: environment
-  Project: 'Augeo'
+  Project: 'Fundrbolt'
   ManagedBy: 'Bicep'
 }
 

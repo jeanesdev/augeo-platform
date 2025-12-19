@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-DOMAIN="fundrbolt.app"
+DOMAIN="fundrbolt.com"
 FROM_ADDRESS="${1:-noreply@$DOMAIN}"
 
 echo "📧 Email Authentication Score Testing"

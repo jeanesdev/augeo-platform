@@ -59,8 +59,8 @@ export function ConsentSettingsPage() {
             </p>
             <p className='mt-4'>
               Questions? Contact our Data Protection Officer at{' '}
-              <a href='mailto:privacy@augeo.app' className='underline'>
-                privacy@augeo.app
+              <a href='mailto:privacy@fundrbolt.com' className='underline'>
+                privacy@fundrbolt.com
               </a>
             </p>
           </div>

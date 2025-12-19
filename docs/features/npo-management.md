@@ -857,7 +857,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=15
 REFRESH_TOKEN_EXPIRE_DAYS=7
 
 # Email
-EMAIL_FROM=noreply@fundrbolt.app
+EMAIL_FROM=noreply@fundrbolt.com
 EMAIL_SERVICE=sendgrid  # or smtp
 SENDGRID_API_KEY=your-key-here
 
@@ -954,9 +954,9 @@ volumes:
 ## Support
 
 For technical support or questions:
-- Email: engineering@fundrbolt.app
+- Email: engineering@fundrbolt.com
 - Slack: #npo-management channel
-- Documentation: https://docs.fundrbolt.app
+- Documentation: https://docs.fundrbolt.com
 
 ## Version History
 

@@ -19,7 +19,7 @@
 
 ### User Story 1 - Event Registration via Link (Priority: P1)
 
-A donor receives an event registration link via email (e.g., `https://fundrbolt.app/events/spring-gala-2025/register`), clicks it, and completes registration to access the event page.
+A donor receives an event registration link via email (e.g., `https://fundrbolt.com/events/spring-gala-2025/register`), clicks it, and completes registration to access the event page.
 
 **Why this priority**: This is the primary entry point for donors and the core user flow. Without this, donors cannot access events.
 

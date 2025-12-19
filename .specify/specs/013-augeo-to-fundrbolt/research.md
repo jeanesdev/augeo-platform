@@ -17,18 +17,21 @@ This document consolidates findings on Fundrbolt references across the codebase,
 #### Backend (`/backend`)
 
 **File**: `pyproject.toml`
+
 - **Current**: `name = "fundrbolt-platform"`
 - **Decision**: Rename to `fundrbolt-platform`
 - **Impact**: Poetry package name; affects virtual environment path and dependency management
 - **Rationale**: Keep consistent with frontend package names and project identity
 
 **File**: `app/main.py`
+
 - **Current**: Application title/description contains "Fundrbolt", contact email references Fundrbolt
 - **Decision**: Replace with Fundrbolt equivalents
 - **Impact**: OpenAPI documentation, API responses
 - **Rationale**: User-facing documentation and support continuity
 
 **Files**: `app/core/config.py`, `app/middleware/`.
+
 - **Current**: Configuration variables, logging, response headers may reference Fundrbolt
 - **Decision**: Search and replace all brand names
 - **Impact**: Runtime configuration, API responses, logs
@@ -37,24 +40,28 @@ This document consolidates findings on Fundrbolt references across the codebase,
 #### Frontend Applications
 
 **Directory**: `frontend/fundrbolt-admin`
+
 - **Current**: Folder name `fundrbolt-admin`
 - **Decision**: Rename to `fundrbolt-admin`
 - **Impact**: Workspace structure, build configs, import paths
 - **Rationale**: Align admin tool with product branding
 
 **Files**: `package.json` across all frontends
+
 - **Current**: `"name": "fundrbolt-admin"`, `"description": "..."` with Fundrbolt branding
 - **Decision**: Rename to `fundrbolt-admin`, update description
 - **Impact**: Package registry, builds, dependencies
 - **Rationale**: Consistency with backend package name strategy
 
 **Files**: UI components, pages, assets
+
 - **Current**: Strings like "Fundrbolt Platform", logos, comments
 - **Decision**: Replace with Fundrbolt equivalents
 - **Impact**: User-visible UI, documentation strings
 - **Rationale**: User-facing consistency
 
 **File**: `frontend/*/public/manifest.json`
+
 - **Current**: App name, description with Fundrbolt branding
 - **Decision**: Update to Fundrbolt
 - **Impact**: PWA metadata, browser install prompts
@@ -65,12 +72,14 @@ This document consolidates findings on Fundrbolt references across the codebase,
 ### 2. Database & Data Model
 
 **Scope**: No schema changes required.
+
 - **Current State**: No tables or fields storing the product name "Fundrbolt"
 - **Decision**: No migrations needed for data; only config/metadata updates
 - **Impact**: Zero data migration risk
 - **Rationale**: Product name is external branding, not data
 
 **If applicable**: Configuration tables (if any) containing "Fundrbolt"
+
 - **Decision**: Update config values directly or via migration script
 - **Impact**: Minimal; likely 1-5 rows
 - **Rationale**: Preserve audit trail if using soft-updates
@@ -82,18 +91,21 @@ This document consolidates findings on Fundrbolt references across the codebase,
 #### Azure Resource Naming
 
 **Bicep Templates** (`infrastructure/bicep/`)
+
 - **Current**: Resource names contain `fundrbolt` (e.g., `fundrbolt-app-svc`, `fundrbolt-kv`, `fundrbolt-pg`)
 - **Decision**: Rename to `fundrbolt-*` equivalents
 - **Impact**: Azure resource identifiers, DNS names, connection strings
 - **Rationale**: Infrastructure consistency; requires environment redeploy
 
 **Environment Parameter Files** (`infrastructure/bicep/environments/`)
+
 - **Current**: `*.fundrbolt.bicepparam` files
 - **Decision**: Rename to `*.fundrbolt.bicepparam`
 - **Impact**: Deployment parameter selection
 - **Rationale**: Clearer environment identification
 
 **Key Vault Secrets** (Azure Key Vault)
+
 - **Current**: Secrets may have `fundrbolt-` prefix
 - **Decision**: Add new `fundrbolt-` secrets, retire old ones after cutover
 - **Impact**: Application configuration, connection strings
@@ -102,6 +114,7 @@ This document consolidates findings on Fundrbolt references across the codebase,
 #### GitHub Actions & CI/CD
 
 **Workflow Files** (`.github/workflows/`)
+
 - **Current**: Job names, step descriptions, artifact names may reference Fundrbolt
 - **Decision**: Replace with Fundrbolt equivalents
 - **Impact**: Build logs, artifact naming, clarity
@@ -112,15 +125,18 @@ This document consolidates findings on Fundrbolt references across the codebase,
 ### 4. GitHub Repositories
 
 **Current Repositories**:
+
 - Primary: `jeanesdev/fundrbolt-platform`
 - Potential related: May have forks or reference Fundrbolt
 
 **Decision Strategy**:
+
 - Rename primary repo from `fundrbolt-platform` to `fundrbolt-platform` (or similar)
 - Update all remote references in local clones and CI/CD
 - Preserve git history via GitHub redirect
 
 **Impact**:
+
 - Clone URLs change
 - Any hardcoded URLs in docs/scripts need update
 - GitHub Actions workflows reference repo name
@@ -132,6 +148,7 @@ This document consolidates findings on Fundrbolt references across the codebase,
 ### 5. Documentation & Comments
 
 **Files**:
+
 - `README.md` at root and in subdirectories
 - `docs/development/`, `docs/operations/`
 - Copilot instructions (`.github/copilot-instructions.md`)
@@ -140,6 +157,7 @@ This document consolidates findings on Fundrbolt references across the codebase,
 **Current**: Extensive references to Fundrbolt as project name/description
 
 **Decision**: Full text search and replace
+
 - Replace "Fundrbolt" → "Fundrbolt"
 - Replace "fundrbolt" → "fundrbolt"
 - Review context to preserve intent (e.g., "from Fundrbolt to Fundrbolt" explanations)
@@ -153,6 +171,7 @@ This document consolidates findings on Fundrbolt references across the codebase,
 ### 6. Configuration & Constants
 
 **Files**:
+
 - `.env*` templates
 - `docker-compose.yml` (service names, labels)
 - Makefile (target names, comments)
@@ -171,6 +190,7 @@ This document consolidates findings on Fundrbolt references across the codebase,
 ### 7. External Integrations & APIs
 
 **Scope**:
+
 - Email service (SendGrid, Azure Communication Services)
 - Stripe (metadata, naming)
 - Third-party webhooks
@@ -178,6 +198,7 @@ This document consolidates findings on Fundrbolt references across the codebase,
 **Current**: App/sender name may be "Fundrbolt" in external systems
 
 **Decision**:
+
 - Update sender name in email templates
 - Update Stripe metadata/descriptions (if applicable)
 - Notify webhook subscribers of potential changes
@@ -192,6 +213,7 @@ This document consolidates findings on Fundrbolt references across the codebase,
 ## Rename Checklist (High-Level)
 
 ### Phase 1: Code & Packages
+
 - [ ] Backend: Update `pyproject.toml`, `app/main.py`, config files
 - [ ] Frontend admin: Rename folder `fundrbolt-admin` → `fundrbolt-admin`, update `package.json`
 - [ ] Frontend PWAs: Update `package.json`, manifest files, UI strings
@@ -199,16 +221,19 @@ This document consolidates findings on Fundrbolt references across the codebase,
 - [ ] Search & replace across all source files for "Fundrbolt" → "Fundrbolt", "fundrbolt" → "fundrbolt"
 
 ### Phase 2: Infrastructure
+
 - [ ] Bicep: Rename resource names, parameter files
 - [ ] Azure: Deploy updated Bicep templates to each environment
 - [ ] GitHub Actions: Update workflow file names, job descriptions
 
 ### Phase 3: GitHub & Repos
+
 - [ ] Rename primary repository (if needed by business process)
 - [ ] Update local clones, CI/CD remote references
 - [ ] Verify automatic GitHub redirects work
 
 ### Phase 4: Documentation
+
 - [ ] README files
 - [ ] Developer guides
 - [ ] Operations runbooks
@@ -216,17 +241,20 @@ This document consolidates findings on Fundrbolt references across the codebase,
 - [ ] `.specify/` memory and constitution
 
 ### Phase 5: Configuration & Secrets
+
 - [ ] Env vars (local `.env` templates)
 - [ ] Docker Compose labels/service names
 - [ ] Makefile targets
 - [ ] Azure Key Vault: Add new secrets, plan retirement of old ones
 
 ### Phase 6: Database (if needed)
+
 - [ ] Create Alembic migration for any config updates
 - [ ] Test on staging database
 - [ ] Execute on dev first, then staging, then production
 
 ### Phase 7: Testing & Cutover
+
 - [ ] Smoke tests on renamed assets (build, start services, load UI)
 - [ ] Integration tests (auth, API calls, WebSocket)
 - [ ] Verify redirects and legacy references work

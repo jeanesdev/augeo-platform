@@ -5,12 +5,12 @@ info:
   version: 1.0.0
   contact:
     name: Fundrbolt Platform
-    email: support@fundrbolt.app
+    email: support@fundrbolt.com
 
 servers:
-  - url: https://api.fundrbolt.app/v1
+  - url: https://api.fundrbolt.com/v1
     description: Production server
-  - url: https://api-staging.fundrbolt.app/v1
+  - url: https://api-staging.fundrbolt.com/v1
     description: Staging server
 
 security:

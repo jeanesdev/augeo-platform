@@ -12,7 +12,7 @@ The Augeo Platform has been rebranded to **Fundrbolt Platform**. This document d
 ### User-Facing Changes
 - **Product Name**: Augeo Platform → Fundrbolt Platform
 - **Dashboard URLs**: URLs remain the same (e.g., `/admin`, `/events`) but branded as Fundrbolt
-- **Email Sender**: `Augeo Support <support@augeo.app>` → `Fundrbolt Support <support@fundrbolt.app>`
+- **Email Sender**: `Augeo Support <support@augeo.app>` → `Fundrbolt Support <support@fundrbolt.com>`
 - **OpenAPI Documentation**: Updated to Fundrbolt branding at `https://{your-domain}/docs`
 - **PWA Applications**:
   - Admin Portal: "Augeo Admin" → "Fundrbolt Admin"
@@ -59,7 +59,7 @@ The Augeo Platform has been rebranded to **Fundrbolt Platform**. This document d
 
 ### Email Notifications
 - **Old Sender**: `support@augeo.app`
-- **New Sender**: `support@fundrbolt.app`
+- **New Sender**: `support@fundrbolt.com`
 - **Action Required**: Update email filters/whitelists if using old sender address
 
 ### Webhook Endpoints (if applicable)
@@ -82,17 +82,17 @@ The Augeo Platform has been rebranded to **Fundrbolt Platform**. This document d
 4. Partners notified 2 weeks in advance of any URL changes
 
 ### Domain Transitions
-- **Primary Domain**: `augeo.app` → `fundrbolt.app`
+- **Primary Domain**: `augeo.app` → `fundrbolt.com`
 - **Redirect Strategy**: Legacy domain (if applicable) will redirect via 301 HTTP redirects
 - **Sunset Timeline**: Old domain maintained for 3-6 months post-launch for backward compatibility
 
 ## Migration Checklist for Users
 
-- [ ] Update email filters: `support@augeo.app` → `support@fundrbolt.app`
+- [ ] Update email filters: `support@augeo.app` → `support@fundrbolt.com`
 - [ ] Update bookmarks to new Fundrbolt URLs (if domain changes)
 - [ ] Review email notifications for new branding
 - [ ] Verify all integrations working post-rebrand
-- [ ] Contact support if issues: `support@fundrbolt.app`
+- [ ] Contact support if issues: `support@fundrbolt.com`
 
 ## Migration Checklist for Developers
 
@@ -121,7 +121,7 @@ The Augeo Platform has been rebranded to **Fundrbolt Platform**. This document d
 
 - **Documentation**: See updated docs in `/docs` directory
 - **Issue Reporting**: GitHub Issues at `jeanesdev/fundrbolt-platform`
-- **Support Email**: `support@fundrbolt.app`
+- **Support Email**: `support@fundrbolt.com`
 
 ## Rollback Plan
 

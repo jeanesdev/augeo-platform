@@ -188,7 +188,7 @@ Expected fields: id, sender_name, sender_email, subject, message, ip_address, st
 
 ### 2. Email Notification (Optional - requires email config)
 
-**Test**: Verify email sent to support@fundrbolt.app
+**Test**: Verify email sent to support@fundrbolt.com
 
 **Prerequisites**:
 - Email configured in `.env` (SendGrid/ACS) OR
@@ -202,7 +202,7 @@ Expected fields: id, sender_name, sender_email, subject, message, ip_address, st
 5. Check MailHog UI: http://localhost:8025
 
 **Expected Results**:
-- [ ] Email received at support@fundrbolt.app (or MailHog inbox)
+- [ ] Email received at support@fundrbolt.com (or MailHog inbox)
 - [ ] Email subject: "New Contact Form Submission: [Subject]"
 - [ ] Email body includes: sender name, email, subject, message
 - [ ] Submission status updated to 'processed' in database
@@ -415,7 +415,7 @@ docker exec -it fundrbolt_redis redis-cli KEYS "rate_limit:contact:*"
 - [ ] Hero section heading: "Get in Touch"
 - [ ] Hero subtitle mentions "questions about Fundrbolt"
 - [ ] Contact information section heading: "Contact Information"
-- [ ] Support email: support@fundrbolt.app
+- [ ] Support email: support@fundrbolt.com
 - [ ] Response time: "24-48 hours"
 - [ ] Support hours: "Monday - Friday, 9am - 5pm PST"
 - [ ] Resources section: "Looking for Something Specific?"

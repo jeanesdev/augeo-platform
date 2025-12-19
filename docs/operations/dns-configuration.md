@@ -5,14 +5,14 @@ This guide explains how to configure custom domains for the Fundrbolt platform u
 ## Overview
 
 The Fundrbolt platform uses Azure DNS to manage custom domain records for:
-- **Frontend**: `admin.fundrbolt.app` (Static Web App)
-- **Backend API**: `api.fundrbolt.app` (App Service)
-- **Root domain**: `fundrbolt.app` (redirects to admin)
+- **Frontend**: `admin.fundrbolt.com` (Static Web App)
+- **Backend API**: `api.fundrbolt.com` (App Service)
+- **Root domain**: `fundrbolt.com` (redirects to admin)
 - **Email**: Email sending via Azure Communication Services
 
 ## Domain Registration
 
-**Domain**: `fundrbolt.app`
+**Domain**: `fundrbolt.com`
 - **Registrar**: Namecheap
 - **Registration Date**: October 28, 2025
 - **Expiration Date**: October 28, 2026
@@ -53,7 +53,7 @@ az deployment sub show \
 
 # Or query the DNS Zone directly
 az network dns zone show \
-  --name fundrbolt.app \
+  --name fundrbolt.com \
   --resource-group fundrbolt-production-rg \
   --query nameServers
 ```
@@ -108,13 +108,13 @@ DNS propagation typically takes 24-48 hours. Check status:
 
 ```bash
 # Check nameservers (should show Azure nameservers)
-dig NS fundrbolt.app
+dig NS fundrbolt.com
 
 # Check from multiple locations
-# https://www.whatsmydns.net/#NS/fundrbolt.app
+# https://www.whatsmydns.net/#NS/fundrbolt.com
 
 # Verify specific nameserver responds
-dig @ns1-01.azure-dns.com fundrbolt.app
+dig @ns1-01.azure-dns.com fundrbolt.com
 ```
 
 ## Step 5: Configure DNS Records
@@ -128,7 +128,7 @@ Once nameservers are propagated, Azure DNS will manage all records. The followin
 
 ### CNAME Records
 ```
-www      CNAME  3600  fundrbolt.app                              # WWW redirect
+www      CNAME  3600  fundrbolt.com                              # WWW redirect
 admin    CNAME  3600  fundrbolt-production-admin.azurestaticapps.net  # Admin portal
 api      CNAME  3600  fundrbolt-production-api.azurewebsites.net      # Backend API
 ```
@@ -152,7 +152,7 @@ api      CNAME  3600  fundrbolt-production-api.azurewebsites.net      # Backend 
 az webapp config hostname add \
   --webapp-name fundrbolt-production-api \
   --resource-group fundrbolt-production-rg \
-  --hostname api.fundrbolt.app
+  --hostname api.fundrbolt.com
 ```
 
 2. **Enable SSL/TLS** (automatic):
@@ -166,7 +166,7 @@ az webapp config ssl bind \
 
 3. **Verify**:
 ```bash
-curl https://api.fundrbolt.app/health
+curl https://api.fundrbolt.com/health
 ```
 
 ### Static Web App (Frontend)
@@ -176,14 +176,14 @@ curl https://api.fundrbolt.app/health
 az staticwebapp hostname set \
   --name fundrbolt-production-admin \
   --resource-group fundrbolt-production-rg \
-  --hostname admin.fundrbolt.app
+  --hostname admin.fundrbolt.com
 ```
 
 2. **SSL certificate** (automatic via Let's Encrypt)
 
 3. **Verify**:
 ```bash
-curl -I https://admin.fundrbolt.app
+curl -I https://admin.fundrbolt.com
 ```
 
 ## Step 7: Update Application Configuration
@@ -192,13 +192,13 @@ Update environment variables to use custom domains:
 
 ### Backend (.env or App Service config)
 ```bash
-CORS_ORIGINS=https://admin.fundrbolt.app,https://fundrbolt.app
-FRONTEND_URL=https://admin.fundrbolt.app
+CORS_ORIGINS=https://admin.fundrbolt.com,https://fundrbolt.com
+FRONTEND_URL=https://admin.fundrbolt.com
 ```
 
 ### Frontend (.env.production)
 ```bash
-VITE_API_URL=https://api.fundrbolt.app/api/v1
+VITE_API_URL=https://api.fundrbolt.com/api/v1
 ```
 
 ## DNS Record Reference
@@ -206,7 +206,7 @@ VITE_API_URL=https://api.fundrbolt.app/api/v1
 | Type  | Name       | Value                                    | TTL  | Purpose                |
 |-------|------------|------------------------------------------|------|------------------------|
 | A     | @          | Static Web App IP                        | 3600 | Root domain            |
-| CNAME | www        | fundrbolt.app                                | 3600 | WWW redirect           |
+| CNAME | www        | fundrbolt.com                                | 3600 | WWW redirect           |
 | CNAME | admin      | fundrbolt-production-admin.azurestaticapps.net | 3600 | Admin portal           |
 | CNAME | api        | fundrbolt-production-api.azurewebsites.net   | 3600 | Backend API            |
 | TXT   | @          | fundrbolt-domain-verification                | 3600 | Domain verification    |
@@ -232,7 +232,7 @@ VITE_API_URL=https://api.fundrbolt.app/api/v1
 ### Domain verification fails
 - **Issue**: Azure can't verify domain ownership
 - **Solution**:
-  - Check TXT record propagation: `dig TXT fundrbolt.app`
+  - Check TXT record propagation: `dig TXT fundrbolt.com`
   - Verify TXT value matches Azure's verification token
   - Wait for DNS propagation (up to 48 hours)
 
@@ -253,19 +253,19 @@ VITE_API_URL=https://api.fundrbolt.app/api/v1
 
 ```bash
 # Check all DNS records
-dig ANY fundrbolt.app
+dig ANY fundrbolt.com
 
 # Check specific record types
-dig A fundrbolt.app
-dig CNAME admin.fundrbolt.app
-dig MX fundrbolt.app
-dig TXT fundrbolt.app
+dig A fundrbolt.com
+dig CNAME admin.fundrbolt.com
+dig MX fundrbolt.com
+dig TXT fundrbolt.com
 
 # Check from specific nameserver
-dig @ns1-01.azure-dns.com fundrbolt.app
+dig @ns1-01.azure-dns.com fundrbolt.com
 
 # Trace DNS resolution
-dig +trace fundrbolt.app
+dig +trace fundrbolt.com
 ```
 
 ### SSL Certificate Expiration
@@ -297,7 +297,7 @@ Set up Azure Monitor alerts for:
 1. **Enable DNSSEC** (when available):
 ```bash
 az network dns zone update \
-  --name fundrbolt.app \
+  --name fundrbolt.com \
   --resource-group fundrbolt-production-rg \
   --enable-dnssec
 ```
@@ -305,7 +305,7 @@ az network dns zone update \
 2. **Use CAA records** to restrict certificate issuance:
 ```bash
 az network dns record-set caa add-record \
-  --zone-name fundrbolt.app \
+  --zone-name fundrbolt.com \
   --resource-group fundrbolt-production-rg \
   --record-set-name @ \
   --flags 0 \

@@ -169,8 +169,8 @@ resource donorStaticWebApp 'Microsoft.Web/staticSites@2022-09-01' = {
 
 **Custom Domain Setup**:
 
-- Admin PWA: `admin.fundrbolt.app`
-- Donor PWA: `events.fundrbolt.app` (or `app.fundrbolt.app`)
+- Admin PWA: `admin.fundrbolt.com`
+- Donor PWA: `events.fundrbolt.com` (or `app.fundrbolt.com`)
 
 **Deployment Pipeline** (GitHub Actions):
 

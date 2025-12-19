@@ -149,7 +149,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     environment:
       name: production
-      url: https://api.fundrbolt.app
+      url: https://api.fundrbolt.com
 
     steps:
       - name: Checkout code
@@ -192,7 +192,7 @@ jobs:
       - name: Verify production deployment
         run: |
           sleep 30
-          curl -f https://api.fundrbolt.app/health || exit 1
+          curl -f https://api.fundrbolt.com/health || exit 1
 
       - name: Rollback on failure
         if: failure()

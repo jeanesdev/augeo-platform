@@ -220,7 +220,7 @@ az postgres flexible-server geo-restore \
 ```bash
 az network dns record-set a update \
     --resource-group "fundrbolt-production-rg" \
-    --zone-name "fundrbolt.app" \
+    --zone-name "fundrbolt.com" \
     --name "api" \
     --set aRecords[0].ipv4Address="<new-ip>"
 ```
@@ -228,8 +228,8 @@ az network dns record-set a update \
 - [ ] **Step 7**: Verify DNS propagation (10 min)
 
 ```bash
-nslookup api.fundrbolt.app
-curl https://api.fundrbolt.app/health
+nslookup api.fundrbolt.com
+curl https://api.fundrbolt.com/health
 ```
 
 - [ ] **Step 8**: Test complete application functionality (30 min)

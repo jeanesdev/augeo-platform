@@ -4,7 +4,7 @@ using '../main-minimal.bicep'
 param environment = 'dev'
 param location = 'eastus'
 param appName = 'fundrbolt'
-param customDomain = 'fundrbolt.app'
+param customDomain = 'fundrbolt.com'
 param enableDns = true
 
 param tags = {

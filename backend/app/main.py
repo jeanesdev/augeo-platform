@@ -100,7 +100,7 @@ app = FastAPI(
     lifespan=lifespan,
     contact={
         "name": "Fundrbolt Platform Support",
-        "email": "support@fundrbolt.app",
+        "email": "support@fundrbolt.com",
     },
     license_info={
         "name": "Proprietary",

@@ -257,8 +257,8 @@ export const LandingPage: React.FC = () => {
         <meta name="description" content="World-class fundraising software..." />
         <meta property="og:title" content="Fundrbolt Fundraising Platform" />
         <meta property="og:description" content="..." />
-        <meta property="og:image" content="https://fundrbolt.app/og-image.jpg" />
-        <link rel="canonical" href="https://fundrbolt.app" />
+        <meta property="og:image" content="https://fundrbolt.com/og-image.jpg" />
+        <link rel="canonical" href="https://fundrbolt.com" />
       </Helmet>
       {/* Page content */}
     </>

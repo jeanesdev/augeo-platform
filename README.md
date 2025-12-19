@@ -310,8 +310,8 @@ make db-seed
 | Environment | Purpose | URL | Auto-deploy |
 |-------------|---------|-----|-------------|
 | Development | Local testing | localhost | No |
-| Staging | Pre-production validation | staging.fundrbolt.app | Yes (on merge to main) |
-| Production | Live application | fundrbolt.app | Manual approval |
+| Staging | Pre-production validation | staging.fundrbolt.com | Yes (on merge to main) |
+| Production | Live application | fundrbolt.com | Manual approval |
 
 ### Deployment Process
 
@@ -362,10 +362,10 @@ make logs-infra ENV=production
 make health-check
 
 # Backend only
-curl https://api.fundrbolt.app/health
+curl https://api.fundrbolt.com/health
 
 # Frontend only
-curl https://admin.fundrbolt.app
+curl https://admin.fundrbolt.com
 ```
 
 ### Scaling
@@ -447,7 +447,7 @@ make budget-status ENV=production
 
 ## Domain Information
 
-- **Domain**: `fundrbolt.app`
+- **Domain**: `fundrbolt.com`
 - **Registrar**: Namecheap
 - **Registered**: October 28, 2025
 - **Expires**: October 28, 2026
@@ -465,8 +465,8 @@ make budget-status ENV=production
 
 ## Support
 
-- **Email**: engineering@fundrbolt.app
-- **On-call**: ops@fundrbolt.app
+- **Email**: engineering@fundrbolt.com
+- **On-call**: ops@fundrbolt.com
 - **GitHub Issues**: [fundrbolt-platform/issues](https://github.com/jeanesdev/fundrbolt-platform/issues)
 
 ## License

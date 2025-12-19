@@ -27,7 +27,7 @@ The Augeo Platform has been rebranded to **Fundrbolt Platform**. This document d
 | Component | Old Value | New Value | Impact | Action Required |
 |-----------|-----------|-----------|--------|-----------------|
 | **Response Header** | `X-Powered-By: Augeo` | `X-Powered-By: Fundrbolt Platform` | Informational only | Optional: Update log parsing |
-| **Email Sender** | `support@augeo.app` | `support@fundrbolt.app` | Email notifications | Update email filters |
+| **Email Sender** | `support@augeo.app` | `support@fundrbolt.com` | Email notifications | Update email filters |
 | **Metrics Names** | `augeo_http_requests_total` | `fundrbolt_http_requests_total` | Prometheus monitoring | Update metric queries/dashboards |
 | **OpenAPI Docs** | `/docs` title: "Augeo" | `/docs` title: "Fundrbolt" | Documentation reference | Update documentation links |
 
@@ -42,7 +42,7 @@ The Augeo Platform has been rebranded to **Fundrbolt Platform**. This document d
 From: support@augeo.app
 
 # ✅ NEW (effective immediately)
-From: support@fundrbolt.app
+From: support@fundrbolt.com
 
 # ACTION: Update email filters
 ```
@@ -51,10 +51,10 @@ From: support@fundrbolt.app
 ```bash
 # Update mail server filters
 # Old: sender:support@augeo.app
-# New: sender:support@fundrbolt.app
+# New: sender:support@fundrbolt.com
 
 # Add new domain to whitelist
-mail_whitelist += support@fundrbolt.app
+mail_whitelist += support@fundrbolt.com
 ```
 
 ### 2. Webhook Endpoints
@@ -97,7 +97,7 @@ fundrbolt_http_requests_total{method="GET", path="/api/v1/events", status="200"}
 # Update Prometheus scrape configuration
 job_name: 'fundrbolt-backend'
 static_configs:
-  - targets: ['api.fundrbolt.app:9090']
+  - targets: ['api.fundrbolt.com:9090']
 relabel_configs:
   - source_labels: [__address__]
     target_label: instance
@@ -117,7 +117,7 @@ relabel_configs:
 https://api.augeo.app/docs
 
 # ✅ NEW (canonical URL)
-https://api.fundrbolt.app/docs
+https://api.fundrbolt.com/docs
 
 # If old domain used, 301 redirect applied (update links within 3 months)
 ```
@@ -125,8 +125,8 @@ https://api.fundrbolt.app/docs
 **Recommended Action**:
 ```markdown
 <!-- Update documentation links -->
-- [API Reference](https://api.fundrbolt.app/docs)
-- [Getting Started](https://fundrbolt.app/docs/getting-started)
+- [API Reference](https://api.fundrbolt.com/docs)
+- [Getting Started](https://fundrbolt.com/docs/getting-started)
 
 <!-- If referencing version numbers, update -->
 Old: "Augeo API v1.2.0"
@@ -165,7 +165,7 @@ const platformName = process.env.REACT_APP_PLATFORM_NAME || "Fundrbolt Platform"
 - [ ] Request authentication still works (OAuth2/JWT)
 - [ ] Response data structure unchanged
 - [ ] Webhooks receive events
-- [ ] Email notifications arrive from new sender (`support@fundrbolt.app`)
+- [ ] Email notifications arrive from new sender (`support@fundrbolt.com`)
 - [ ] Metrics endpoint (`/metrics`) returns `fundrbolt_*` metrics
 - [ ] OpenAPI documentation loads at `/docs`
 - [ ] No unexpected 404 errors
@@ -185,7 +185,7 @@ const platformName = process.env.REACT_APP_PLATFORM_NAME || "Fundrbolt Platform"
 ## Troubleshooting
 
 ### Issue: "Email from unknown sender"
-**Solution**: Whitelist new sender `support@fundrbolt.app` in your mail system
+**Solution**: Whitelist new sender `support@fundrbolt.com` in your mail system
 
 ### Issue: "Metrics not found in Prometheus"
 **Solution**: Update metric query from `augeo_*` to `fundrbolt_*` prefix
@@ -202,7 +202,7 @@ const platformName = process.env.REACT_APP_PLATFORM_NAME || "Fundrbolt Platform"
 ## Support
 
 - **API Issues**: Open an issue at `https://github.com/jeanesdev/fundrbolt-platform`
-- **Integration Help**: Email `devops@fundrbolt.app`
+- **Integration Help**: Email `devops@fundrbolt.com`
 - **Documentation**: See `/docs` directory in repository
 
 ## FAQ

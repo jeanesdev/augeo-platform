@@ -1,4 +1,4 @@
-// PostgreSQL Flexible Server module for Augeo Platform
+// PostgreSQL Flexible Server module for Fundrbolt Platform
 
 @description('Name of the PostgreSQL server')
 param postgresServerName string
@@ -15,7 +15,7 @@ param location string = resourceGroup().location
 param environment string
 
 @description('Administrator username')
-param administratorLogin string = 'augeo_admin'
+param administratorLogin string = 'fundrbolt_admin'
 
 @description('Administrator password')
 @secure()

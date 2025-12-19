@@ -12,14 +12,14 @@ info:
   version: 1.0.0
   contact:
     name: Fundrbolt Platform Team
-    email: support@fundrbolt.app
+    email: support@fundrbolt.com
 
 servers:
   - url: http://localhost:8000/api/v1
     description: Local development
-  - url: https://api.staging.fundrbolt.app/v1
+  - url: https://api.staging.fundrbolt.com/v1
     description: Staging environment
-  - url: https://api.fundrbolt.app/v1
+  - url: https://api.fundrbolt.com/v1
     description: Production environment
 
 tags:

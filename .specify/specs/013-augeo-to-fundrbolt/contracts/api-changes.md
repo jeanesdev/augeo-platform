@@ -45,7 +45,7 @@ info:
   version: "1.0.0"
   contact:
     name: "Fundrbolt Support"  # was "Fundrbolt Support"
-    email: "support@fundrbolt.app"  # was "support@fundrbolt.app"
+    email: "support@fundrbolt.com"  # was "support@fundrbolt.com"
   license:
     name: "Proprietary"
 ```
@@ -58,8 +58,8 @@ app = FastAPI(
     description="Fundrbolt fundraising platform API for nonprofits and auctioneers",
     contact={
         "name": "Fundrbolt Support",
-        "email": "support@fundrbolt.app",
-        "url": "https://fundrbolt.app",
+        "email": "support@fundrbolt.com",
+        "url": "https://fundrbolt.com",
     },
     version="1.0.0",
 )
@@ -164,7 +164,7 @@ However, if JWT includes any `iss` (issuer) or `aud` (audience) claims with Fund
 **Before**:
 ```json
 {
-  "iss": "https://fundrbolt.app",
+  "iss": "https://fundrbolt.com",
   "aud": "fundrbolt-api",
   "sub": "user-123"
 }
@@ -173,7 +173,7 @@ However, if JWT includes any `iss` (issuer) or `aud` (audience) claims with Fund
 **After**:
 ```json
 {
-  "iss": "https://fundrbolt.app",
+  "iss": "https://fundrbolt.com",
   "aud": "fundrbolt-api",
   "sub": "user-123"
 }
@@ -207,13 +207,13 @@ Response headers (e.g., `X-RateLimit-Remaining`) remain unchanged in format.
 
 **Before**:
 ```
-From: Fundrbolt Support <noreply@fundrbolt.app>
+From: Fundrbolt Support <noreply@fundrbolt.com>
 Subject: Welcome to Fundrbolt
 ```
 
 **After**:
 ```
-From: Fundrbolt Support <noreply@fundrbolt.app>
+From: Fundrbolt Support <noreply@fundrbolt.com>
 Subject: Welcome to Fundrbolt
 ```
 
@@ -308,8 +308,8 @@ Subject: Welcome to Fundrbolt
 ## Support & Questions
 
 For API migration questions:
-- **Email**: support@fundrbolt.app (changed from support@fundrbolt.app)
-- **Docs**: https://fundrbolt.app/api/docs (if domain changed)
+- **Email**: support@fundrbolt.com (changed from support@fundrbolt.com)
+- **Docs**: https://fundrbolt.com/api/docs (if domain changed)
 - **Support Portal**: [URL TBD]
 
 ---

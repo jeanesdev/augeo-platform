@@ -2,7 +2,7 @@
 
 **Last Updated**: 2025-10-31
 **Environment**: Development (fundrbolt-dev-rg)
-**Domain**: fundrbolt.app
+**Domain**: fundrbolt.com
 
 ## Overview
 
@@ -14,7 +14,7 @@ The Fundrbolt platform uses a **hybrid email architecture** combining Azure Comm
 
 - **Service**: fundrbolt-dev-acs (Azure Communication Services)
 - **Email Service**: fundrbolt-dev-email
-- **Domain**: fundrbolt.app (CustomerManaged)
+- **Domain**: fundrbolt.com (CustomerManaged)
 - **Status**: Verified (Domain, SPF, DKIM all verified)
 - **Cost**: FREE (up to 100 emails/month on free tier)
 - **Authentication Score**: 10/10 on mail-tester.com
@@ -36,7 +36,7 @@ The Fundrbolt platform uses a **hybrid email architecture** combining Azure Comm
 
 ## DNS Configuration
 
-### Current DNS Records (fundrbolt.app)
+### Current DNS Records (fundrbolt.com)
 
 ```
 Type    Name                                          Value                                           TTL
@@ -61,9 +61,9 @@ MX      @                                             20 mx2.improvmx.com       
   - selector1-azurecomm-prod-net._domainkey
   - selector2-azurecomm-prod-net._domainkey
 
-- **DMARC**: `v=DMARC1; p=quarantine; rua=mailto:dmarc@fundrbolt.app; pct=100; fo=1`
+- **DMARC**: `v=DMARC1; p=quarantine; rua=mailto:dmarc@fundrbolt.com; pct=100; fo=1`
   - Policy: Quarantine suspicious emails
-  - Reports sent to dmarc@fundrbolt.app
+  - Reports sent to dmarc@fundrbolt.com
 
 - **MX**: Points to ImprovMX servers for incoming email
 
@@ -73,22 +73,22 @@ MX      @                                             20 mx2.improvmx.com       
 
 | Address | Purpose | Can Send? | Can Receive? |
 |---------|---------|-----------|--------------|
-| DoNotReply@fundrbolt.app | Automated system emails | ✅ Yes | ❌ No (by design) |
-| admin@fundrbolt.app | Administrative communications | ✅ Yes | ✅ Yes (forwards to Gmail) |
-| Legal@fundrbolt.app | Legal inquiries, terms updates | ✅ Yes | ✅ Yes (forwards to Gmail) |
-| Privacy@fundrbolt.app | Privacy requests, GDPR | ✅ Yes | ✅ Yes (forwards to Gmail) |
-| DPO@fundrbolt.app | Data Protection Officer | ✅ Yes | ✅ Yes (forwards to Gmail) |
+| DoNotReply@fundrbolt.com | Automated system emails | ✅ Yes | ❌ No (by design) |
+| admin@fundrbolt.com | Administrative communications | ✅ Yes | ✅ Yes (forwards to Gmail) |
+| Legal@fundrbolt.com | Legal inquiries, terms updates | ✅ Yes | ✅ Yes (forwards to Gmail) |
+| Privacy@fundrbolt.com | Privacy requests, GDPR | ✅ Yes | ✅ Yes (forwards to Gmail) |
+| DPO@fundrbolt.com | Data Protection Officer | ✅ Yes | ✅ Yes (forwards to Gmail) |
 
 ### ImprovMX Forwarding Configuration
 
 All emails to the following addresses are forwarded to `jeanes.dev@gmail.com`:
 
-- admin@fundrbolt.app
-- Legal@fundrbolt.app
-- Privacy@fundrbolt.app
-- DPO@fundrbolt.app
+- admin@fundrbolt.com
+- Legal@fundrbolt.com
+- Privacy@fundrbolt.com
+- DPO@fundrbolt.com
 
-**DoNotReply@fundrbolt.app** is intentionally excluded from forwarding (no-reply by design).
+**DoNotReply@fundrbolt.com** is intentionally excluded from forwarding (no-reply by design).
 
 ## Email Flow Diagrams
 
@@ -156,7 +156,7 @@ ACS_CONNECTION_STRING=$(az keyvault secret show \
 
 # Send test email
 az communication email send \
-  --sender "DoNotReply@fundrbolt.app" \
+  --sender "DoNotReply@fundrbolt.com" \
   --subject "Test Email" \
   --text "Testing Azure Communication Services" \
   --to "test@example.com" \
@@ -167,7 +167,7 @@ az communication email send \
 
 ```bash
 # From personal email, send to:
-echo "Test receiving" | mail -s "Test" admin@fundrbolt.app
+echo "Test receiving" | mail -s "Test" admin@fundrbolt.com
 
 # Should appear in jeanes.dev@gmail.com inbox within 5-15 minutes
 ```
@@ -180,7 +180,7 @@ TEST_EMAIL="test-abc123@srv1.mail-tester.com"
 
 # Send test
 az communication email send \
-  --sender "admin@fundrbolt.app" \
+  --sender "admin@fundrbolt.com" \
   --subject "Authentication Test" \
   --text "Testing SPF/DKIM/DMARC" \
   --to "$TEST_EMAIL" \
@@ -254,7 +254,7 @@ az communication email send \
 
 ### Email Not Being Received
 
-1. Verify MX records: `nslookup -type=MX fundrbolt.app`
+1. Verify MX records: `nslookup -type=MX fundrbolt.com`
 2. Check ImprovMX dashboard for forwarding rules
 3. Verify Gmail address in ImprovMX is confirmed
 4. Check spam folder in Gmail
@@ -262,9 +262,9 @@ az communication email send \
 
 ### Low Authentication Score
 
-1. Verify SPF record: `nslookup -type=TXT fundrbolt.app`
-2. Verify DKIM CNAMEs: `nslookup -type=CNAME selector1-azurecomm-prod-net._domainkey.fundrbolt.app`
-3. Verify DMARC: `nslookup -type=TXT _dmarc.fundrbolt.app`
+1. Verify SPF record: `nslookup -type=TXT fundrbolt.com`
+2. Verify DKIM CNAMEs: `nslookup -type=CNAME selector1-azurecomm-prod-net._domainkey.fundrbolt.com`
+3. Verify DMARC: `nslookup -type=TXT _dmarc.fundrbolt.com`
 4. Re-test on mail-tester.com
 
 ## Production Deployment Notes
@@ -274,7 +274,7 @@ When deploying to production (fundrbolt-production-rg):
 1. **Update environment parameter**: All scripts accept `--env production`
 2. **Use production Key Vault**: fundrbolt-production-kv
 3. **Create production sender addresses**: Same usernames in production ACS
-4. **Configure ImprovMX**: Add fundrbolt.app with production MX records
+4. **Configure ImprovMX**: Add fundrbolt.com with production MX records
 5. **Test thoroughly**: Use mail-tester.com before going live
 6. **Monitor deliverability**: Track bounce rates, spam complaints
 

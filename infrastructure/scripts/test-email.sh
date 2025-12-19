@@ -27,7 +27,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-DOMAIN="fundrbolt.app"
+DOMAIN="fundrbolt.com"
 RESOURCE_GROUP="fundrbolt-${ENVIRONMENT}-rg"
 ACS_NAME="fundrbolt-${ENVIRONMENT}-acs"
 FROM_ADDRESS="${FROM_ADDRESS_ARG:-noreply@$DOMAIN}"

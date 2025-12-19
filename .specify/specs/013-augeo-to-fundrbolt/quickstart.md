@@ -37,7 +37,7 @@ grep -r "fundrbolt" app/ | head -20  # Review manually
 
 # Replace in app/main.py
 sed -i 's/Fundrbolt Platform/Fundrbolt Platform/g' app/main.py
-sed -i 's/fundrbolt.app/fundrbolt.app/g' app/main.py
+sed -i 's/fundrbolt.com/fundrbolt.com/g' app/main.py
 
 # Update app/core/config.py (manual review recommended)
 # Look for PROJECT_NAME, PROJECT_DESCRIPTION, CONTACT_EMAIL
@@ -384,10 +384,10 @@ az containerapp show --resource-group fundrbolt-staging --name fundrbolt-api-sta
 
 ```bash
 # Test staging API
-curl -X GET https://staging-api.fundrbolt.app/health
+curl -X GET https://staging-api.fundrbolt.com/health
 
 # Test UI
-curl -s https://staging.fundrbolt.app | grep -i fundrbolt
+curl -s https://staging.fundrbolt.com | grep -i fundrbolt
 
 # Manual browser tests:
 # - Navigate to staging UI

@@ -48,7 +48,7 @@ REFRESH_TOKEN_EXPIRE_DAYS=7
 
 # Azure Communication Services (Email)
 AZURE_COMMUNICATION_CONNECTION_STRING=your-azure-communication-connection-string
-EMAIL_FROM_ADDRESS=noreply@fundrbolt.app
+EMAIL_FROM_ADDRESS=noreply@fundrbolt.com
 EMAIL_FROM_NAME=Fundrbolt Platform
 
 # Frontend URLs (for email links)
@@ -56,7 +56,7 @@ FRONTEND_ADMIN_URL=http://localhost:5173
 FRONTEND_DONOR_URL=http://localhost:5174
 
 # Super Admin Seed (for initial setup)
-SUPER_ADMIN_EMAIL=admin@fundrbolt.app
+SUPER_ADMIN_EMAIL=admin@fundrbolt.com
 SUPER_ADMIN_PASSWORD=ChangeMe123!
 SUPER_ADMIN_FIRST_NAME=Super
 SUPER_ADMIN_LAST_NAME=Admin
@@ -201,14 +201,14 @@ Expected output:
 
 ```bash
 docker exec -it fundrbolt_postgres psql -U fundrbolt_user -d fundrbolt_db -c \
-  "SELECT id, email, role_id FROM users WHERE email = 'admin@fundrbolt.app';"
+  "SELECT id, email, role_id FROM users WHERE email = 'admin@fundrbolt.com';"
 ```
 
 Expected output:
 ```
                   id                  |      email       |              role_id
 --------------------------------------+------------------+------------------------------------
- 550e8400-e29b-41d4-a716-446655440000 | admin@fundrbolt.app  | <uuid-of-super-admin-role>
+ 550e8400-e29b-41d4-a716-446655440000 | admin@fundrbolt.com  | <uuid-of-super-admin-role>
 ```
 
 ### Start Backend Server
@@ -512,7 +512,7 @@ Expected output:
 curl -X POST http://localhost:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "admin@fundrbolt.app",
+    "email": "admin@fundrbolt.com",
     "password": "ChangeMe123!"
   }'
 ```

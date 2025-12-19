@@ -14,10 +14,10 @@
       "@/*": [
         "./src/*"
       ],
-      "@augeo/shared": [
+      "@fundrbolt/shared": [
         "../shared/src/index.ts"
       ],
-      "@augeo/shared/*": [
+      "@fundrbolt/shared/*": [
         "../shared/src/*"
       ]
     }

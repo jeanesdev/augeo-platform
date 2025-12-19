@@ -71,9 +71,9 @@ The Fundrbolt Platform is deployed on Microsoft Azure using a modern, cloud-nati
 │  └─────────────────────────────────────────────────────────────┘  │
 │                                                                   │
 │  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                     DNS Zone (fundrbolt.app)                     │ │
-│  │  - api.fundrbolt.app → App Service                              │ │
-│  │  - admin.fundrbolt.app → Static Web App                         │ │
+│  │                     DNS Zone (fundrbolt.com)                     │ │
+│  │  - api.fundrbolt.com → App Service                              │ │
+│  │  - admin.fundrbolt.com → Static Web App                         │ │
 │  └─────────────────────────────────────────────────────────────┘ │
 │                                                                   │
 └─────────────────────────────────────────────────────────────────┘
@@ -335,9 +335,9 @@ All resources tagged with:
 - **Test Locations**: East US, West US, North Europe
 
 ### Notification Channels
-- **Production**: ops@fundrbolt.app, engineering@fundrbolt.app
-- **Staging**: ops@fundrbolt.app, devops@fundrbolt.app
-- **Dev**: devops@fundrbolt.app
+- **Production**: ops@fundrbolt.com, engineering@fundrbolt.com
+- **Staging**: ops@fundrbolt.com, devops@fundrbolt.com
+- **Dev**: devops@fundrbolt.com
 
 ### Dashboards
 1. **System Health Dashboard**: 10 tiles with request rate, latency, errors, availability, top endpoints

@@ -67,7 +67,7 @@ The Augeo Platform has been successfully rebranded to **Fundrbolt Platform** acr
 - [x] FastAPI title, description, contact updated
 - [x] Config constants updated (PROJECT_NAME, CONTACT_EMAIL)
 - [x] Response headers updated (X-Powered-By: Fundrbolt Platform)
-- [x] Email templates updated (support@fundrbolt.app)
+- [x] Email templates updated (support@fundrbolt.com)
 - [x] Metrics renamed (augeo_* → fundrbolt_*)
 
 **Testing**:
@@ -187,7 +187,7 @@ The Augeo Platform has been successfully rebranded to **Fundrbolt Platform** acr
 
 ### ✅ Changed (Branding)
 - Product name: Augeo → Fundrbolt
-- Email sender: support@augeo.app → support@fundrbolt.app
+- Email sender: support@augeo.app → support@fundrbolt.com
 - Metrics prefix: augeo_* → fundrbolt_*
 - Response headers: X-Powered-By header updated
 - OpenAPI docs: Title and contact info updated
@@ -236,7 +236,7 @@ The Augeo Platform has been successfully rebranded to **Fundrbolt Platform** acr
 **For Customers**:
 - See `CHANGELOG_REBRAND.md` for comprehensive overview
 - Migration timeline clearly documented
-- Support contact: support@fundrbolt.app
+- Support contact: support@fundrbolt.com
 
 **For API Consumers**:
 - See `API_MIGRATION_GUIDE.md` for integration details

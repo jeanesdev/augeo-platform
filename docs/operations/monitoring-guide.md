@@ -352,10 +352,10 @@ customEvents
 
 ```bash
 # Backend health
-curl -f https://api.fundrbolt.app/health/detailed
+curl -f https://api.fundrbolt.com/health/detailed
 
 # Frontend availability
-curl -I https://admin.fundrbolt.app
+curl -I https://admin.fundrbolt.com
 
 # Check service status
 az webapp show --name fundrbolt-production-api --resource-group fundrbolt-production-rg --query state

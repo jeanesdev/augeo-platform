@@ -49,7 +49,7 @@ az webapp restart \
 
 # 4. Wait for health check
 sleep 30
-curl -f https://api.fundrbolt.app/health
+curl -f https://api.fundrbolt.com/health
 
 # 5. Verify application logs
 az webapp log tail \
@@ -128,7 +128,7 @@ az webapp restart \
 
 # 7. Verify database connectivity
 sleep 30
-curl -f https://api.fundrbolt.app/health/detailed
+curl -f https://api.fundrbolt.com/health/detailed
 ```
 
 ### Verification
@@ -208,7 +208,7 @@ az webapp restart \
 
 # 7. Verify Redis connectivity
 sleep 30
-curl -f https://api.fundrbolt.app/health/detailed
+curl -f https://api.fundrbolt.com/health/detailed
 
 # 8. Regenerate primary key after verification
 az redis regenerate-keys \
@@ -262,7 +262,7 @@ az webapp restart \
     --resource-group "fundrbolt-production-rg"
 
 # 4. Test Stripe integration
-curl -X POST https://api.fundrbolt.app/api/v1/payments/test
+curl -X POST https://api.fundrbolt.com/api/v1/payments/test
 
 # 5. Revoke old API key in Stripe Dashboard
 ```
@@ -301,7 +301,7 @@ az webapp restart \
     --resource-group "fundrbolt-production-rg"
 
 # 4. Test email sending
-curl -X POST https://api.fundrbolt.app/api/v1/auth/verify-email/resend
+curl -X POST https://api.fundrbolt.com/api/v1/auth/verify-email/resend
 ```
 
 ### SMTP Verification
@@ -419,7 +419,7 @@ az webapp log tail \
     --resource-group "fundrbolt-production-rg"
 
 # Check detailed health endpoint
-curl -v https://api.fundrbolt.app/health/detailed
+curl -v https://api.fundrbolt.com/health/detailed
 ```
 
 ## Related Documentation

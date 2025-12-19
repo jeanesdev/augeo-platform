@@ -117,7 +117,7 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
     environment:
       name: production
-      url: https://donor.fundrbolt.app
+      url: https://donor.fundrbolt.com
 
     steps:
       - name: Checkout code
@@ -141,7 +141,7 @@ jobs:
         working-directory: ./frontend/donor-pwa
         run: pnpm build
         env:
-          VITE_API_URL: https://api.fundrbolt.app
+          VITE_API_URL: https://api.fundrbolt.com
           VITE_ENVIRONMENT: production
 
       - name: Deploy to Azure Static Web Apps
@@ -157,4 +157,4 @@ jobs:
       - name: Verify production deployment
         run: |
           sleep 30
-          curl -f https://donor.fundrbolt.app || exit 1
+          curl -f https://donor.fundrbolt.com || exit 1

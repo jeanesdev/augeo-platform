@@ -170,7 +170,7 @@ on:
 **API URLs by Environment:**
 - Dev: `https://fundrbolt-dev-api.azurewebsites.net`
 - Staging: `https://fundrbolt-staging-api.azurewebsites.net`
-- Production: `https://api.fundrbolt.app`
+- Production: `https://api.fundrbolt.com`
 
 ### 4. Infrastructure Deployment (`infrastructure-deploy.yml`)
 

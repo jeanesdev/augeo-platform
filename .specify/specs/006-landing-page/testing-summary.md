@@ -81,7 +81,7 @@
 
 ### T082: Manual Testing
 ❌ **Not Started** - Need end-to-end manual validation
-- Submit valid form, verify email received at support@fundrbolt.app
+- Submit valid form, verify email received at support@fundrbolt.com
 - Test rate limiting (submit 6 times, verify 6th fails with 429)
 - Test honeypot detection (fill hidden field, verify rejection)
 - Test validation errors display correctly

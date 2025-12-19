@@ -104,7 +104,7 @@ All visible brand references in UI, emails, documentation, and customer-facing s
 - [x] T018 [P] [US1] Update `/backend/app/main.py` FastAPI instantiation: title, description, contact info to Fundrbolt
 - [x] T019 [P] [US1] Update `/backend/app/core/config.py` PROJECT_NAME, PROJECT_DESCRIPTION, CONTACT_EMAIL constants to Fundrbolt
 - [x] T020 [P] [US1] Update response headers middleware in `/backend/app/middleware/` to include `X-Powered-By: Fundrbolt Platform`
-- [x] T021 [P] [US1] Update email template sender names and subject lines from `Fundrbolt Support` to `Fundrbolt Support` and `support@fundrbolt.app` to `support@fundrbolt.app` (in email service code)
+- [x] T021 [P] [US1] Update email template sender names and subject lines from `Fundrbolt Support` to `Fundrbolt Support` and `support@fundrbolt.com` to `support@fundrbolt.com` (in email service code)
 - [x] T022 [P] [US1] Bulk replace "Fundrbolt" → "Fundrbolt" in `/frontend/donor-pwa/src/`, `/frontend/landing-site/src/` using sed or grep+xargs
 - [x] T023 [P] [US1] Update PWA manifest files (`/frontend/donor-pwa/public/manifest.json`, `/frontend/landing-site/public/manifest.json`) with Fundrbolt app names
 - [x] T024 [US1] Verify backend builds: `cd backend && poetry install && poetry run pytest` (confirms no syntax errors from rename)
@@ -162,7 +162,7 @@ Legacy Fundrbolt URLs, domains, and documentation automatically redirect or guid
 
 ### Tasks
 
-- [x] T041 [US3] Create HTTP redirect rules (if applicable) to forward `fundrbolt.app` domain → `fundrbolt.app` or new domain
+- [x] T041 [US3] Create HTTP redirect rules (if applicable) to forward `fundrbolt.com` domain → `fundrbolt.com` or new domain
 - [x] T042 [US3] Update legacy URL references in onboarding docs and runbooks to point to Fundrbolt equivalents
 - [x] T043 [US3] Bulk replace Fundrbolt → Fundrbolt in all markdown files in `/docs/` directory
 - [x] T044 [US3] Update all README.md files (root and subdirectories) with Fundrbolt branding

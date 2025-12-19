@@ -238,7 +238,7 @@ AZURE_STORAGE_CONTAINER_NAME=npo-assets
 
 # Email Service
 SENDGRID_API_KEY=your_api_key
-FROM_EMAIL=noreply@fundrbolt.app
+FROM_EMAIL=noreply@fundrbolt.com
 
 # Application Settings
 NPO_LOGO_MAX_SIZE=5242880  # 5MB
@@ -422,6 +422,6 @@ After successful implementation:
 
 ## Support Contacts
 
-- **Technical Issues**: dev-team@fundrbolt.app
-- **Business Requirements**: product@fundrbolt.app
-- **Security Concerns**: security@fundrbolt.app
+- **Technical Issues**: dev-team@fundrbolt.com
+- **Business Requirements**: product@fundrbolt.com
+- **Security Concerns**: security@fundrbolt.com

@@ -16,7 +16,7 @@ export const sidebarData: SidebarData = {
   },
   teams: [
     {
-      name: 'Augeo Platform',
+      name: 'Fundrbolt Platform',
       logo: Logo,
       plan: 'Admin Portal',
     },

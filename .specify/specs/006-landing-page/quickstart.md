@@ -145,7 +145,7 @@ class ContactService:
         """Send email to platform team"""
         try:
             await self.email_service.send_contact_notification(
-                to="ops@fundrbolt.app",
+                to="ops@fundrbolt.com",
                 sender_name=submission.sender_name,
                 sender_email=submission.sender_email,
                 subject=submission.subject,

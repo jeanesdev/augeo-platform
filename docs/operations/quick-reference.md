@@ -123,8 +123,8 @@ make deploy-backend ENV=production TAG=v1.2.0
 make deploy-frontend ENV=production TAG=v1.2.0
 
 # 6. Verify deployment
-curl https://api.fundrbolt.app/health
-curl https://admin.fundrbolt.app
+curl https://api.fundrbolt.com/health
+curl https://admin.fundrbolt.com
 ```
 
 ### Backend Only Deployment
@@ -245,13 +245,13 @@ az monitor app-insights query \
 
 ```bash
 # Backend health
-curl https://api.fundrbolt.app/health
+curl https://api.fundrbolt.com/health
 
 # Detailed health (includes database, Redis, email)
-curl https://api.fundrbolt.app/health/detailed
+curl https://api.fundrbolt.com/health/detailed
 
 # Frontend health
-curl https://admin.fundrbolt.app
+curl https://admin.fundrbolt.com
 
 # All services health
 make health-check
@@ -412,7 +412,7 @@ az keyvault secret set \
 
 ```bash
 # 1. Check health endpoint
-curl -I https://api.fundrbolt.app/health
+curl -I https://api.fundrbolt.com/health
 
 # 2. Check App Service status
 az webapp show \
@@ -550,9 +550,9 @@ make scale-down ENV=staging
 
 ## Emergency Contacts
 
-- **On-call Engineer**: ops@fundrbolt.app
-- **DevOps Team**: devops@fundrbolt.app
-- **Platform Team**: engineering@fundrbolt.app
+- **On-call Engineer**: ops@fundrbolt.com
+- **DevOps Team**: devops@fundrbolt.com
+- **Platform Team**: engineering@fundrbolt.com
 
 ## Related Documentation
 

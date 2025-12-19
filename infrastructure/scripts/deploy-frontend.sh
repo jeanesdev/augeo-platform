@@ -31,7 +31,7 @@ case $ENVIRONMENT in
         API_URL="https://fundrbolt-staging-api.azurewebsites.net"
         ;;
     production)
-        API_URL="https://api.fundrbolt.app"
+        API_URL="https://api.fundrbolt.com"
         ;;
 esac
 

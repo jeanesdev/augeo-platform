@@ -30,7 +30,7 @@ This document captures any changes to data entities, database schemas, and confi
 |-------|---------|---------|-------|
 | `PROJECT_NAME` | `"Fundrbolt Platform"` | `"Fundrbolt Platform"` | Used in OpenAPI docs and email templates |
 | `PROJECT_DESCRIPTION` | `"Fundrbolt Fundraising..."` | `"Fundrbolt Fundraising..."` | OpenAPI, API responses |
-| `CONTACT_EMAIL` | `support@fundrbolt.app` | `support@fundrbolt.app` | Support contact in API docs |
+| `CONTACT_EMAIL` | `support@fundrbolt.com` | `support@fundrbolt.com` | Support contact in API docs |
 | `APP_NAME` | (if exists) | Updated to `"Fundrbolt"` | Used in logging, notifications |
 
 **Handling**: Direct string replacement in config file; no migration needed.
@@ -153,7 +153,7 @@ These entities remain structurally unchanged; only human-readable metadata updat
 
 **Updated**:
 - `PROJECT_NAME=Fundrbolt`
-- `SUPPORT_EMAIL=support@fundrbolt.app`
+- `SUPPORT_EMAIL=support@fundrbolt.com`
 - `APP_DESCRIPTION=Fundrbolt fundraising platform...`
 
 **Handling**: Update `.env.example` and deployment configs.

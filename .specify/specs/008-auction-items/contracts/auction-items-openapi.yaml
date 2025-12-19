@@ -16,19 +16,19 @@ info:
   version: 1.0.0
   contact:
     name: Fundrbolt Platform Team
-    email: dev@fundrbolt.app
+    email: dev@fundrbolt.com
   license:
     name: Proprietary
-    url: https://fundrbolt.app/terms
+    url: https://fundrbolt.com/terms
 
 servers:
   - url: http://localhost:8000/api/v1
     description: Local development
-  - url: https://api-dev.fundrbolt.app/api/v1
+  - url: https://api-dev.fundrbolt.com/api/v1
     description: Development environment
-  - url: https://api-staging.fundrbolt.app/api/v1
+  - url: https://api-staging.fundrbolt.com/api/v1
     description: Staging environment
-  - url: https://api.fundrbolt.app/api/v1
+  - url: https://api.fundrbolt.com/api/v1
     description: Production
 
 tags:

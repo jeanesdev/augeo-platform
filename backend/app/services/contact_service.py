@@ -147,7 +147,7 @@ class ContactService:
             Exception: If email sending fails
         """
         # Email to platform team (fallback to default)
-        recipient_email = "support@fundrbolt.app"
+        recipient_email = "support@fundrbolt.com"
 
         subject = f"New Contact Form Submission: {submission.subject}"
 

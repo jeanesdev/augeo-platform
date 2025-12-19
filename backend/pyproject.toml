@@ -2,7 +2,7 @@
 name = "fundrbolt-backend"
 version = "0.1.0"
 description = "Fundrbolt Platform - Backend API"
-authors = ["Fundrbolt Team <dev@fundrbolt.app>"]
+authors = ["Fundrbolt Team <dev@fundrbolt.com>"]
 readme = "README.md"
 packages = [{include = "app"}]
 

@@ -1,7 +1,7 @@
 # Email Setup Quick Reference
 
 ## Prerequisites
-✅ DNS registration for fundrbolt.app is complete
+✅ DNS registration for fundrbolt.com is complete
 ✅ Azure subscription with permissions to deploy resources
 
 ## Step-by-Step Email Setup
@@ -59,7 +59,7 @@ If not verified yet, wait 10 more minutes and re-run.
 ./infrastructure/scripts/test-email.sh your-email@example.com
 
 # Or specify a different sender address
-./infrastructure/scripts/test-email.sh your-email@example.com support@fundrbolt.app
+./infrastructure/scripts/test-email.sh your-email@example.com support@fundrbolt.com
 ```
 
 **Check**: Your inbox (and spam folder) for the test email
@@ -102,9 +102,9 @@ az webapp config appsettings set \
   --settings \
     EMAIL_PROVIDER="azure_communication_services" \
     ACS_CONNECTION_STRING="@Microsoft.KeyVault(SecretUri=https://fundrbolt-production-kv.vault.azure.net/secrets/acs-connection-string/)" \
-    EMAIL_FROM="noreply@fundrbolt.app" \
-    EMAIL_SUPPORT="support@fundrbolt.app" \
-    EMAIL_BILLING="billing@fundrbolt.app"
+    EMAIL_FROM="noreply@fundrbolt.com" \
+    EMAIL_SUPPORT="support@fundrbolt.com" \
+    EMAIL_BILLING="billing@fundrbolt.com"
 
 # Restart App Service
 az webapp restart \
@@ -115,10 +115,10 @@ az webapp restart \
 ## Available Sender Addresses
 
 After setup, you can send emails from:
-- `noreply@fundrbolt.app` - System notifications, automated emails
-- `support@fundrbolt.app` - Support inquiries, help tickets
-- `billing@fundrbolt.app` - Invoices, payment receipts
-- `notifications@fundrbolt.app` - User notifications, alerts
+- `noreply@fundrbolt.com` - System notifications, automated emails
+- `support@fundrbolt.com` - Support inquiries, help tickets
+- `billing@fundrbolt.com` - Invoices, payment receipts
+- `notifications@fundrbolt.com` - User notifications, alerts
 
 ## Verification Checklist
 
@@ -137,9 +137,9 @@ After setup, you can send emails from:
 ### Domain not verifying
 ```bash
 # Check DNS propagation
-dig TXT fundrbolt.app +short
-dig TXT _dmarc.fundrbolt.app +short
-dig CNAME selector1-azurecomm-prod-net._domainkey.fundrbolt.app +short
+dig TXT fundrbolt.com +short
+dig TXT _dmarc.fundrbolt.com +short
+dig CNAME selector1-azurecomm-prod-net._domainkey.fundrbolt.com +short
 
 # Wait longer (up to 48 hours for full global propagation)
 # Re-run verification script
@@ -197,5 +197,5 @@ After email setup:
 | Verify domain | `./infrastructure/scripts/verify-email-domain.sh` |
 | Send test email | `./infrastructure/scripts/test-email.sh <email>` |
 | Test auth score | `./infrastructure/scripts/test-email-score.sh` |
-| Check DNS | `dig TXT fundrbolt.app +short` |
+| Check DNS | `dig TXT fundrbolt.com +short` |
 | Get connection string | `az communication list-key --name fundrbolt-production-acs --resource-group fundrbolt-production-rg` |

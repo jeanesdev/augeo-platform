@@ -126,7 +126,7 @@ git commit -m "message"
   - ✅ Deployment scripts: deploy-backend.sh, deploy-frontend.sh, run-migrations.sh, rollback.sh
   - ✅ Blue-green deployment for production with automatic rollback
   - ✅ CI/CD documentation and rollback procedures
-  - ✅ DNS Zone module with Azure DNS for custom domain fundrbolt.app
+  - ✅ DNS Zone module with Azure DNS for custom domain fundrbolt.com
   - ✅ Communication Services module for email with SPF/DKIM/DMARC
   - ✅ DNS and email configuration documentation
   - ✅ Secrets management scripts: configure-secrets.sh, update-app-settings.sh
@@ -137,7 +137,7 @@ git commit -m "message"
   - ✅ DR drills: Quarterly procedures with Q1-Q4 schedules
   - ✅ Application Insights: Sampling (10% prod, 100% dev/staging), daily cap (5GB prod, 1GB staging)
   - ✅ Alert rules: High error rate (>5%), high latency (P95 >500ms), availability failures
-  - ✅ Action groups: Email notifications (ops@fundrbolt.app, engineering@fundrbolt.app)
+  - ✅ Action groups: Email notifications (ops@fundrbolt.com, engineering@fundrbolt.com)
   - ✅ Availability tests: Backend /health and frontend homepage (5-min intervals, 3 locations)
   - ✅ Dashboards: System health (10 tiles), infrastructure health (4 sections) with KQL queries
   - ✅ Monitoring guide: 551-line comprehensive guide with alert procedures and troubleshooting

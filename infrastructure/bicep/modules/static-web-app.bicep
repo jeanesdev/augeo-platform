@@ -1,4 +1,4 @@
-// Static Web App module for Augeo Platform
+// Static Web App module for Fundrbolt Platform
 
 @description('Name of the Static Web App')
 param staticWebAppName string
@@ -38,7 +38,7 @@ resource staticWebApp 'Microsoft.Web/staticSites@2022-09-01' = {
     repositoryUrl: repositoryUrl
     branch: branch
     buildProperties: {
-      appLocation: '/frontend/augeo-admin'
+      appLocation: '/frontend/fundrbolt-admin'
       apiLocation: '' // API hosted separately in App Service
       outputLocation: 'dist'
     }

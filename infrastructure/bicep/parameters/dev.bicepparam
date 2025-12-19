@@ -1,4 +1,4 @@
-// Development environment parameters for Augeo Platform
+// Development environment parameters for Fundrbolt Platform
 using './main.bicep'
 
 param environment = 'dev'
@@ -20,5 +20,5 @@ param tags = {
 // Cost management
 param monthlyBudget = 100 // $100/month for dev environment
 param alertEmailAddresses = [
-  'devops@fundrbolt.app'
+  'devops@fundrbolt.com'
 ]

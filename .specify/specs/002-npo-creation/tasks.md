@@ -535,7 +535,7 @@ description: "Task list for NPO Creation and Management feature implementation"
   - Full member teams with realistic roles (Admin, Co-Admin, Staff)
   - Branding configurations (colors, logos, social media)
   - Applications with review history
-  - SuperAdmin user (<superadmin@fundrbolt.app>)
+  - SuperAdmin user (<superadmin@fundrbolt.com>)
 - **Usage**: `poetry run python seed_npo_demo_data.py`
 - **Password**: demo123 for all demo users
 - **Features**:

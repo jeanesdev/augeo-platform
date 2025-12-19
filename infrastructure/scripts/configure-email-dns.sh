@@ -6,10 +6,10 @@ set -euo pipefail
 
 # Accept environment parameter (default: production)
 ENVIRONMENT="${1:-production}"
-DOMAIN="fundrbolt.app"
+DOMAIN="fundrbolt.com"
 RESOURCE_GROUP="fundrbolt-${ENVIRONMENT}-rg"
 EMAIL_SERVICE="fundrbolt-${ENVIRONMENT}-email"
-ZONE_NAME="fundrbolt.app"
+ZONE_NAME="fundrbolt.com"
 
 echo "🔍 Retrieving email configuration from Azure Communication Services..."
 

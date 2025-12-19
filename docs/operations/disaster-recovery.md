@@ -198,7 +198,7 @@ az webapp start \
 
 ```bash
 # Check health endpoint
-curl https://api.fundrbolt.app/health/detailed
+curl https://api.fundrbolt.com/health/detailed
 
 # Monitor Application Insights for errors
 # Check user login functionality
@@ -324,14 +324,14 @@ az postgres flexible-server geo-restore \
 # Update A record to point to new region
 az network dns record-set a update \
     --resource-group "fundrbolt-production-rg" \
-    --zone-name "fundrbolt.app" \
+    --zone-name "fundrbolt.com" \
     --name "api" \
     --set aRecords[0].ipv4Address="<new-app-service-ip>"
 
 # Update CNAME for Static Web App
 az network dns record-set cname update \
     --resource-group "fundrbolt-production-rg" \
-    --zone-name "fundrbolt.app" \
+    --zone-name "fundrbolt.com" \
     --name "admin" \
     --cname "<new-static-web-app-url>"
 ```
@@ -340,12 +340,12 @@ az network dns record-set cname update \
 
 ```bash
 # Check DNS propagation
-nslookup api.fundrbolt.app
-nslookup admin.fundrbolt.app
+nslookup api.fundrbolt.com
+nslookup admin.fundrbolt.com
 
 # Test endpoints
-curl https://api.fundrbolt.app/health
-curl https://admin.fundrbolt.app
+curl https://api.fundrbolt.com/health
+curl https://admin.fundrbolt.com
 ```
 
 **Expected RTO**: 3-4 hours (full regional failover)

@@ -247,7 +247,7 @@ curl http://localhost:8000/api/v1/events/public/spring-gala-2025 | jq
   "name": "Spring Gala 2025",
   "event_datetime": "2025-04-15T18:00:00-05:00",
   "primary_color": "#1E40AF",
-  "logo_url": "https://storage.fundrbolt.app/events/logos/spring-gala.png",
+  "logo_url": "https://storage.fundrbolt.com/events/logos/spring-gala.png",
   "npo_name": "Children's Foundation",
   "registration_status": "not_registered",
   "confirmed_attendees": 0

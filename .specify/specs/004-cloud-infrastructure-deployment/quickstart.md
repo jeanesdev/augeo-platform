@@ -152,7 +152,7 @@ Option 1: Use Azure App Service Domain
 ```bash
 az appservice domain create \
   --resource-group fundrbolt-prod-rg \
-  --hostname fundrbolt.app \
+  --hostname fundrbolt.com \
   --contact-info @contact-info.json \
   --accept-terms
 ```
@@ -168,12 +168,12 @@ Option 2: Use external registrar (Namecheap, GoDaddy, etc.)
 # Create DNS zone (if not created by Bicep)
 az network dns zone create \
   --resource-group fundrbolt-prod-rg \
-  --name fundrbolt.app
+  --name fundrbolt.com
 
 # Get nameservers
 az network dns zone show \
   --resource-group fundrbolt-prod-rg \
-  --name fundrbolt.app \
+  --name fundrbolt.com \
   --query "nameServers" --output tsv
 
 # Update domain registrar nameservers with the values above
@@ -186,13 +186,13 @@ az network dns zone show \
 az webapp config hostname add \
   --webapp-name fundrbolt-prod-api \
   --resource-group fundrbolt-prod-rg \
-  --hostname api.fundrbolt.app
+  --hostname api.fundrbolt.com
 
 # Add custom domain to Static Web App (frontend)
 az staticwebapp hostname set \
   --name fundrbolt-prod-admin \
   --resource-group fundrbolt-prod-rg \
-  --hostname admin.fundrbolt.app
+  --hostname admin.fundrbolt.com
 
 # SSL certificates will auto-provision within 10-15 minutes
 ```
@@ -203,21 +203,21 @@ az staticwebapp hostname set \
 # Get domain verification token
 VERIFICATION_TOKEN=$(az communication email domain show \
   --email-service-name fundrbolt-prod-acs \
-  --domain-name fundrbolt.app \
+  --domain-name fundrbolt.com \
   --resource-group fundrbolt-prod-rg \
   --query "verificationRecords.domain.value" --output tsv)
 
 # Add TXT record for domain verification
 az network dns record-set txt add-record \
   --resource-group fundrbolt-prod-rg \
-  --zone-name fundrbolt.app \
+  --zone-name fundrbolt.com \
   --record-set-name @ \
   --value ${VERIFICATION_TOKEN}
 
 # Verify domain (wait 5-10 minutes for DNS propagation)
 az communication email domain show \
   --email-service-name fundrbolt-prod-acs \
-  --domain-name fundrbolt.app \
+  --domain-name fundrbolt.com \
   --resource-group fundrbolt-prod-rg \
   --query "domainManagement"
 # Expected: "AzureManaged" or "CustomerManaged"
@@ -308,7 +308,7 @@ print(inspector.get_table_names())
 ```bash
 # Create superadmin user
 poetry run python scripts/create_superadmin.py \
-  --email admin@fundrbolt.app \
+  --email admin@fundrbolt.com \
   --password <secure-password> \
   --name "Admin User"
 
@@ -328,7 +328,7 @@ az monitor action-group create \
   --short-name fundrbolt-alert \
   --email-receiver \
     name=ops-team \
-    email-address=ops@fundrbolt.app
+    email-address=ops@fundrbolt.com
 
 # Create metric alert for high error rate
 az monitor metrics alert create \
@@ -361,21 +361,21 @@ Access dashboards:
 
 ```bash
 # Check backend health
-curl https://api.fundrbolt.app/health
+curl https://api.fundrbolt.com/health
 # Expected: {"status": "healthy", "timestamp": "..."}
 
 # Check detailed health
-curl https://api.fundrbolt.app/health/detailed
+curl https://api.fundrbolt.com/health/detailed
 # Expected: {"status": "healthy", "database": "connected", "redis": "connected", ...}
 
 # Check frontend
-curl https://admin.fundrbolt.app
+curl https://admin.fundrbolt.com
 # Expected: HTML page with React app
 ```
 
 ### 7.2 Test Application Flow
 
-1. Open `https://admin.fundrbolt.app` in browser
+1. Open `https://admin.fundrbolt.com` in browser
 2. Register new user account
 3. Check email delivery (verify inbox)
 4. Log in to admin panel
@@ -435,13 +435,13 @@ az webapp log tail --name fundrbolt-${ENVIRONMENT}-api --resource-group fundrbol
 # Verify domain verification status
 az communication email domain show \
   --email-service-name fundrbolt-${ENVIRONMENT}-acs \
-  --domain-name fundrbolt.app \
+  --domain-name fundrbolt.com \
   --resource-group fundrbolt-${ENVIRONMENT}-rg
 
 # Check DNS records
-dig TXT fundrbolt.app
-dig TXT _dmarc.fundrbolt.app
-dig CNAME selector1._domainkey.fundrbolt.app
+dig TXT fundrbolt.com
+dig TXT _dmarc.fundrbolt.com
+dig CNAME selector1._domainkey.fundrbolt.com
 ```
 
 ### Database Connection Issues

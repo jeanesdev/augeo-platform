@@ -6,7 +6,7 @@ set -euo pipefail
 
 # Accept environment parameter (default: production)
 ENVIRONMENT="${1:-production}"
-DOMAIN="fundrbolt.app"
+DOMAIN="fundrbolt.com"
 RESOURCE_GROUP="fundrbolt-${ENVIRONMENT}-rg"
 EMAIL_SERVICE="fundrbolt-${ENVIRONMENT}-email"
 

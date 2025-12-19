@@ -1,4 +1,4 @@
-// Production environment parameters for Augeo Platform
+// Production environment parameters for Fundrbolt Platform
 using './main.bicep'
 
 param environment = 'production'
@@ -10,13 +10,13 @@ param appName = 'fundrbolt'
 param postgresAdminPassword = ''
 
 // Custom domain configuration (Phase 5)
-param customDomain = 'fundrbolt.app'
+param customDomain = 'fundrbolt.com'
 param enableCustomDomain = true
 
 // Alert notification emails (Phase 8)
 param alertEmailAddresses = [
-  'ops@fundrbolt.app'
-  'engineering@fundrbolt.app'
+  'ops@fundrbolt.com'
+  'engineering@fundrbolt.com'
 ]
 
 param tags = {

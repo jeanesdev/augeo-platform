@@ -407,7 +407,7 @@ Based on plan.md: Web application structure with `backend/` and `frontend/` dire
 - Documentation: quickstart.md already includes super admin setup section
 - Testing successful:
   - ✅ Migration applied: `alembic upgrade head`
-  - ✅ User created in database: <admin@fundrbolt.app> with super_admin role
+  - ✅ User created in database: <admin@fundrbolt.com> with super_admin role
   - ✅ Login successful: POST /auth/login returns valid tokens
   - ✅ User verified and active: email_verified=True, is_active=True
 

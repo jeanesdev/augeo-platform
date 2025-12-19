@@ -1,4 +1,4 @@
-// Staging environment parameters for Augeo Platform
+// Staging environment parameters for Fundrbolt Platform
 using './main.bicep'
 
 param environment = 'staging'
@@ -20,6 +20,6 @@ param tags = {
 // Cost management
 param monthlyBudget = 300 // $300/month for staging environment
 param alertEmailAddresses = [
-  'ops@fundrbolt.app'
-  'devops@fundrbolt.app'
+  'ops@fundrbolt.com'
+  'devops@fundrbolt.com'
 ]

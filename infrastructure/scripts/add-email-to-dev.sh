@@ -9,7 +9,7 @@ RESOURCE_GROUP="fundrbolt-${ENVIRONMENT}-rg"
 LOCATION="eastus"
 ACS_NAME="fundrbolt-${ENVIRONMENT}-acs"
 EMAIL_SERVICE_NAME="fundrbolt-${ENVIRONMENT}-email"
-DOMAIN="fundrbolt.app"
+DOMAIN="fundrbolt.com"
 
 echo "📧 Adding Azure Communication Services to Dev Environment"
 echo "=========================================================="

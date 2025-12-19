@@ -207,7 +207,7 @@ print('Password: Check seed_test_users.py or reset password')
 ```
 
 **Default Test User** (from seed_test_users.py):
-- Email: `superadmin@fundrbolt.app`
+- Email: `superadmin@fundrbolt.com`
 - Password: `SuperAdmin123!`
 
 ---
@@ -236,7 +236,7 @@ print('Password: Check seed_test_users.py or reset password')
 TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "superadmin@fundrbolt.app",
+    "email": "superadmin@fundrbolt.com",
     "password": "SuperAdmin123!"
   }' | python3 -m json.tool | grep '"access_token"' | cut -d'"' -f4)
 

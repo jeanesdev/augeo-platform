@@ -5,14 +5,14 @@ info:
   version: 1.0.0
   contact:
     name: Fundrbolt Platform
-    email: engineering@fundrbolt.app
+    email: engineering@fundrbolt.com
   license:
     name: Proprietary
 
 servers:
-  - url: https://api.fundrbolt.app/api/v1
+  - url: https://api.fundrbolt.com/api/v1
     description: Production
-  - url: https://api.staging.fundrbolt.app/api/v1
+  - url: https://api.staging.fundrbolt.com/api/v1
     description: Staging
   - url: http://localhost:8000/api/v1
     description: Local Development

@@ -51,9 +51,9 @@ Budgets are automatically deployed via Bicep templates with three alert types:
 
 ### Alert Recipients
 
-- **Dev**: devops@fundrbolt.app
-- **Staging**: ops@fundrbolt.app, devops@fundrbolt.app
-- **Production**: ops@fundrbolt.app, engineering@fundrbolt.app
+- **Dev**: devops@fundrbolt.com
+- **Staging**: ops@fundrbolt.com, devops@fundrbolt.com
+- **Production**: ops@fundrbolt.com, engineering@fundrbolt.com
 
 ### Managing Budgets
 

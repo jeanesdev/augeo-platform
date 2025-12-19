@@ -137,7 +137,7 @@ This PR implements a comprehensive seating assignment and bidder number manageme
 
 **Updated Files**:
 - `backend/README.md` - Added seating API endpoints section
-- `frontend/augeo-admin/README.md` - Added seating components section
+- `frontend/fundrbolt-admin/README.md` - Added seating components section
 - `.github/copilot-instructions.md` - Updated with Phase 12 info
 
 **New Documentation**:
@@ -217,7 +217,7 @@ poetry run python seed_seating_data.py
 poetry run uvicorn app.main:app --reload
 
 # Start frontend
-cd ../../frontend/augeo-admin
+cd ../../frontend/fundrbolt-admin
 pnpm dev
 ```
 
