@@ -91,7 +91,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: backend/.venv
-          key: venv-v2-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
+          key: venv-v3-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
@@ -99,6 +99,11 @@ jobs:
 
       - name: Install project
         run: poetry install --no-interaction --with dev
+
+      - name: Verify tooling present
+        run: |
+          poetry run which mypy
+          poetry run which pytest
 
       - name: Run Ruff linter
         run: poetry run ruff check .
