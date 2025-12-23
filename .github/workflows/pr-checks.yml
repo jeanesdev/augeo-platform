@@ -93,10 +93,19 @@ jobs:
       - name: Install project
         run: poetry install --no-interaction --with dev
 
-      - name: Verify tooling present
+      - name: Debug Poetry setup
         run: |
-          poetry run which mypy
-          poetry run which pytest
+          echo "=== Poetry version ==="
+          poetry --version
+          echo "=== Poetry config ==="
+          poetry config --list
+          echo "=== Checking venv ==="
+          poetry env info
+          echo "=== Listing installed packages ==="
+          poetry run pip list | grep -E 'mypy|pytest|ruff'
+          echo "=== Checking PATH ==="
+          poetry run which python
+          poetry run which pip
 
       - name: Run Ruff linter
         run: poetry run ruff check .
