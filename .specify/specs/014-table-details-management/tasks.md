@@ -69,12 +69,12 @@ description: "Implementation tasks for Table Details Management feature"
 
 ### Implementation for User Story 1
 
-- [ ] T021 [US1] Implement update_table_details method in SeatingService (handles capacity updates)
-- [ ] T022 [US1] Implement PATCH /admin/events/{event_id}/tables/{table_number} endpoint in backend/app/api/v1/endpoints/admin/seating.py
-- [ ] T023 [US1] Add capacity validation to assign_guest_to_table in SeatingService
-- [ ] T024 [US1] Modify PATCH /admin/events/{event_id}/guests/{guest_id}/seating endpoint to check capacity before assignment
-- [ ] T025 [US1] Add 409 Conflict response for over-capacity in admin seating endpoint
-- [ ] T026 [US1] Implement GET /admin/events/{event_id}/tables endpoint for seating page in backend/app/api/v1/endpoints/admin/seating.py
+- [x] T021 [US1] Implement update_table_details method in SeatingService (handles capacity updates)
+- [x] T022 [US1] Implement PATCH /admin/events/{event_id}/tables/{table_number} endpoint in backend/app/api/v1/endpoints/admin/seating.py
+- [x] T023 [US1] Add capacity validation to assign_guest_to_table in SeatingService
+- [x] T024 [US1] Modify PATCH /admin/events/{event_id}/guests/{guest_id}/seating endpoint to check capacity before assignment
+- [x] T025 [US1] Add 409 Conflict response for over-capacity in admin seating endpoint
+- [x] T026 [US1] Implement GET /admin/events/{event_id}/tables endpoint for seating page in backend/app/api/v1/endpoints/admin/seating.py
 - [ ] T027 [P] [US1] Create TableDetailsPanel component in frontend/fundrbolt-admin/src/components/admin/seating/TableDetailsPanel.tsx
 - [ ] T028 [P] [US1] Create TableCapacityTooltip component in frontend/fundrbolt-admin/src/components/admin/seating/TableCapacityTooltip.tsx
 - [ ] T029 [US1] Add capacity input field to TableDetailsPanel with 1-20 validation
