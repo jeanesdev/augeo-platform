@@ -21,11 +21,11 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { useToast } from '@/hooks/use-toast'
 import type { GuestSeatingInfo } from '@/lib/api/admin-seating'
 import { updateTableDetails, type EventTableDetails } from '@/services/seating-service'
 import { Crown, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 interface TableDetailsPanelProps {
   eventId: string
@@ -44,7 +44,6 @@ export function TableDetailsPanel({
   onClose,
   onUpdate,
 }: TableDetailsPanelProps) {
-  const { toast } = useToast()
   const [customCapacity, setCustomCapacity] = useState<string>('')
   const [tableName, setTableName] = useState<string>('')
   const [captainId, setCaptainId] = useState<string>('')
@@ -73,11 +72,7 @@ export function TableDetailsPanel({
 
       // Validate capacity range (1-20)
       if (capacityValue !== null && (capacityValue < 1 || capacityValue > 20)) {
-        toast({
-          title: 'Invalid Capacity',
-          description: 'Capacity must be between 1 and 20',
-          variant: 'destructive',
-        })
+        toast.error('Capacity must be between 1 and 20')
         setIsSubmitting(false)
         return
       }
@@ -93,10 +88,7 @@ export function TableDetailsPanel({
 
       onUpdate(updatedTable)
 
-      toast({
-        title: 'Table Updated',
-        description: `Table ${table.table_number} customization saved`,
-      })
+      toast.success(`Table ${table.table_number} customization saved`)
 
       onClose()
     } catch (error) {
@@ -111,11 +103,7 @@ export function TableDetailsPanel({
         errorMessage = err.response.data.detail
       }
 
-      toast({
-        title: 'Update Failed',
-        description: errorMessage,
-        variant: 'destructive',
-      })
+      toast.error(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
