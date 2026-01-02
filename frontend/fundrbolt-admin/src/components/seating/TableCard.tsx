@@ -60,7 +60,7 @@ export function TableCard({
       className={`
         transition-all
         ${isOver ? 'ring-2 ring-primary bg-primary/5' : ''}
-        ${isFull ? 'border-destructive/50 bg-destructive/5' : ''}
+        ${isFull ? 'border-green-500/50 bg-green-500/5' : ''}
       `}
     >
       <CardHeader className="pb-3">
@@ -69,8 +69,8 @@ export function TableCard({
           <div className="flex items-center gap-2">
             {/* Occupancy Badge */}
             <Badge
-              variant={isFull ? 'destructive' : 'secondary'}
-              className="font-mono"
+              variant={isFull ? 'default' : 'secondary'}
+              className={`font-mono ${isFull ? 'bg-green-600 hover:bg-green-700' : ''}`}
             >
               {currentOccupancy}/{effectiveCapacity}
             </Badge>
