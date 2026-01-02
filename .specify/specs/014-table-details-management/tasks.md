@@ -98,16 +98,16 @@ description: "Implementation tasks for Table Details Management feature"
 
 ### Implementation for User Story 2
 
-- [ ] T037 [US2] Add table_name handling to update_table_details method in SeatingService (if not already included)
-- [ ] T038 [US2] Add table_name validation (trim whitespace, reject empty strings) in EventTableUpdate schema validator
-- [ ] T039 [US2] Add table name input field to TableDetailsPanel component (max 50 chars)
-- [ ] T040 [US2] Add clear button to remove table name (set to null) in TableDetailsPanel
-- [ ] T041 [US2] Display table_name in admin seating chart table cards
-- [ ] T042 [US2] Add conditional rendering: show "Table {number}" if no name, "Table {number} - {name}" if named
-- [ ] T043 [US2] Update EventTableResponse to include effective display name in API response
-- [ ] T044 [US2] Handle null table_name gracefully in all frontend components
+- [x] T037 [US2] Add table_name handling to update_table_details method in SeatingService (if not already included)
+- [x] T038 [US2] Add table_name validation (trim whitespace, reject empty strings) in EventTableUpdate schema validator
+- [x] T039 [US2] Add table name input field to TableDetailsPanel component (max 50 chars)
+- [x] T040 [US2] Add clear button to remove table name (set to null) in TableDetailsPanel
+- [x] T041 [US2] Display table_name in admin seating chart table cards
+- [x] T042 [US2] Add conditional rendering: show "Table {number}" if no name, "Table {number} - {name}" if named
+- [x] T043 [US2] Update EventTableResponse to include effective display name in API response
+- [x] T044 [US2] Handle null table_name gracefully in all frontend components
 
-**Checkpoint**: Table naming fully functional - coordinators can name tables and names display correctly
+**Checkpoint**: Table naming fully functional - coordinators can name tables and names display correctly ✅
 
 ---
 
@@ -119,19 +119,19 @@ description: "Implementation tasks for Table Details Management feature"
 
 ### Implementation for User Story 3
 
-- [ ] T045 [US3] Implement set_table_captain method in SeatingService with validation
-- [ ] T046 [US3] Add captain assignment logic: clear previous captain, set new captain, update is_table_captain flags
-- [ ] T047 [US3] Add table_captain_id handling to update_table_details method
-- [ ] T048 [US3] Validate captain is assigned to correct table (table_number match) in SeatingService
-- [ ] T049 [US3] Add automatic cleanup: clear is_table_captain when guest unassigned from table
-- [ ] T050 [US3] Add captain dropdown to TableDetailsPanel (populate with guests at this table)
-- [ ] T051 [US3] Add "Clear Captain" option to dropdown (sets table_captain_id to null)
-- [ ] T052 [US3] Display captain name with crown/badge icon in admin seating chart
-- [ ] T053 [US3] Update GET /admin/events/{event_id}/tables to include captain details in response
-- [ ] T054 [US3] Handle edge case: guest deleted while captain (foreign key SET NULL)
-- [ ] T055 [US3] Handle edge case: captain reassigned to different table (clear old table captain)
+- [x] T045 [US3] Implement set_table_captain method in SeatingService with validation
+- [x] T046 [US3] Add captain assignment logic: clear previous captain, set new captain, update is_table_captain flags
+- [x] T047 [US3] Add table_captain_id handling to update_table_details method
+- [x] T048 [US3] Validate captain is assigned to correct table (table_number match) in SeatingService
+- [x] T049 [US3] Add automatic cleanup: clear is_table_captain when guest unassigned from table
+- [x] T050 [US3] Add captain dropdown to TableDetailsPanel (populate with guests at this table)
+- [x] T051 [US3] Add "Clear Captain" option to dropdown (sets table_captain_id to null)
+- [x] T052 [US3] Display captain name with crown/badge icon in admin seating chart
+- [x] T053 [US3] Update GET /admin/events/{event_id}/tables to include captain details in response
+- [x] T054 [US3] Handle edge case: guest deleted while captain (foreign key SET NULL)
+- [x] T055 [US3] Handle edge case: captain reassigned to different table (clear old table captain)
 
-**Checkpoint**: Table captain designation fully functional - coordinators can assign captains with proper validation
+**Checkpoint**: Table captain designation fully functional - coordinators can assign captains with proper validation ✅
 
 ---
 
@@ -143,11 +143,11 @@ description: "Implementation tasks for Table Details Management feature"
 
 ### Implementation for User Story 4
 
-- [ ] T056 [US4] Create TableAssignment schema in backend/app/schemas/event_table.py for donor API
-- [ ] T057 [US4] Add get_table_assignment_for_guest method to SeatingService
-- [ ] T058 [US4] Modify GET /donor/events/{event_slug} endpoint to include table_assignment field in backend/app/api/v1/endpoints/donor/events.py
-- [ ] T059 [US4] Add conditional logic: return table_assignment only if event.start_datetime <= now
-- [ ] T060 [US4] Include table_number, table_name, captain full_name, you_are_captain boolean in response
+- [x] T056 [US4] Create TableAssignment schema in backend/app/schemas/seating.py for donor API
+- [x] T057 [US4] Add get_table_assignment_for_guest method to SeatingService (implemented in get_donor_seating_info)
+- [x] T058 [US4] Modify GET /donor/events/{event_id}/my-seating endpoint to include table_assignment field
+- [x] T059 [US4] Add conditional logic: return table_assignment only if event.event_datetime <= now
+- [x] T060 [US4] Include table_number, table_name, captain full_name, you_are_captain boolean in response
 - [ ] T061 [P] [US4] Create TableAssignmentCard component in frontend/donor-pwa/src/components/events/TableAssignmentCard.tsx
 - [ ] T062 [P] [US4] Create TableCaptainBadge component in frontend/donor-pwa/src/components/events/TableCaptainBadge.tsx
 - [ ] T063 [US4] Add table assignment display to donor home page near top

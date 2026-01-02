@@ -8,6 +8,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -15,13 +22,15 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { useToast } from '@/hooks/use-toast'
+import type { GuestSeatingInfo } from '@/lib/api/admin-seating'
 import { updateTableDetails, type EventTableDetails } from '@/services/seating-service'
-import { Loader2 } from 'lucide-react'
+import { Crown, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 interface TableDetailsPanelProps {
   eventId: string
   table: EventTableDetails | null
+  guestsAtTable: GuestSeatingInfo[]
   isOpen: boolean
   onClose: () => void
   onUpdate: (updatedTable: EventTableDetails) => void
@@ -30,6 +39,7 @@ interface TableDetailsPanelProps {
 export function TableDetailsPanel({
   eventId,
   table,
+  guestsAtTable,
   isOpen,
   onClose,
   onUpdate,
@@ -37,6 +47,7 @@ export function TableDetailsPanel({
   const { toast } = useToast()
   const [customCapacity, setCustomCapacity] = useState<string>('')
   const [tableName, setTableName] = useState<string>('')
+  const [captainId, setCaptainId] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Reset form when table changes
@@ -44,6 +55,7 @@ export function TableDetailsPanel({
     if (table) {
       setCustomCapacity(table.custom_capacity?.toString() ?? '')
       setTableName(table.table_name ?? '')
+      setCaptainId(table.table_captain?.id ?? '')
     }
   }, [table])
 
@@ -74,6 +86,7 @@ export function TableDetailsPanel({
       const updates = {
         custom_capacity: capacityValue,
         table_name: tableName.trim() === '' ? null : tableName.trim(),
+        table_captain_id: captainId === '' ? null : captainId,
       }
 
       const updatedTable = await updateTableDetails(eventId, table.table_number, updates)
@@ -114,6 +127,10 @@ export function TableDetailsPanel({
 
   const handleClearName = () => {
     setTableName('')
+  }
+
+  const handleClearCaptain = () => {
+    setCaptainId('')
   }
 
   if (!table) return null
@@ -179,6 +196,50 @@ export function TableDetailsPanel({
             </div>
             <p className="text-xs text-muted-foreground">
               Optional friendly name (max 50 characters)
+            </p>
+          </div>
+
+          {/* Table Captain Dropdown (User Story 3) */}
+          <div className="space-y-2">
+            <Label htmlFor="table-captain">Table Captain</Label>
+            <div className="flex gap-2">
+              <Select value={captainId} onValueChange={setCaptainId}>
+                <SelectTrigger id="table-captain" className="flex-1">
+                  <SelectValue placeholder="No captain assigned" />
+                </SelectTrigger>
+                <SelectContent>
+                  {guestsAtTable.length === 0 ? (
+                    <SelectItem value="" disabled>
+                      No guests at this table
+                    </SelectItem>
+                  ) : (
+                    guestsAtTable.map((guest) => (
+                      <SelectItem key={guest.guest_id} value={guest.guest_id}>
+                        <div className="flex items-center gap-2">
+                          <Crown className="h-3 w-3 text-amber-500" />
+                          <span>{guest.name || 'Unknown Guest'}</span>
+                          {guest.bidder_number && (
+                            <span className="text-xs text-muted-foreground">
+                              (#{guest.bidder_number})
+                            </span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClearCaptain}
+                disabled={!captainId}
+              >
+                Clear
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Designate one guest as table captain (optional)
             </p>
           </div>
 

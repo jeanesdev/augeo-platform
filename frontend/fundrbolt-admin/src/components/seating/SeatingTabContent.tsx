@@ -66,7 +66,6 @@ export function SeatingTabContent({
     assignGuestToTable,
     removeGuestFromTable,
     setDragging,
-    updateTableCustomization,
   } = useSeatingStore()
 
   // Initialize sensors for drag-and-drop
@@ -353,6 +352,7 @@ export function SeatingTabContent({
       <TableDetailsPanel
         eventId={eventId}
         table={selectedTableNumber ? tableDetails.get(selectedTableNumber) ?? null : null}
+        guestsAtTable={selectedTableNumber ? tables.get(selectedTableNumber) ?? [] : []}
         isOpen={detailsPanelOpen}
         onClose={() => setDetailsPanelOpen(false)}
         onUpdate={handleTableUpdate}

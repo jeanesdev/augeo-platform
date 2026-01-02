@@ -1,5 +1,6 @@
 """Seating assignment and table management service."""
 
+from datetime import UTC
 from typing import Any
 from uuid import UUID
 
@@ -380,6 +381,7 @@ class SeatingService:
         # Get tablemates if table assigned
         tablemates = []
         table_capacity = {"current": 0, "max": 0}
+        table_assignment = None
         has_table_assignment = my_guest.table_number is not None
 
         if has_table_assignment and my_guest.table_number is not None:
@@ -419,14 +421,62 @@ class SeatingService:
                     )
                 )
 
-            # Get table capacity
+            # Get table capacity using effective capacity (Feature 014)
             current_occupancy = await SeatingService.get_table_occupancy(
+                db, event_id, my_guest.table_number
+            )
+            effective_capacity = await SeatingService.get_effective_capacity(
                 db, event_id, my_guest.table_number
             )
             table_capacity = {
                 "current": current_occupancy,
-                "max": registration.event.max_guests_per_table or 0,
+                "max": effective_capacity,
             }
+
+            # Get table customization details (Feature 014: US4)
+            # Only show after event has started
+            from datetime import datetime
+
+            event_has_started = (
+                registration.event.event_datetime is not None
+                and registration.event.event_datetime <= datetime.now(UTC)
+            )
+
+            if event_has_started:
+                from app.models.event_table import EventTable
+                from app.schemas.seating import TableAssignment
+
+                table_query = select(EventTable).where(
+                    EventTable.event_id == event_id,
+                    EventTable.table_number == my_guest.table_number,
+                )
+                table_result = await db.execute(table_query)
+                event_table = table_result.scalar_one_or_none()
+
+                if event_table:
+                    # Get captain info if exists
+                    captain_name = None
+                    you_are_captain = False
+
+                    if event_table.table_captain_id:
+                        if event_table.table_captain_id == my_guest.id:
+                            you_are_captain = True
+                            captain_name = my_guest.name
+                        else:
+                            captain_query = select(RegistrationGuest).where(
+                                RegistrationGuest.id == event_table.table_captain_id
+                            )
+                            captain_result = await db.execute(captain_query)
+                            captain = captain_result.scalar_one_or_none()
+                            if captain:
+                                captain_name = captain.name
+
+                    table_assignment = TableAssignment(
+                        table_number=my_guest.table_number,
+                        table_name=event_table.table_name,
+                        captain_full_name=captain_name,
+                        you_are_captain=you_are_captain,
+                    )
 
         # Generate message if needed
         message = None
@@ -439,6 +489,7 @@ class SeatingService:
             "my_info": my_info,
             "tablemates": tablemates,
             "table_capacity": table_capacity,
+            "table_assignment": table_assignment,
             "has_table_assignment": has_table_assignment,
             "message": message,
         }

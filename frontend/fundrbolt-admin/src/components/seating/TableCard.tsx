@@ -16,7 +16,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { Check, Settings, Users } from 'lucide-react'
+import { Check, Crown, Settings, Users } from 'lucide-react'
 import { GuestCard } from './GuestCard'
 
 interface TableCardProps {
@@ -110,6 +110,14 @@ export function TableCard({
           <p className="text-xs text-blue-600">
             Custom capacity: {tableDetails.custom_capacity} (default: {maxCapacity})
           </p>
+        )}
+        {tableDetails?.table_captain && (
+          <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-500">
+            <Crown className="h-3.5 w-3.5" />
+            <span className="font-medium">
+              Captain: {tableDetails.table_captain.first_name} {tableDetails.table_captain.last_name}
+            </span>
+          </div>
         )}
       </CardHeader>
 
