@@ -113,6 +113,24 @@ git commit -m "message"
 
 ## Recent Changes
 - 014-table-details-management: Added Python 3.11+ (Backend), TypeScript 5.x (Frontend) + FastAPI 0.120, SQLAlchemy 2.0, Pydantic 2.0, Alembic (Backend); React 18, Vite, TanStack Router, Zustand, Radix UI (Frontend)
+  - ✅ Database migration: Added event_tables table with custom_capacity, table_name, table_captain_id fields
+  - ✅ Updated registration_guests with is_table_captain boolean field
+  - ✅ US1 - Customize Table Capacity: Event coordinators can set custom capacity per table (1-20), system enforces limits
+  - ✅ US2 - Assign Table Names: Coordinators can assign friendly names to tables (max 50 chars, e.g., "VIP Sponsors")
+  - ✅ US3 - Designate Table Captain: One guest per table can be designated as captain with crown badge
+  - ✅ US4 - Donor View: Donors see table assignment (number, name, captain) on home page after event starts
+  - ✅ Admin UI: TableDetailsPanel component for editing table customization in seating chart
+  - ✅ Admin UI: TableCapacityTooltip shows capacity status with visual indicators
+  - ✅ Admin UI: Edit button on table cards opens customization panel
+  - ✅ Donor PWA: TableAssignmentCard displays table details with captain badge
+  - ✅ Donor PWA: TableCaptainBadge shows "You are the table captain" or captain name
+  - ✅ Real-time updates: Donor PWA polls every 10 seconds for seating changes
+  - ✅ API endpoints: PATCH /admin/events/{event_id}/tables/{table_number}, GET /admin/events/{event_id}/tables
+  - ✅ Capacity validation: 409 Conflict when reducing capacity below current occupancy
+  - ✅ Captain validation: Must be assigned to correct table, auto-cleanup on reassignment
+  - ✅ Comprehensive error logging in SeatingService for all table operations
+  - ✅ OpenAPI documentation: Enhanced with examples, user stories, and detailed error responses
+  - ✅ Styling: Full table indicator changed from red to green (user feedback)
 - 013-fundrbolt-to-fundrbolt: Added Python 3.11+ (backend), TypeScript 5.x (frontend), Bash/YAML (infrastructure) + FastAPI, React, Vite, SQLAlchemy, Pydantic, Azure CLI, Bicep, GitHub Actions
 - 012-seating-assignment: Added Python 3.11+ (Backend), TypeScript 5.x (Frontend) + FastAPI 0.120, SQLAlchemy 2.0, Pydantic 2.0, Alembic (Backend); React 18, Vite, TanStack Router, Zustand, Radix UI (Frontend)
   - ✅ Password change page: `/settings/password` route with PasswordChangeForm component

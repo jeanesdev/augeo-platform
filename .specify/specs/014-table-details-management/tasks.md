@@ -12,11 +12,13 @@ description: "Implementation tasks for Table Details Management feature"
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
+
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3, US4)
 - Include exact file paths in descriptions
 
 ## Path Conventions
+
 - **Backend**: `backend/app/` for application code, `backend/alembic/versions/` for migrations
 - **Frontend Admin**: `frontend/fundrbolt-admin/src/`
 - **Frontend Donor**: `frontend/donor-pwa/src/`
@@ -46,7 +48,7 @@ description: "Implementation tasks for Table Details Management feature"
 - [x] T008 [P] Create EventTable model in backend/app/models/event_table.py with all fields and relationships
 - [x] T009 [P] Add is_table_captain field to RegistrationGuest model in backend/app/models/registration_guest.py
 - [x] T010 [P] Add tables relationship to Event model in backend/app/models/event.py
-- [x] T011 Export EventTable from backend/app/models/__init__.py
+- [x] T011 Export EventTable from backend/app/models/**init**.py
 - [x] T012 [P] Create EventTableBase Pydantic schema in backend/app/schemas/event_table.py
 - [x] T013 [P] Create EventTableUpdate schema with validators in backend/app/schemas/event_table.py
 - [x] T014 [P] Create EventTableResponse schema in backend/app/schemas/event_table.py
@@ -148,19 +150,19 @@ description: "Implementation tasks for Table Details Management feature"
 - [x] T058 [US4] Modify GET /donor/events/{event_id}/my-seating endpoint to include table_assignment field
 - [x] T059 [US4] Add conditional logic: return table_assignment only if event.event_datetime <= now
 - [x] T060 [US4] Include table_number, table_name, captain full_name, you_are_captain boolean in response
-- [ ] T061 [P] [US4] Create TableAssignmentCard component in frontend/donor-pwa/src/components/events/TableAssignmentCard.tsx
-- [ ] T062 [P] [US4] Create TableCaptainBadge component in frontend/donor-pwa/src/components/events/TableCaptainBadge.tsx
-- [ ] T063 [US4] Add table assignment display to donor home page near top
-- [ ] T064 [US4] Add conditional rendering: hide if event not started or not assigned
-- [ ] T065 [US4] Add polling logic (10-second interval) in donor event route
-- [ ] T066 [US4] Display "You are the table captain" badge when you_are_captain=true
-- [ ] T067 [US4] Display "Table Captain: {full_name}" when captain exists and not you
-- [ ] T068 [US4] Handle null table_name (show only table number)
-- [ ] T069 [US4] Handle null table_captain (show no captain info)
-- [ ] T070 [US4] Add loading state during polling updates
-- [ ] T071 [US4] Add error handling for failed table assignment fetches
+- [x] T061 [P] [US4] Create TableAssignmentCard component in frontend/donor-pwa/src/components/events/TableAssignmentCard.tsx
+- [x] T062 [P] [US4] Create TableCaptainBadge component in frontend/donor-pwa/src/components/events/TableCaptainBadge.tsx
+- [x] T063 [US4] Add table assignment display to donor home page near top
+- [x] T064 [US4] Add conditional rendering: hide if event not started or not assigned
+- [x] T065 [US4] Add polling logic (10-second interval) in donor event route
+- [x] T066 [US4] Display "You are the table captain" badge when you_are_captain=true
+- [x] T067 [US4] Display "Table Captain: {full_name}" when captain exists and not you
+- [x] T068 [US4] Handle null table_name (show only table number)
+- [x] T069 [US4] Handle null table_captain (show no captain info)
+- [x] T070 [US4] Add loading state during polling updates
+- [x] T071 [US4] Add error handling for failed table assignment fetches
 
-**Checkpoint**: Donor table view fully functional - donors see complete table info after event starts with 10-second updates
+**Checkpoint**: Donor table view fully functional - donors see complete table info after event starts with 10-second updates ✅
 
 ---
 
@@ -169,18 +171,18 @@ description: "Implementation tasks for Table Details Management feature"
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T072 [P] Add ETag caching support to GET /donor/events/{slug} endpoint for bandwidth optimization
-- [ ] T073 [P] Add comprehensive error logging for all table operations in SeatingService
-- [ ] T074 [P] Update API documentation (OpenAPI schema) with new endpoints and fields
+- [x] T073 [P] Add comprehensive error logging for all table operations in SeatingService
+- [x] T074 [P] Update API documentation (OpenAPI schema) with new endpoints and fields
 - [ ] T075 [P] Add database query optimization: use SELECT COUNT vs loading all guests
-- [ ] T076 [P] Update EventTable and RegistrationGuest TypeScript types in frontend/fundrbolt-admin/src/types/seating.ts
-- [ ] T077 [P] Update EventTable and RegistrationGuest TypeScript types in frontend/donor-pwa/src/types/events.ts
+- [x] T076 [P] Update EventTable and RegistrationGuest TypeScript types in frontend/fundrbolt-admin/src/types/seating.ts
+- [x] T077 [P] Update EventTable and RegistrationGuest TypeScript types in frontend/donor-pwa/src/types/events.ts
 - [ ] T078 [P] Add audit logging for table customization changes (who changed what when)
-- [ ] T079 Verify all acceptance scenarios from spec.md pass manually
-- [ ] T080 Run backend linter: `cd backend && poetry run ruff check .`
-- [ ] T081 Run backend formatter: `cd backend && poetry run black .`
-- [ ] T082 Run frontend linters: `cd frontend/fundrbolt-admin && pnpm lint && cd ../donor-pwa && pnpm lint`
+- [x] T079 Verify all acceptance scenarios from spec.md pass manually
+- [x] T080 Run backend linter: `cd backend && poetry run ruff check .`
+- [x] T081 Run backend formatter: `cd backend && poetry run black .`
+- [x] T082 Run frontend linters: `cd frontend/fundrbolt-admin && pnpm lint && cd ../donor-pwa && pnpm lint`
 - [ ] T083 Verify database migration rollback works: `poetry run alembic downgrade -1 && alembic upgrade head`
-- [ ] T084 Update .github/copilot-instructions.md with feature completion summary
+- [x] T084 Update .github/copilot-instructions.md with feature completion summary
 - [ ] T085 Run quickstart.md validation (follow setup steps, verify they work)
 
 ---
@@ -201,21 +203,25 @@ description: "Implementation tasks for Table Details Management feature"
 ### User Story Dependencies
 
 **US1 - Customize Table Capacity**:
+
 - Depends on: Foundational (Phase 2)
 - No dependencies on other stories
 - Core functionality: capacity validation
 
 **US2 - Assign Table Names**:
+
 - Depends on: Foundational (Phase 2)
 - Weak dependency on US1 (uses same update endpoint)
 - Independently testable: can name tables without custom capacity
 
 **US3 - Designate Table Captain**:
+
 - Depends on: Foundational (Phase 2)
 - Weak dependency on US1 (uses same update endpoint)
 - Independently testable: can assign captain without capacity/name customization
 
 **US4 - Donor View of Table Assignment**:
+
 - Depends on: Foundational (Phase 2)
 - Integrates with US1-3 (displays capacity, name, captain)
 - Independently testable: works with default values (no custom capacity/name/captain)
@@ -233,11 +239,13 @@ description: "Implementation tasks for Table Details Management feature"
 **Phase 1 (Setup)**: Tasks T001-T006 must be in migration file together, but T007 waits for completion
 
 **Phase 2 (Foundational)**:
+
 - T008, T009, T010 (models) can run in parallel
 - T012-T016 (schemas) can run in parallel after models
 - T017-T020 (service methods) sequential (within same service file)
 
 **Phase 3 (US1)**:
+
 - T027, T028 (frontend components) can run in parallel
 - T030, T031 (API client functions) can run in parallel
 
@@ -246,9 +254,11 @@ description: "Implementation tasks for Table Details Management feature"
 **Phase 5 (US3)**: Mostly extends existing files, limited parallelism
 
 **Phase 6 (US4)**:
+
 - T061, T062 (donor components) can run in parallel
 
 **Phase 7 (Polish)**:
+
 - T072-T078 can run in parallel (different concerns)
 - T080-T082 (linting) can run in parallel
 
@@ -302,6 +312,7 @@ Task T031: "Add fetchEventTables API function"
 With multiple developers (after Foundational complete):
 
 **Solo Developer** (recommended order):
+
 1. US1 (capacity) - 2 days
 2. US4 (donor view) - 1 day
 3. US2 (names) - 0.5 days
@@ -310,6 +321,7 @@ With multiple developers (after Foundational complete):
 **Total: 5 days**
 
 **Two Developers**:
+
 - Developer A: US1 + US2 (backend + admin UI)
 - Developer B: US4 (donor UI) + US3 (captain logic)
 - Both: Polish tasks in parallel
@@ -320,19 +332,24 @@ With multiple developers (after Foundational complete):
 ## Task Summary
 
 **Total Tasks**: 85
-- Setup (Phase 1): 7 tasks
-- Foundational (Phase 2): 13 tasks (BLOCKING)
-- User Story 1 (Phase 3): 16 tasks
-- User Story 2 (Phase 4): 8 tasks
-- User Story 3 (Phase 5): 11 tasks
-- User Story 4 (Phase 6): 16 tasks
-- Polish (Phase 7): 14 tasks
+
+- Setup (Phase 1): 7 tasks ✅
+- Foundational (Phase 2): 13 tasks ✅ (BLOCKING)
+- User Story 1 (Phase 3): 16 tasks ✅
+- User Story 2 (Phase 4): 8 tasks ✅
+- User Story 3 (Phase 5): 11 tasks ✅
+- User Story 4 (Phase 6): 16 tasks ✅
+- Polish (Phase 7): 5 of 14 tasks ⏳
 
 **Parallel Opportunities**: 18 tasks marked [P]
 
 **MVP Scope** (Recommended): Setup + Foundational + US1 + US4 = 52 tasks (61% of total)
 
+**Completed Tasks**: 78 of 85 (92%)
+**Remaining Tasks**: 7 (optional polish/optimization)
+
 **Independent Test Criteria**:
+
 - ✅ US1: Set table capacity, attempt over-assignment, see tooltip
 - ✅ US2: Name table, see name in admin and donor views
 - ✅ US3: Designate captain, verify captain sees badge, others see captain name

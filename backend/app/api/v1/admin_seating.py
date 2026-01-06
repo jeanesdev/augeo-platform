@@ -1248,6 +1248,116 @@ async def get_all_table_occupancy(
 @router.patch(
     "/{event_id}/tables/{table_number}",
     status_code=status.HTTP_200_OK,
+    summary="Update table customization details",
+    description="""
+    Update individual table customization including capacity, name, and captain assignment.
+
+    **Feature 014: Table Details Management**
+
+    This endpoint allows event coordinators to:
+    - Set custom capacity per table (1-20 guests, overrides event default)
+    - Assign friendly names to tables (e.g., "VIP Sponsors", max 50 chars)
+    - Designate a table captain from assigned guests
+
+    **User Stories:**
+    - US1: Customize Table Capacity - Set table 5 to seat 6 guests instead of default 8
+    - US2: Assign Table Names - Name table 1 as "VIP Sponsors" for easy identification
+    - US3: Designate Table Captain - Assign Jane Doe as captain for table coordination
+
+    **Validation Rules:**
+    - `custom_capacity`: Must be 1-20, cannot exceed event's max_guests_per_table
+    - `table_name`: Max 50 characters, automatically trimmed, empty string becomes null
+    - `table_captain_id`: Must reference a guest currently assigned to this table
+
+    **Capacity Enforcement:**
+    - If new capacity is less than current occupancy, request fails with 409 Conflict
+    - Example: Table has 7 guests, cannot reduce capacity to 6
+
+    **Request Body Examples:**
+    ```json
+    {
+        "custom_capacity": 6,
+        "table_name": "VIP Sponsors",
+        "table_captain_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+    }
+    ```
+
+    Or update just one field:
+    ```json
+    {"table_name": "Executive Board"}
+    ```
+
+    Clear a field by setting to null:
+    ```json
+    {"table_name": null, "table_captain_id": null}
+    ```
+    """,
+    responses={
+        200: {
+            "description": "Table updated successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "event_id": "10adb96b-75b8-4a43-8a44-c593cb853e3c",
+                        "table_number": 5,
+                        "custom_capacity": 6,
+                        "table_name": "VIP Sponsors",
+                        "table_captain_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "table_captain": {
+                            "guest_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                            "full_name": "Jane Doe",
+                            "email": "jane@example.com",
+                        },
+                        "effective_capacity": 6,
+                        "current_occupancy": 5,
+                        "is_full": False,
+                        "created_at": "2026-01-02T10:00:00Z",
+                        "updated_at": "2026-01-05T14:30:00Z",
+                    }
+                }
+            },
+        },
+        400: {
+            "description": "Validation error (invalid UUID, empty name after trim, etc.)",
+            "content": {
+                "application/json": {"example": {"detail": "Invalid table_captain_id format"}}
+            },
+        },
+        403: {
+            "description": "Insufficient permissions or wrong NPO",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "You do not have permission to manage this event"}
+                }
+            },
+        },
+        404: {
+            "description": "Event or table not found, or seating not configured",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Table 5 not found for event (table_count=3)"}
+                }
+            },
+        },
+        409: {
+            "description": "Capacity constraint violated (new capacity < current occupancy)",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Cannot set capacity to 5: table currently has 7 guests assigned"
+                    }
+                }
+            },
+        },
+        422: {
+            "description": "Unprocessable entity (capacity out of range 1-20, name > 50 chars)",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "custom_capacity must be between 1 and 20"}
+                }
+            },
+        },
+    },
 )
 async def update_table_details(
     event_id: UUID,
@@ -1372,6 +1482,118 @@ async def update_table_details(
 @router.get(
     "/{event_id}/tables",
     status_code=status.HTTP_200_OK,
+    summary="Get all event tables with customization details",
+    description="""
+    Retrieve all tables for an event with their customization details and current occupancy.
+
+    **Feature 014: Table Details Management**
+
+    This endpoint provides comprehensive table information for the admin seating page:
+    - Table numbers with custom/default capacity
+    - Friendly table names (if assigned)
+    - Table captain assignments
+    - Current occupancy and availability status
+    - Optionally includes assigned guest details
+
+    **Use Cases:**
+    - Display seating chart in admin UI with all table details
+    - Show capacity indicators (5/8 guests assigned)
+    - Highlight tables with custom names ("VIP Sponsors")
+    - Identify table captains with badges
+
+    **Query Parameters:**
+    - `include_guests=true`: Returns guest details for each table (name, email, bidder number)
+    - `include_guests=false` (default): Returns only table metadata and occupancy counts
+
+    **Response Includes:**
+    - Per-table: number, capacity (effective), name, captain, occupancy, is_full flag
+    - Event-level summary: total tables, total guests, average occupancy
+    - Sorted by table number (1, 2, 3, ...)
+
+    **Example Response:**
+    ```json
+    {
+        "event_id": "10adb96b-75b8-4a43-8a44-c593cb853e3c",
+        "tables": [
+            {
+                "table_number": 1,
+                "custom_capacity": 6,
+                "table_name": "VIP Sponsors",
+                "effective_capacity": 6,
+                "current_occupancy": 6,
+                "is_full": true,
+                "table_captain": {
+                    "guest_id": "a1b2...",
+                    "full_name": "Jane Doe",
+                    "email": "jane@example.com"
+                }
+            },
+            {
+                "table_number": 2,
+                "custom_capacity": null,
+                "table_name": null,
+                "effective_capacity": 8,
+                "current_occupancy": 5,
+                "is_full": false,
+                "table_captain": null
+            }
+        ],
+        "summary": {
+            "total_tables": 20,
+            "total_guests_assigned": 142,
+            "tables_full": 18,
+            "tables_empty": 0,
+            "average_occupancy": 7.1
+        }
+    }
+    ```
+    """,
+    responses={
+        200: {
+            "description": "Tables retrieved successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "event_id": "10adb96b-75b8-4a43-8a44-c593cb853e3c",
+                        "tables": [
+                            {
+                                "table_number": 1,
+                                "custom_capacity": 6,
+                                "table_name": "VIP Sponsors",
+                                "effective_capacity": 6,
+                                "current_occupancy": 6,
+                                "is_full": True,
+                                "table_captain": {
+                                    "guest_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                                    "full_name": "Jane Doe",
+                                    "email": "jane@example.com",
+                                },
+                            }
+                        ],
+                        "summary": {"total_tables": 20, "total_guests_assigned": 142},
+                    }
+                }
+            },
+        },
+        403: {
+            "description": "Insufficient permissions",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Insufficient permissions. Event Coordinator role required."
+                    }
+                }
+            },
+        },
+        404: {
+            "description": "Event not found or seating not configured",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Event does not have seating configured"}
+                }
+            },
+        },
+    },
 )
 async def get_event_tables(
     event_id: UUID,
