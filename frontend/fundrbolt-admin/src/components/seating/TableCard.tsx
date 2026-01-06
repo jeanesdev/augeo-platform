@@ -49,7 +49,7 @@ export function TableCard({
   const currentOccupancy = tableDetails?.current_occupancy ?? guests.length
   const isFull = tableDetails?.is_full ?? currentOccupancy >= effectiveCapacity
   const availableSeats = effectiveCapacity - currentOccupancy
-  const tableName = tableDetails?.table_name
+  const tableName = tableDetails?.table_name ?? null
 
   // Display name: "Table N - Name" or "Table N"
   const displayName = tableName ? `Table ${tableNumber} - ${tableName}` : `Table ${tableNumber}`
